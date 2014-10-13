@@ -58,7 +58,9 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
+
 *.bak*
 
 dist/
 build/
+nbproject/

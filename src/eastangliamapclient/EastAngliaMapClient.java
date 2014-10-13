@@ -16,7 +16,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class EastAngliaMapClient
 {
-    public static int VERSION = 6;
+    public static int VERSION = 7;
     //<editor-fold defaultstate="collapsed" desc="Program variables">
     private static final String host = "shwam3.ddns.net";
     private static final int    port = 6321;
@@ -81,8 +81,6 @@ public class EastAngliaMapClient
                     e.printStackTrace(System.out);
                 }
 
-                SignalMap = new SignalMap();
-
                 try
                 {
                     serverSocket = new Socket(host, port); // Throws the errors
@@ -90,6 +88,8 @@ public class EastAngliaMapClient
 
                     in  = serverSocket.getInputStream();
                     out = serverSocket.getOutputStream();
+
+                    SignalMap = new SignalMap();
 
                     handler = new MessageHandler();
                     handler.sendName(System.getProperty("user.name"));
