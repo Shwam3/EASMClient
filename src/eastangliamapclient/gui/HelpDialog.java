@@ -23,14 +23,16 @@ public class HelpDialog extends JDialog
                     + "<br>"
                     + "<p><b>Train headcodes:</b></p>"
                     + "<p>Left clicking on a green headcode will bring up an RTT search for the train.</p>"
-                    + "<p>Right clicking a berth/train offers a context menu.</p>"
+                    //+ "<p>Right clicking a berth/train offers a context menu.</p>"
                     + "<br>"
                     + "<p><b>Key Bindings:</b></p>"
                     + "<p>'O' - Toggle berth opacity</p>"
                     + "<p>'H' - Opens this dialog</p>"
                     + "<p>'R' - Refreshes all components (try pressing this if the program is stuck)</p>"
                     + "<br>"
-                    + ""
+                    + "<p>Source code available at http://www.github.com/Shwam3/EastAngliaSignalMapClient"
+                    +    "and http://www.github.com/Shwam3/EastAngliaSignalMapServer</p>"
+                    + "<br>"
                     + "<p>Note: This program may regularly disconnect/be unavailable as the server program is run on my local PC which may not always "
                     +    "be on/active. In such cases I highly recommend using opentraintimes.com and/or railcam.org.uk as alternatives.</p>"
                     + "<br>"
@@ -39,7 +41,7 @@ public class HelpDialog extends JDialog
 
         mainText.setOpaque(false);
         mainText.setForeground(EastAngliaMapClient.GREEN);
-        mainText.setVerticalAlignment(SwingConstants.TOP);
+        mainText.setVerticalAlignment(SwingConstants.CENTER);
         mainText.setBounds(10, 10, 524, 280);
 
         addWindowListener(new java.awt.event.WindowAdapter()

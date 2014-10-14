@@ -47,7 +47,7 @@ public class MessageHandler implements Runnable
 
                         case SEND_ALL:
                             printMsgHandler("Received full map", false);
-                            EastAngliaMapClient.CClassMap.putAll((Map) message.get("message"));
+                            EastAngliaMapClient.CClassMap.putAll((HashMap) message.get("message"));
 
                             if (EastAngliaMapClient.SignalMap != null)
                                 EastAngliaMapClient.SignalMap.readFromMap();

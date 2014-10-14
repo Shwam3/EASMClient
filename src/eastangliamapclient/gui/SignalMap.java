@@ -1238,10 +1238,12 @@ public class SignalMap
         new Berth(pnlHarlow, 554,  250, "WG1480", "WG5321");
         new Berth(pnlHarlow, 618,  250, "WG1484");
         new Berth(pnlHarlow, 1402, 250, "WG1490");
-        new Berth(pnlHarlow, 618,  122, "WG5325");
-        new Berth(pnlHarlow, 618,  98,  "WG5327");
+        new Berth(pnlHarlow, 554,  114, "WG5325");
+        new Berth(pnlHarlow, 650,  138, "WG5327");
         new Berth(pnlHarlow, 890,  234, "WG5329");
         new Berth(pnlHarlow, 1594, 274, "WGHMYD");
+        new Berth(pnlHarlow, 650,  98,  "WGSDG1");
+        new Berth(pnlHarlow, 482,  114, "WGSDG2");
 
         new Berth(pnlHarlow, 186,  346, "WG1123");
         new Berth(pnlHarlow, 250,  346, "WG1125");
@@ -1997,6 +1999,7 @@ public class SignalMap
         new Berth(pnlShenfield, 602,  698, "SER708");
         new Berth(pnlShenfield, 1194, 506, "SE5146");
         new Berth(pnlShenfield, 1162, 410, "SE5157");
+        new Berth(pnlShenfield, 1090, 410, "SEWDNS");
         new Berth(pnlShenfield, 1434, 514, "SE5165", "SEDNSN");
         new Berth(pnlShenfield, 1434, 658, "SE5167", "SEUPSN");
         new Berth(pnlShenfield, 1530, 658, "SE5170", "SEUPSS");
@@ -2081,7 +2084,7 @@ public class SignalMap
         new Berth(pnlIlford, 682,  154, "SI0428");
         new Berth(pnlIlford, 1210, 186, "SI0429");
         new Berth(pnlIlford, 682,  218, "SI0430");
-        new Berth(pnlIlford, 1274, 122, "SI0431");
+        new Berth(pnlIlford, 1274, 122, "SI0431", "SI0458");
         new Berth(pnlIlford, 746,  154, "SI0432");
         new Berth(pnlIlford, 1370, 122, "SI0433");
         new Berth(pnlIlford, 1370, 186, "SI0435");
@@ -2103,7 +2106,7 @@ public class SignalMap
         new Berth(pnlIlford, 1274, 218, "SI0462");
         new Berth(pnlIlford, 1354, 82,  "SI0464");
         new Berth(pnlIlford, 1370, 138, "SI0468");
-        new Berth(pnlIlford, 1370, 154, "SI0470", "SI5125");
+        new Berth(pnlIlford, 1370, 154, "SI0470");
         new Berth(pnlIlford, 1370, 218, "SI0472");
         new Berth(pnlIlford, 1578, 154, "SI0474");
         new Berth(pnlIlford, 1578, 218, "SI0476");
@@ -2112,6 +2115,7 @@ public class SignalMap
         new Berth(pnlIlford, 826,  234, "SI5105");
         new Berth(pnlIlford, 858,  218, "SI5107");
         new Berth(pnlIlford, 1514, 106, "SI5114");
+        new Berth(pnlIlford, 1434, 154, "SI5125");
         new Berth(pnlIlford, 226,  250, "SIRCHS");
         new Berth(pnlIlford, 1570, 106, "SIRGP1");
         new Berth(pnlIlford, 1426, 138, "SIRGP2");
@@ -2157,7 +2161,7 @@ public class SignalMap
         new Berth(pnlIlford, 666,  522, "SI0360");
         new Berth(pnlIlford, 1193, 330, "SI0361");
         new Berth(pnlIlford, 826,  426, "SI0362");
-        new Berth(pnlIlford, 1274, 394, "SI0363");
+        new Berth(pnlIlford, 1274, 394, "SI0363", "SI5088");
         new Berth(pnlIlford, 826,  490, "SI0364");
         new Berth(pnlIlford, 1338, 394, "SI0365");
         new Berth(pnlIlford, 1338, 458, "SI0369");
@@ -2187,11 +2191,21 @@ public class SignalMap
         new Berth(pnlIlford, 1658, 426, "SI0404");
         new Berth(pnlIlford, 1722, 426, "SI0406");
         new Berth(pnlIlford, 1722, 490, "SI0408");
+        new Berth(pnlIlford, 629,  557, "SI5078");
+        new Berth(pnlIlford, 629,  577, "SI5080");
+        new Berth(pnlIlford, 629,  597, "SI5082");
+        new Berth(pnlIlford, 629,  617, "SI5084");
+        new Berth(pnlIlford, 629,  637, "SI5086");
         new Berth(pnlIlford, 665,  426, "SI5087");
         new Berth(pnlIlford, 761,  362, "SIA366");
         new Berth(pnlIlford, 818,  362, "SIB366");
-        new Berth(pnlIlford, 881,  362, "SIR366");
         new Berth(pnlIlford, 1257, 362, "SIICIN");
+        new Berth(pnlIlford, 881,  362, "SIR366");
+        new Berth(pnlIlford, 681,  557, "SIRAS1");
+        new Berth(pnlIlford, 681,  577, "SIRAS2");
+        new Berth(pnlIlford, 681,  597, "SIRAS3");
+        new Berth(pnlIlford, 681,  617, "SIRAS4");
+        new Berth(pnlIlford, 681,  637, "SIRAS5");
         new Berth(pnlIlford, 1193, 362, "SIRIFC");
         new Berth(pnlIlford, 1017, 378, "SIRIFL");
         //</editor-fold>
@@ -2826,12 +2840,15 @@ public class SignalMap
         if (frame.isVisible())
             for (Map.Entry pairs : map.entrySet())
             {
-                Berth berth = Berths.getBerth((String) pairs.getKey());
+                String id = (String) pairs.getKey();
+                String hc = (String) pairs.getValue();
+                Berth berth = Berths.getBerth(id);
 
                 if (berth != null)
                 {
-                    if (map.containsKey(pairs.getKey().toString()))
-                        berth.interpose(map.get(pairs.getKey().toString()), (String) pairs.getKey());
+                    if (map.containsKey(id))
+                        if (!hc.equals("") || id.equals(berth.getCurrentId(false)))
+                            berth.interpose(map.get(id), id);
 
                     berth.setOpaque(false);
                 }

@@ -16,7 +16,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class EastAngliaMapClient
 {
-    public static int VERSION = 7;
+    public static String VERSION = "8";
     //<editor-fold defaultstate="collapsed" desc="Program variables">
     private static final String host = "shwam3.ddns.net";
     private static final int    port = 6321;

@@ -41,6 +41,12 @@ public class Berth
 
     public void interpose(String headcode, String berthId)
     {
+        if (headcode.equals(currentHeadcode) && berthId.equals(currentBerthId))
+            return;
+
+        if (headcode.equals("") && !berthId.equals(currentBerthId))
+            return;
+
         headcode = headcode.substring(0, Math.min(headcode.length(), 4));
         currentHeadcode = headcode;
         currentBerthId = berthId;
@@ -67,9 +73,9 @@ public class Berth
         return BERTH_IDs;
     }
 
-    public String getCurrentId()
+    public String getCurrentId(boolean noBlank)
     {
-        return currentBerthId.equals("") ? BERTH_IDs[0] : currentBerthId;
+        return currentBerthId.equals("") && noBlank ? BERTH_IDs[0] : currentBerthId;
     }
 
     public String getBerthDescription()
@@ -215,6 +221,6 @@ public class Berth
             label.setForeground(EastAngliaMapClient.WHITE);
 
         try { EastAngliaMapClient.SignalMap.frame.repaint(); }
-        catch (NullPointerException ex) {}
+        catch (NullPointerException e) {}
     }
 }

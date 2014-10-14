@@ -158,11 +158,11 @@ public class EventHandler
             if (berth.setProblematicBerth(!berth.isProblematic()))
             {
                 if (!berth.hasTrain())
-                    berth.interpose("-LP-", berth.getCurrentId());
+                    berth.interpose("-LP-", berth.getCurrentId(true));
             }
             else
                 if (berth.getHeadcode().equals("-LP-"))
-                    berth.cancel(berth.getCurrentId());
+                    berth.cancel(berth.getCurrentId(true));
 
             EastAngliaMapClient.blockKeyInput = false;
             return true;
@@ -172,7 +172,8 @@ public class EventHandler
         {
             if (properHeadcode)
             {
-                EastAngliaMapClient.desktop.browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s&area=%s", berth.getHeadcode(), berth.getBerthDescription().substring(0, 2))));
+                EastAngliaMapClient.desktop.browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s%s",
+                        berth.getHeadcode(), berth.getHeadcode().matches("[0-9]{3}[A-Z]") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
 
                 EastAngliaMapClient.blockKeyInput = false;
                 return true;
@@ -199,11 +200,11 @@ public class EventHandler
 
             case "train\'s history":
                 if (berth.hasTrain())
-                    EastAngliaMapClient.handler.requestHistoryOfTrain(berth.getCurrentId());
+                    EastAngliaMapClient.handler.requestHistoryOfTrain(berth.getCurrentId(true));
                 break;
 
             case "berth\'s history":
-                EastAngliaMapClient.handler.requestHistoryOfBerth(berth.getCurrentId());
+                EastAngliaMapClient.handler.requestHistoryOfBerth(berth.getCurrentId(true));
                 break;
 
             default:
