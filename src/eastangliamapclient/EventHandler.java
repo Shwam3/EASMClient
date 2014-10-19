@@ -1,17 +1,19 @@
 package eastangliamapclient;
 
-import eastangliamapclient.gui.BerthContextMenu;
-import eastangliamapclient.gui.HelpDialog;
-import eastangliamapclient.gui.SignalMap;
+import eastangliamapclient.gui.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import java.util.Timer;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 public class EventHandler
 {
@@ -21,15 +23,13 @@ public class EventHandler
     //<editor-fold defaultstate="collapsed" desc="Update Last Message Clocks">
     public static void updateLastMsgClock()
     {
-        Date currentTime = new Date();
+        /*Date currentTime = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
         EastAngliaMapClient.lastMessageTime = currentTime.getTime();
 
         for (JLabel lbl : EastAngliaMapClient.SignalMap.lastMsgLbls)
-        {
-            lbl.setText(sdf.format(currentTime));
-        }
+            lbl.setText(sdf.format(currentTime));*/
     }
     //</editor-fold>
 
@@ -59,7 +59,7 @@ public class EventHandler
     //<editor-fold defaultstate="collapsed" desc="Last Messsage Click">
     public static void lastMessageClick(MouseEvent evt)
     {
-        JLabel evtLabel = (JLabel)evt.getComponent();
+        /*JLabel evtLabel = (JLabel)evt.getComponent();
 
         if (evtLabel.getText().equals("NO  DATA") && EastAngliaMapClient.connect)
             lastMessageNoData();
@@ -68,14 +68,14 @@ public class EventHandler
         {
             lbl.setForeground(EastAngliaMapClient.GREEN);
             lbl.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-        }
+        }*/
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Last Message (No Data)">
     public static void lastMessageNoData()
     {
-        if (EastAngliaMapClient.connect)
+        /*if (EastAngliaMapClient.connect)
         {
             for (JLabel lbl : EastAngliaMapClient.SignalMap.lastMsgLbls)
             {
@@ -83,7 +83,7 @@ public class EventHandler
                 lbl.setForeground(Color.red);
                 lbl.setCursor(new Cursor(Cursor.HAND_CURSOR));
             }
-        }
+        }*/
     }
     //</editor-fold>
 
@@ -322,48 +322,6 @@ public class EventHandler
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Options Menu Click">
-    public static void optionMenuItemClick(ActionEvent evt)
-    {
-        switch (evt.getActionCommand())
-        {
-            case "Toggle Opacity":
-                Berths.toggleBerthsOpacities();
-                break;
-
-            case "Toggle Visibility":
-                Berths.toggleBerthVisibilities();
-                break;
-
-            case "Toggle Descriptions":
-                Berths.toggleBerthDescriptions();
-                break;
-
-            case "Refresh Data":
-                EastAngliaMapClient.handler.requestAll();
-                break;
-
-            case "Reconnect":
-                EastAngliaMapClient.reconnect();
-                break;
-
-            case "Reset Window":
-                EastAngliaMapClient.refresh();
-                break;
-
-            case "Train History":
-                String UUID = JOptionPane.showInputDialog(EastAngliaMapClient.SignalMap.frame, "Enter Train UUID:", "Train History", JOptionPane.QUESTION_MESSAGE);
-
-                if (UUID != null)
-                    if (UUID.length() >= 5 && UUID.matches("[0-9]+"))
-                        EastAngliaMapClient.handler.requestHistoryOfTrain(UUID);
-                    else
-                        JOptionPane.showMessageDialog(EastAngliaMapClient.SignalMap.frame, "'" + UUID + "' is not a valid train UUID", "Error", JOptionPane.WARNING_MESSAGE);
-                break;
-        }
-    }
-    //</editor-fold>
-
     public static void startTimerTasks()
     {
         Timer keepAwake = new Timer("keepAwake", true);
@@ -382,7 +340,7 @@ public class EventHandler
             }
         }, 30000, 30000);
 
-        Timer keepAlive = new Timer("keepAlive", true);
+        /*Timer keepAlive = new Timer("keepAlive", true);
         keepAlive.schedule(new TimerTask()
         {
             @Override
@@ -391,7 +349,7 @@ public class EventHandler
                 SimpleDateFormat sdf = new SimpleDateFormat("mm:ss.SS");
                 String timeoutTime = sdf.format(System.currentTimeMillis() - EastAngliaMapClient.lastMessageTime);
 
-                /*boolean connected = false;
+                boolean connected = false;
                 try
                 {
                     connected = StompConnectionHandler.isConnected() && !StompConnectionHandler.isTimedOut();
@@ -427,9 +385,9 @@ public class EventHandler
                     {
                         reconnectAttempts = 0;
                     }
-                }*/
+                }
             }
-        }, 30000, 10000);
+        }, 30000, 10000);*/
 
         javax.swing.Timer clockTimer = new javax.swing.Timer(250, new ActionListener()
         {
@@ -437,11 +395,133 @@ public class EventHandler
             public void actionPerformed(ActionEvent e)
             {
                 for (JLabel lbl : EastAngliaMapClient.SignalMap.clockLbls)
-                {
                     lbl.setText(EastAngliaMapClient.getTime());
-                }
             }
         });
         clockTimer.start();
+    }
+
+    public static void startScreenCapture(int interval, final String path)
+    {
+        EastAngliaMapClient.printOut("[Screencap] Screencap path \"" + path + "\"");
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        int mins = calendar.get(Calendar.MINUTE);
+        int mod = mins % 5;
+        calendar.add(Calendar.MINUTE, mod < 3 ? -mod : (5-mod));
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        Timer screencapTimer = new Timer("screencapTimer");
+        screencapTimer.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                printScreencap("Updating images (" + EastAngliaMapClient.getTime() + ")", false);
+                try
+                {
+                    java.util.List<BufferedImage> images = new ArrayList<>();
+                    java.util.List<String> names = new ArrayList<>();
+
+                    EastAngliaMapClient.SignalMap.toggleButtonVisibility();
+                    for (JPanel pnl : EastAngliaMapClient.SignalMap.getPanels())
+                    {
+                        Dimension dim = pnl.getSize();
+                        BufferedImage image = (BufferedImage) pnl.createImage(dim.width, dim.height);
+
+                        Graphics2D g2d = image.createGraphics();
+                        g2d.setBackground(pnl.getBackground());
+                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        g2d.clearRect(0, 0, dim.width, dim.width);
+
+                        pnl.paint(g2d);
+
+                        images.add(image);
+                        names.add(pnl.getName().replace("/", " + "));
+                    }
+
+                    EastAngliaMapClient.SignalMap.toggleButtonVisibility();
+
+                    try
+                    {
+                        //BufferedImage bigImage = new BufferedImage(5555, 3419, BufferedImage.TYPE_INT_RGB);
+                        BufferedImage bigImage = new BufferedImage(7407, 2564, BufferedImage.TYPE_INT_RGB);
+                        Graphics2D g2d = bigImage.createGraphics();
+                        g2d.setBackground(new Color(64, 64, 64));
+                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        g2d.clearRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
+
+                        /*3 x 4
+                        g2d.drawImage(images.get(0),  0,    0,    null);
+                        g2d.drawImage(images.get(1),  1852, 0,    null);
+                        g2d.drawImage(images.get(2),  3704, 0,    null);
+                        g2d.drawImage(images.get(3),  0,    855,  null);
+                        g2d.drawImage(images.get(4),  1852, 855,  null);
+                        g2d.drawImage(images.get(5),  3704, 855,  null);
+                        g2d.drawImage(images.get(6),  0,    1710, null);
+                        g2d.drawImage(images.get(7),  1852, 1710, null);
+                        g2d.drawImage(images.get(8),  3704, 1710, null);
+                        g2d.drawImage(images.get(9),  0,    2565, null);
+                        g2d.drawImage(images.get(10), 1852, 2565, null);
+                        g2d.drawImage(images.get(11), 3704, 2565, null);/**/
+
+                        /* 4 x 3*/
+                        g2d.drawImage(images.get(0),  0,    0,    null);
+                        g2d.drawImage(images.get(1),  1852, 0,    null);
+                        g2d.drawImage(images.get(2),  3704, 0,    null);
+                        g2d.drawImage(images.get(3),  5556, 0,    null);
+                        g2d.drawImage(images.get(4),  0,    855,  null);
+                        g2d.drawImage(images.get(5),  1852, 855,  null);
+                        g2d.drawImage(images.get(6),  3704, 855,  null);
+                        g2d.drawImage(images.get(7),  5556, 855,  null);
+                        g2d.drawImage(images.get(8),  0,    1710, null);
+                        g2d.drawImage(images.get(9),  1852, 1710, null);
+                        g2d.drawImage(images.get(10), 3704, 1710, null);
+                        g2d.drawImage(images.get(11), 5556, 1710, null);/**/
+
+                        for (int i = 0; i < images.size(); i++)
+                        {
+                            try
+                            {
+                                //g2d.drawImage(images.get(i), (1851 * i) + i, 0, null);
+                                ImageIO.write(images.get(i), "png", new File(path, names.get(i) + ".png"));
+
+                                printScreencap("    " + names.get(i) + ".png", false);
+                            } catch (FileNotFoundException e)
+                            {
+                                printScreencap("FileNotFoundException creating screencap \"" + names.get(i) + "\":\n" + e, true);
+                            } catch (IOException e)
+                            {
+                                printScreencap("IOException creating screencap \"" + names.get(i) + "\":\n" + e, true);
+                            }
+                        }
+
+                        ImageIO.write(bigImage, "png", new File(path, "All.png"));
+                        printScreencap("    All.png", false);
+                    } catch (FileNotFoundException e)
+                    {
+                        printScreencap("FileNotFoundException creating screencap \"All\":\n" + e, true);
+                    } catch (IOException e)
+                    {
+                        printScreencap("IOException creating screencap \"All\":\n" + e, true);
+                    }
+                }
+                catch (NullPointerException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            public void printScreencap(String message, boolean toErr)
+            {
+                if (toErr)
+                    EastAngliaMapClient.printErr("[Screencap] " + message);
+                else
+                    EastAngliaMapClient.printOut("[Screencap] " + message);
+            }
+        }, calendar.getTime(), interval);
+
+        EastAngliaMapClient.screencap = true;
     }
 }

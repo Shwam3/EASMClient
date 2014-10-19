@@ -15,8 +15,8 @@ public class SignalMap
     public JFrame frame;
 
     public java.util.List<JLabel>  clockLbls    = new ArrayList<>();
-    public java.util.List<JLabel>  lastMsgLbls  = new ArrayList<>();
-    public java.util.List<JButton> reconButtons = new ArrayList<>();
+    //public java.util.List<JLabel>  lastMsgLbls  = new ArrayList<>();
+    private java.util.List<JButton> buttons      = new ArrayList<>();
 
     //<editor-fold defaultstate="collapsed" desc="Form variables">
     public static JTabbedPane TabBar;
@@ -63,7 +63,7 @@ public class SignalMap
 
     public SignalMap()
     {
-        frame = new JFrame("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + ")");
+        frame = new JFrame("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
         TabBar = new JTabbedPane();
 
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -73,7 +73,6 @@ public class SignalMap
         frame.setMaximumSize(new Dimension(1874, 922));
         frame.setLayout(new BorderLayout());
 
-        //<editor-fold defaultstate="collapsed" desc="Lots of swing stuff">
         initStratford();
         initIlford();
         initShenfield();
@@ -152,6 +151,19 @@ public class SignalMap
         pnlCambridgeEN.setOpaque(true);
         pnlNorwich    .setOpaque(true);
 
+        pnlStratford  .setName("1. Liverpool St/Stratford");
+        pnlIlford     .setName("2. Ilford");
+        pnlShenfield  .setName("3. Shenfield");
+        pnlWitham     .setName("4. Witham");
+        pnlHackney    .setName("5. Hackney/Brimsdown");
+        pnlHarlow     .setName("6. Harlow");
+        pnlColchester .setName("7. Colchester");
+        pnlClacton    .setName("8. Clacton/Thorpe/East Gates");
+        pnlIpswich    .setName("9. Ipswich");
+        pnlCambridgeCA.setName("10. Cambridge (CA)");
+        pnlCambridgeEN.setName("11. Cambridge (EN)");
+        pnlNorwich    .setName("12. Norwich/Trowse Bridge");
+
         spStratford  .setViewportView(pnlStratford);
         spIlford     .setViewportView(pnlIlford);
         spShenfield  .setViewportView(pnlShenfield);
@@ -165,19 +177,18 @@ public class SignalMap
         spCambridgeEN.setViewportView(pnlCambridgeEN);
         spNorwich    .setViewportView(pnlNorwich);
 
-        TabBar.addTab("Liverpool St/Stratford",    null, spStratford,   "London Liverpool Street - Manor Park, Coppermill Jnc & Orient Way");
-        TabBar.addTab("Ilford",                    null, spIlford,      "Forest Gate - Harold Wood");
-        TabBar.addTab("Shenfield",                 null, spShenfield,   "Harold Wood - Ingatestone");
-        TabBar.addTab("Witham",                    null, spWitham,      "Shenfield - Colchester");
-        TabBar.addTab("Hackney/Brimsdown",         null, spHackney,     "Hackney Downs - Chingford, Enfield Town & Cheshunt");
-        TabBar.addTab("Harlow",                    null, spHarlow,      "Cheshunt - Elsenham, Hertford East & Stansted Airport");
-        TabBar.addTab("Colchester",                null, spColchester,  "Ipswich - Colchester");
-        TabBar.addTab("Clacton/Thorpe/East Gates", null, spClacton,     "Colchester - Colchester Town, Clacton-on-Sea & Walton-on-the-Naze");
-        TabBar.addTab("Ipswich",                   null, spIpswich,     "Stowmarket - Ipswich");
-        TabBar.addTab("Cambridge (CA)",            null, spCambridgeCA, "Ely - Cambridge");
-        TabBar.addTab("Cambridge (EN)",            null, spCambridgeEN, "Norwich, Bury St Edmunds & Kings Lynn - Ely");
-        TabBar.addTab("Norwich",                   null, spNorwich,     "Norwich - Stowmarket, Sheringham & The Wherry Lines");
-        //</editor-fold>
+        TabBar.addTab(pnlStratford.getName(),   null, spStratford,   "London Liverpool Street - Manor Park, Coppermill Jnc & Orient Way");
+        TabBar.addTab(pnlIlford.getName(),      null, spIlford,      "Forest Gate - Harold Wood");
+        TabBar.addTab(pnlShenfield.getName(),   null, spShenfield,   "Harold Wood - Ingatestone");
+        TabBar.addTab(pnlWitham.getName(),      null, spWitham,      "Shenfield - Colchester");
+        TabBar.addTab(pnlHackney.getName(),     null, spHackney,     "Hackney Downs - Chingford, Enfield Town & Cheshunt");
+        TabBar.addTab(pnlHarlow.getName(),      null, spHarlow,      "Cheshunt - Elsenham, Hertford East & Stansted Airport");
+        TabBar.addTab(pnlColchester.getName(),  null, spColchester,  "Colchester - Ipswich");
+        TabBar.addTab(pnlClacton.getName(),     null, spClacton,     "Colchester - Colchester Town, Clacton-on-Sea & Walton-on-the-Naze");
+        TabBar.addTab(pnlIpswich.getName(),     null, spIpswich,     "Ipswich - Stowmarket");
+        TabBar.addTab(pnlCambridgeCA.getName(), null, spCambridgeCA, "Elsenham - Ely");
+        TabBar.addTab(pnlCambridgeEN.getName(), null, spCambridgeEN, "<html>Ely North Jnc - Manea, Kings Lynn & Wymondham<br>Bury St. Edmunds - Ely & Cambridge</html>");
+        TabBar.addTab(pnlNorwich.getName(),     null, spNorwich,     "Stowmarket, Sheringham & Whitlingham Jnc - Norwich");
 
         frame.add(TabBar, BorderLayout.CENTER);
 
@@ -410,7 +421,7 @@ public class SignalMap
         new Berth(pnlCambridgeEN, 938,  298, "CADM02");
         new Berth(pnlCambridgeEN, 858,  298, "CADM03");
         new Berth(pnlCambridgeEN, 858,  266, "CADM11");
-        new Berth(pnlCambridgeEN, 938, 266, "CADM26");
+        new Berth(pnlCambridgeEN, 938,  266, "CADM26");
         new Berth(pnlCambridgeEN, 794,  266, "CADM27");
         new Berth(pnlCambridgeEN, 490,  234, "CALDAP");
         new Berth(pnlCambridgeEN, 730,  266, "CALT04");
@@ -465,7 +476,7 @@ public class SignalMap
         new Berth(pnlCambridgeEN, 570,  506, "CALAPP");
         new Berth(pnlCambridgeEN, 666,  554, "CALSCM");
         new Berth(pnlCambridgeEN, 666,  586, "CASAPP");
-        new Berth(pnlCambridgeEN, 378,  330, "CAR4AB");
+      //new Berth(pnlCambridgeEN, 378,  330, "CAR4AB");
 
         //BSE - CBG & ELY
         new Berth(pnlCambridgeEN, 1066, 682, "CA0402");
@@ -1268,7 +1279,7 @@ public class SignalMap
         new Berth(pnlHarlow, 826,  346, "WG1153");
         new Berth(pnlHarlow, 762,  378, "WG1154");
         new Berth(pnlHarlow, 1002, 346, "WG1155");
-        new Berth(pnlHarlow, 1098, 346, "WG1157");
+        new Berth(pnlHarlow, 1098, 346, "WG1157", "WG5396");
         new Berth(pnlHarlow, 1162, 346, "WG1163");
         new Berth(pnlHarlow, 1226, 346, "WG1165");
         new Berth(pnlHarlow, 1290, 346, "WG1167");
@@ -2780,7 +2791,8 @@ public class SignalMap
         });
         pnl.add(help);
 
-        //reconButtons.add(reconnect);
+        buttons.add(menu);
+        buttons.add(help);
     }
 
     private void placeClocks(JPanel pnl)
@@ -2855,5 +2867,31 @@ public class SignalMap
             }
 
         return this;
+    }
+
+    public java.util.List<JPanel> getPanels()
+    {
+        java.util.List<JPanel> list = new ArrayList<>();
+
+        list.add(pnlStratford);
+        list.add(pnlIlford);
+        list.add(pnlShenfield);
+        list.add(pnlWitham);
+        list.add(pnlHackney);
+        list.add(pnlHarlow);
+        list.add(pnlColchester);
+        list.add(pnlClacton);
+        list.add(pnlIpswich);
+        list.add(pnlCambridgeCA);
+        list.add(pnlCambridgeEN);
+        list.add(pnlNorwich);
+
+        return list;
+    }
+
+    public void toggleButtonVisibility()
+    {
+        for (JButton button : buttons)
+            button.setVisible(!button.isVisible());
     }
 }

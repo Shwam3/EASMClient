@@ -2,15 +2,17 @@ package eastangliamapclient;
 
 import eastangliamapclient.gui.ListDialog;
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.swing.JOptionPane;
 
 public class MessageHandler implements Runnable
 {
     private static int errors = 0;
     private boolean stop = false;
+
+    private long  lastMessageTime    = System.currentTimeMillis();
+    private long  timeoutTime        = 30000;
+    private final Timer timeoutTimer = new Timer("timeoutTimer");
 
     public MessageHandler()
     {
@@ -21,6 +23,8 @@ public class MessageHandler implements Runnable
     @Override
     public void run()
     {
+        startTimeoutTimer();
+        
         while (!stop)
         {
             try
@@ -29,6 +33,8 @@ public class MessageHandler implements Runnable
 
                 if (obj instanceof HashMap)
                 {
+                    lastMessageTime = System.currentTimeMillis();
+
                     HashMap<String, Object> message = (HashMap<String, Object>) obj;
                     MessageType type = MessageType.getType((int) message.get("type"));
 
@@ -165,7 +171,7 @@ public class MessageHandler implements Runnable
         HashMap<String, Object> message = new HashMap<>();
 
         message.put("type", MessageType.SET_NAME.getValue());
-        message.put("name", name);
+        message.put("name", name + " (" + (EastAngliaMapClient.screencap ? "sc " : "") + "v" + EastAngliaMapClient.VERSION + ")");
 
         sendMessage(message);
     }
@@ -186,6 +192,36 @@ public class MessageHandler implements Runnable
             sendSocketClose();
             closeSocket();
         }
+    }
+
+    private void startTimeoutTimer()
+    {
+        timeoutTimer.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                if (System.currentTimeMillis() - lastMessageTime >= timeoutTime)
+                {
+                    if (timeoutTime == 30000)
+                    {
+                        timeoutTime = 60000;
+                        sendHeartbeatRequest();
+                    }
+                    else
+                    {
+                        printMsgHandler("Connection timed out", true);
+                        sendSocketClose();
+                        closeSocket();
+
+                        EastAngliaMapClient.reconnect();
+                        timeoutTime = 30000;
+                    }
+                }
+                else
+                    timeoutTime = 30000;
+            }
+        }, 30000, 30000);
     }
 
     public void closeSocket()

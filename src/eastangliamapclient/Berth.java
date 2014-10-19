@@ -89,7 +89,8 @@ public class Berth
         label.setBackground(EastAngliaMapClient.GREY);
         label.setFont(EastAngliaMapClient.TD_FONT);
         label.setForeground(EastAngliaMapClient.GREEN);
-        label.setHorizontalAlignment(SwingConstants.LEFT);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setVerticalAlignment(SwingConstants.CENTER);
         label.setFocusable(false);
         label.setBounds(x, y, 48, 16);
         label.setText("");

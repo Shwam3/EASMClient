@@ -6,17 +6,12 @@ import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
-import java.util.ConcurrentModificationException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import java.util.*;
+import javax.swing.*;
 
 public class EastAngliaMapClient
 {
-    public static String VERSION = "8";
+    public static String VERSION = "9";
     //<editor-fold defaultstate="collapsed" desc="Program variables">
     private static final String host = "shwam3.ddns.net";
     private static final int    port = 6321;
@@ -28,12 +23,14 @@ public class EastAngliaMapClient
     public  static HashMap<String, String> CClassMap = new HashMap<>();
 
     public  static boolean logToFile        = true;
+    public  static boolean screencap        = false;
     public  static boolean opaque           = false;
     public  static boolean showDescriptions = false; // not headcodes
     public  static boolean visible          = true;
 
     public  static SignalMap      SignalMap;
     public  static MessageHandler handler;
+    public  static String         clientName = System.getProperty("user.name");
 
     public  static SimpleDateFormat sdf     = new SimpleDateFormat("HH:mm:ss");
     public  static SimpleDateFormat sdfLog  = new SimpleDateFormat("dd-MM-YY HH.mm.ss");
@@ -57,13 +54,15 @@ public class EastAngliaMapClient
 
     public static void main(String[] args)
     {
-        //<editor-fold defaultstate="collapsed" desc="Look and feel">
-        try
-        {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
+        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {}
-        //</editor-fold>
+
+        for (String arg : args)
+            if (arg.toLowerCase().equals("-screencap"))
+            {
+                EventHandler.startScreenCapture(60000 * 5, new File("C:\\Users\\Shwam\\Dropbox\\EASignalMapMobile").getAbsolutePath());
+                break;
+            }
 
         EventQueue.invokeLater(new Runnable()
         {
@@ -72,19 +71,19 @@ public class EastAngliaMapClient
             {
                 try
                 {
-                    TD_FONT = Font.createFont(Font.TRUETYPE_FONT, EastAngliaMapClient.class.getResourceAsStream("/eastangliamapclient/resources/TDBerth-DM.ttf")).deriveFont(16f);
+                    TD_FONT = Font.createFont(0, EastAngliaMapClient.class.getResourceAsStream("/eastangliamapclient/resources/TDBerth-DM.ttf")).deriveFont(16f);
                 }
                 catch (FontFormatException | IOException e)
                 {
-                    TD_FONT = Font.getFont(Font.SANS_SERIF);
-                    printBootstrap("Couldn\'t create font, stuff will look strange", true);
-                    e.printStackTrace(System.out);
+                    TD_FONT = new Font("Monospaced", 0, 19);
+                    printStartup("Couldn\'t create font, stuff will look strange", true);
+                    e.printStackTrace(System.err);
                 }
 
                 try
                 {
                     serverSocket = new Socket(host, port); // Throws the errors
-                    printBootstrap("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
+                    printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
 
                     in  = serverSocket.getInputStream();
                     out = serverSocket.getOutputStream();
@@ -92,9 +91,9 @@ public class EastAngliaMapClient
                     SignalMap = new SignalMap();
 
                     handler = new MessageHandler();
-                    handler.sendName(System.getProperty("user.name"));
+                    handler.sendName(clientName);
 
-                    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
+                    Runtime.getRuntime().addShutdownHook(new Thread("shutdownHook")
                     {
                         @Override
                         public void run()
@@ -106,16 +105,16 @@ public class EastAngliaMapClient
                             }
                             catch (NullPointerException e) {}
                         }
-                    }, "shutdownHook"));
+                    });
                 }
                 catch (ConnectException e)
                 {
-                    printBootstrap("Couldnt connect, server probably down.\n" + e, true);
+                    printStartup("Couldnt connect, server probably down.\n" + e, true);
                     JOptionPane.showMessageDialog(null, "Unable to connect to host, the server may be down but check your internet connection", "Connection error (ConnEx)", JOptionPane.ERROR_MESSAGE);
                 }
                 catch (IOException e)
                 {
-                    printBootstrap("Unable to connect to server\n" + e, true);
+                    printStartup("Unable to connect to server\n" + e, true);
                     JOptionPane.showMessageDialog(null, "Unable to connect to host, the server may be down but check your internet connection", "Connection error (IOEx)", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -149,22 +148,22 @@ public class EastAngliaMapClient
         try
         {
             serverSocket = new Socket(host, port);
-            printBootstrap("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
+            printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
 
             in  = serverSocket.getInputStream();
             out = serverSocket.getOutputStream();
 
             handler = new MessageHandler();
-            handler.sendName(System.getProperty("user.name"));
+            handler.sendName(clientName);
         }
         catch (ConnectException e)
         {
-            printBootstrap("Couldnt connect, server probably down.\n" + e, true);
+            printStartup("Couldnt connect, server probably down.\n" + e, true);
             JOptionPane.showMessageDialog(null, "Unable to connect to host, the server may be down but check your internet connection", "Connection error (ConnEx)", JOptionPane.ERROR_MESSAGE);
         }
         catch (IOException e)
         {
-            printBootstrap("Unable to connect to server\n" + e, true);
+            printStartup("Unable to connect to server\n" + e, true);
             JOptionPane.showMessageDialog(null, "Unable to connect to host, the server may be down but check your internet connection", "Connection error (IOEx)", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -174,12 +173,12 @@ public class EastAngliaMapClient
         return sdf.format(new Date());
     }
 
-    private static void printBootstrap(String message, boolean toErr)
+    private static void printStartup(String message, boolean toErr)
     {
         if (toErr)
-            printErr("[Bootstrap] " + message);
+            printErr("[Startup] " + message);
         else
-            printOut("[Bootstrap] " + message);
+            printOut("[Startup] " + message);
     }
 
     public static void printOut(String message)
