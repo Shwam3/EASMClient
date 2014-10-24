@@ -4,9 +4,7 @@ import eastangliamapclient.gui.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
@@ -19,6 +17,7 @@ public class EventHandler
 {
     public static Berth tempOpaqueBerth = null;
     public static BerthContextMenu berthContextMenu = null;
+    private static String screencapPath;
 
     //<editor-fold defaultstate="collapsed" desc="Update Last Message Clocks">
     public static void updateLastMsgClock()
@@ -149,11 +148,11 @@ public class EventHandler
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Berth Event">
-    private static boolean berthEvent(boolean forceCancel, boolean forceInterpose, boolean toggleProblem, boolean properHeadcode, Berth berth)
+    private static boolean berthEvent(boolean shift, boolean control, boolean alt, boolean properHeadcode, Berth berth)
     {
         EastAngliaMapClient.blockKeyInput = true;
 
-        if (toggleProblem && !forceCancel && !forceInterpose)
+        if (alt && !shift && !control)
         {
             if (berth.setProblematicBerth(!berth.isProblematic()))
             {
@@ -173,7 +172,7 @@ public class EventHandler
             if (properHeadcode)
             {
                 EastAngliaMapClient.desktop.browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s%s",
-                        berth.getHeadcode(), berth.getHeadcode().matches("[0-9]{3}[A-Z]") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
+                        berth.getHeadcode(), control || berth.getHeadcode().matches("[0-9]{3}[A-Z]") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
 
                 EastAngliaMapClient.blockKeyInput = false;
                 return true;
@@ -296,7 +295,9 @@ public class EventHandler
                             int tab = EastAngliaMapClient.SignalMap.TabBar.getSelectedIndex();
 
                             EastAngliaMapClient.SignalMap.dispose();
-                            EastAngliaMapClient.SignalMap = new SignalMap().readFromMap();
+                            EastAngliaMapClient.SignalMap = new SignalMap();
+                            EastAngliaMapClient.SignalMap.setVisible(true);
+                            EastAngliaMapClient.SignalMap.readFromMap(EastAngliaMapClient.CClassMap);
 
                             EastAngliaMapClient.SignalMap.TabBar.setSelectedIndex(tab);
 
@@ -332,6 +333,8 @@ public class EventHandler
             {
                 try
                 {
+                    System.gc();
+
                     Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
                     Robot rob = new Robot();
                     rob.mouseMove(mouseLoc.x, mouseLoc.y);
@@ -339,55 +342,6 @@ public class EventHandler
                 catch (AWTException e) {}
             }
         }, 30000, 30000);
-
-        /*Timer keepAlive = new Timer("keepAlive", true);
-        keepAlive.schedule(new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                SimpleDateFormat sdf = new SimpleDateFormat("mm:ss.SS");
-                String timeoutTime = sdf.format(System.currentTimeMillis() - EastAngliaMapClient.lastMessageTime);
-
-                boolean connected = false;
-                try
-                {
-                    connected = StompConnectionHandler.isConnected() && !StompConnectionHandler.isTimedOut();
-                }
-                finally
-                {
-                    if (!connected)
-                    {
-                        EastAngliaMapClient.printAll(String.format("Connection lost for %s, reconnecting...", timeoutTime));
-                        EventHandler.lastMessageNoData();
-
-                        try
-                        {
-                            if (StompConnectionHandler.client != null)
-                                StompConnectionHandler.client.disconnect();
-
-                            if (StompConnectionHandler.connect())
-                            {
-                                EastAngliaMapClient.printAll("Reconnected");
-                                reconnectAttempts = 0;
-                            }
-                            else
-                            {
-                                EastAngliaMapClient.printAll("Unable to reconnect (attempt " + ++reconnectAttempts + ")");
-                            }
-                        }
-                        catch (LoginException e)
-                        {
-                            EastAngliaMapClient.printAll("Unable to reconnect (attempt " + ++reconnectAttempts + "), may already be connected");
-                        }
-                    }
-                    else
-                    {
-                        reconnectAttempts = 0;
-                    }
-                }
-            }
-        }, 30000, 10000);*/
 
         javax.swing.Timer clockTimer = new javax.swing.Timer(250, new ActionListener()
         {
@@ -404,13 +358,14 @@ public class EventHandler
     public static void startScreenCapture(int interval, final String path)
     {
         EastAngliaMapClient.printOut("[Screencap] Screencap path \"" + path + "\"");
+        screencapPath = path;
 
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         int mins = calendar.get(Calendar.MINUTE);
         int mod = mins % 5;
         calendar.add(Calendar.MINUTE, mod < 3 ? -mod : (5-mod));
         calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 500);
 
         Timer screencapTimer = new Timer("screencapTimer");
         screencapTimer.scheduleAtFixedRate(new TimerTask()
@@ -418,110 +373,142 @@ public class EventHandler
             @Override
             public void run()
             {
-                printScreencap("Updating images (" + EastAngliaMapClient.getTime() + ")", false);
-                try
-                {
-                    java.util.List<BufferedImage> images = new ArrayList<>();
-                    java.util.List<String> names = new ArrayList<>();
-
-                    EastAngliaMapClient.SignalMap.toggleButtonVisibility();
-                    for (JPanel pnl : EastAngliaMapClient.SignalMap.getPanels())
-                    {
-                        Dimension dim = pnl.getSize();
-                        BufferedImage image = (BufferedImage) pnl.createImage(dim.width, dim.height);
-
-                        Graphics2D g2d = image.createGraphics();
-                        g2d.setBackground(pnl.getBackground());
-                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                        g2d.clearRect(0, 0, dim.width, dim.width);
-
-                        pnl.paint(g2d);
-
-                        images.add(image);
-                        names.add(pnl.getName().replace("/", " + "));
-                    }
-
-                    EastAngliaMapClient.SignalMap.toggleButtonVisibility();
-
-                    try
-                    {
-                        //BufferedImage bigImage = new BufferedImage(5555, 3419, BufferedImage.TYPE_INT_RGB);
-                        BufferedImage bigImage = new BufferedImage(7407, 2564, BufferedImage.TYPE_INT_RGB);
-                        Graphics2D g2d = bigImage.createGraphics();
-                        g2d.setBackground(new Color(64, 64, 64));
-                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                        g2d.clearRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
-
-                        /*3 x 4
-                        g2d.drawImage(images.get(0),  0,    0,    null);
-                        g2d.drawImage(images.get(1),  1852, 0,    null);
-                        g2d.drawImage(images.get(2),  3704, 0,    null);
-                        g2d.drawImage(images.get(3),  0,    855,  null);
-                        g2d.drawImage(images.get(4),  1852, 855,  null);
-                        g2d.drawImage(images.get(5),  3704, 855,  null);
-                        g2d.drawImage(images.get(6),  0,    1710, null);
-                        g2d.drawImage(images.get(7),  1852, 1710, null);
-                        g2d.drawImage(images.get(8),  3704, 1710, null);
-                        g2d.drawImage(images.get(9),  0,    2565, null);
-                        g2d.drawImage(images.get(10), 1852, 2565, null);
-                        g2d.drawImage(images.get(11), 3704, 2565, null);/**/
-
-                        /* 4 x 3*/
-                        g2d.drawImage(images.get(0),  0,    0,    null);
-                        g2d.drawImage(images.get(1),  1852, 0,    null);
-                        g2d.drawImage(images.get(2),  3704, 0,    null);
-                        g2d.drawImage(images.get(3),  5556, 0,    null);
-                        g2d.drawImage(images.get(4),  0,    855,  null);
-                        g2d.drawImage(images.get(5),  1852, 855,  null);
-                        g2d.drawImage(images.get(6),  3704, 855,  null);
-                        g2d.drawImage(images.get(7),  5556, 855,  null);
-                        g2d.drawImage(images.get(8),  0,    1710, null);
-                        g2d.drawImage(images.get(9),  1852, 1710, null);
-                        g2d.drawImage(images.get(10), 3704, 1710, null);
-                        g2d.drawImage(images.get(11), 5556, 1710, null);/**/
-
-                        for (int i = 0; i < images.size(); i++)
-                        {
-                            try
-                            {
-                                //g2d.drawImage(images.get(i), (1851 * i) + i, 0, null);
-                                ImageIO.write(images.get(i), "png", new File(path, names.get(i) + ".png"));
-
-                                printScreencap("    " + names.get(i) + ".png", false);
-                            } catch (FileNotFoundException e)
-                            {
-                                printScreencap("FileNotFoundException creating screencap \"" + names.get(i) + "\":\n" + e, true);
-                            } catch (IOException e)
-                            {
-                                printScreencap("IOException creating screencap \"" + names.get(i) + "\":\n" + e, true);
-                            }
-                        }
-
-                        ImageIO.write(bigImage, "png", new File(path, "All.png"));
-                        printScreencap("    All.png", false);
-                    } catch (FileNotFoundException e)
-                    {
-                        printScreencap("FileNotFoundException creating screencap \"All\":\n" + e, true);
-                    } catch (IOException e)
-                    {
-                        printScreencap("IOException creating screencap \"All\":\n" + e, true);
-                    }
-                }
-                catch (NullPointerException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-
-            public void printScreencap(String message, boolean toErr)
-            {
-                if (toErr)
-                    EastAngliaMapClient.printErr("[Screencap] " + message);
+                if (EastAngliaMapClient.serverSocket != null && EastAngliaMapClient.screencap && EastAngliaMapClient.serverSocket.isConnected())
+                    takeScreencaps();
                 else
-                    EastAngliaMapClient.printOut("[Screencap] " + message);
+                    printScreencap("Not taking screencaps", false);
             }
         }, calendar.getTime(), interval);
 
-        EastAngliaMapClient.screencap = true;
+        takeScreencaps();
+    }
+
+    public static void takeScreencaps()
+    {
+        try
+        {
+            EastAngliaMapClient.SignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
+
+            printScreencap("Updating images (" + EastAngliaMapClient.getTime() + ")", false);
+            EastAngliaMapClient.handler.requestAll();
+
+            java.util.List<BufferedImage> images = new ArrayList<>();
+            java.util.List<String> names = new ArrayList<>();
+
+            EastAngliaMapClient.SignalMap.toggleButtonVisibility();
+            for (JPanel pnl : EastAngliaMapClient.SignalMap.getPanels())
+            {
+                Dimension dim = pnl.getSize();
+                BufferedImage image = (BufferedImage) pnl.createImage(dim.width, dim.height);
+
+                Graphics2D g2d = image.createGraphics();
+                g2d.setBackground(pnl.getBackground());
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.clearRect(0, 0, dim.width, dim.width);
+
+                pnl.paint(g2d);
+
+                images.add(image);
+                names.add(pnl.getName().replace("/", " + "));
+            }
+
+            EastAngliaMapClient.SignalMap.toggleButtonVisibility();
+
+            try
+            {
+                BufferedImage bigImage = new BufferedImage(5555, 3419, BufferedImage.TYPE_INT_RGB);
+                //BufferedImage bigImage = new BufferedImage(7407, 2564, BufferedImage.TYPE_INT_RGB);
+                Graphics2D g2d = bigImage.createGraphics();
+                g2d.setBackground(new Color(64, 64, 64));
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.clearRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
+
+                //3 x 4
+                g2d.drawImage(images.get(0),  0,    0,    null);
+                g2d.drawImage(images.get(1),  1852, 0,    null);
+                g2d.drawImage(images.get(2),  3704, 0,    null);
+                g2d.drawImage(images.get(3),  0,    855,  null);
+                g2d.drawImage(images.get(4),  1852, 855,  null);
+                g2d.drawImage(images.get(5),  3704, 855,  null);
+                g2d.drawImage(images.get(6),  0,    1710, null);
+                g2d.drawImage(images.get(7),  1852, 1710, null);
+                g2d.drawImage(images.get(8),  3704, 1710, null);
+                g2d.drawImage(images.get(9),  0,    2565, null);
+                g2d.drawImage(images.get(10), 1852, 2565, null);
+                g2d.drawImage(images.get(11), 3704, 2565, null);
+
+                //4 x 3
+                //g2d.drawImage(images.get(0),  0,    0,    null);
+                //g2d.drawImage(images.get(1),  1852, 0,    null);
+                //g2d.drawImage(images.get(2),  3704, 0,    null);
+                //g2d.drawImage(images.get(3),  5556, 0,    null);
+                //g2d.drawImage(images.get(4),  0,    855,  null);
+                //g2d.drawImage(images.get(5),  1852, 855,  null);
+                //g2d.drawImage(images.get(6),  3704, 855,  null);
+                //g2d.drawImage(images.get(7),  5556, 855,  null);
+                //g2d.drawImage(images.get(8),  0,    1710, null);
+                //g2d.drawImage(images.get(9),  1852, 1710, null);
+                //g2d.drawImage(images.get(10), 3704, 1710, null);
+                //g2d.drawImage(images.get(11), 5556, 1710, null);
+
+                for (int i = 0; i < images.size(); i++)
+                {
+                    try
+                    {
+                        ImageIO.write(images.get(i), "png", new File(screencapPath, names.get(i) + ".png"));
+                        printScreencap("    " + names.get(i) + ".png", false);
+                    }
+                    catch (FileNotFoundException e)
+                    {
+                        printScreencap("FileNotFoundException creating screencap \"" + names.get(i) + "\":\n" + e, true);
+                    }
+                    catch (IOException e)
+                    {
+                        printScreencap("IOException creating screencap \"" + names.get(i) + "\":\n" + e, true);
+                    }
+                }
+
+                ImageIO.write(bigImage, "png", new File(screencapPath, "All.png"));
+                printScreencap("    All.png", false);
+
+                ProcessBuilder pb = new ProcessBuilder(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java.exe",
+                        "-jar", "\"C:\\Users\\Shwam\\Documents\\GitHub\\FTPUploader\\dist\\FTPUploader.jar\"");
+                pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+                pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+                pb.start();
+            }
+            catch (FileNotFoundException e)
+            {
+                printScreencap("FileNotFoundException creating screencap \"All\":\n" + e, true);
+            }
+            catch (IOException e)
+            {
+                printScreencap("IOException creating screencap \"All\":\n" + e, true);
+            }
+        }
+        catch (NullPointerException e)
+        {
+            printScreencap("NPE", true);
+        }
+        finally
+        {
+            System.gc();
+        }
+    }
+
+    public static void screencap()
+    {
+        EastAngliaMapClient.screencap = !EastAngliaMapClient.screencap;
+
+        EastAngliaMapClient.SignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
+        EastAngliaMapClient.handler.sendName(EastAngliaMapClient.clientName);
+    }
+
+    public static void printScreencap(String message, boolean toErr)
+    {
+        if (toErr)
+            EastAngliaMapClient.printErr("[Screencap] " + message);
+        else
+            EastAngliaMapClient.printOut("[Screencap] " + message);
     }
 }

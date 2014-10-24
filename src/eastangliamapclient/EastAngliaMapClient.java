@@ -3,15 +3,14 @@ package eastangliamapclient;
 import eastangliamapclient.gui.SignalMap;
 import java.awt.*;
 import java.io.*;
-import java.net.ConnectException;
-import java.net.Socket;
+import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.swing.*;
 
 public class EastAngliaMapClient
 {
-    public static String VERSION = "9";
+    public static String VERSION = "10";
     //<editor-fold defaultstate="collapsed" desc="Program variables">
     private static final String host = "shwam3.ddns.net";
     private static final int    port = 6321;
@@ -45,24 +44,47 @@ public class EastAngliaMapClient
     public  static final Color RED     = new Color(190, 20, 20);
     public  static final Color BLUE    = new Color(0, 255, 255);
 
-    public  static String launchTime      = getTime();
-    public  static long   lastMessageTime = new Date().getTime();
+    public  static String[] args;
 
+    private static long    lastReconnectAttempt;
     public  static boolean connect       = true;
     public  static boolean blockKeyInput = false;
     //</editor-fold>
 
     public static void main(String[] args)
     {
+        EastAngliaMapClient.args = args;
+
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {}
 
-        for (String arg : args)
-            if (arg.toLowerCase().equals("-screencap"))
+        try
+        {
+            URL url = new URL("https://raw.githubusercontent.com/Shwam3/EastAngliaSignalMapClient/master/version.txt");
+            Scanner s = new Scanner(url.openStream());
+            int remoteVersion = s.nextInt();
+
+            printStartup("local: " + VERSION + ", remote: " + remoteVersion, false);
+            if (remoteVersion > Integer.parseInt(VERSION))
             {
-                EventHandler.startScreenCapture(60000 * 5, new File("C:\\Users\\Shwam\\Dropbox\\EASignalMapMobile").getAbsolutePath());
-                break;
+                printStartup("New version available", false);
+                if (JOptionPane.showConfirmDialog(null, "A new version is available, download now?", "Updater", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+                {
+                    Desktop.getDesktop().browse(new URI("http://easignalmap.altervista.org/EastAngliaSignalMapClient.exe"));
+                    printStartup("Downloading new version", false);
+                    System.exit(0);
+                }
             }
+        }
+        catch (FileNotFoundException e) { printStartup("Cant find remote version file", true); }
+        catch (URISyntaxException e) {}
+        catch (IOException e) { printStartup("Error reading remote version file", true); }
+
+        //EventHandler.startScreenCapture(60000 * 5, "C:\\Users\\Shwam\\Dropbox\\EASignalMapMobile");
+        //EventHandler.startScreenCapture(60000 * 5, "C:\\Users\\Shwam\\Copy cambird@f2s.com\\EASigMapMobile");
+        EventHandler.startScreenCapture(60000 * 5, "C:\\Users\\Shwam\\Documents\\GitHub\\EastAngliaSignalMapWebsite\\images");
+
+        handler = new MessageHandler();
 
         EventQueue.invokeLater(new Runnable()
         {
@@ -80,18 +102,18 @@ public class EastAngliaMapClient
                     e.printStackTrace(System.err);
                 }
 
+                SignalMap = new SignalMap();
+
                 try
                 {
+                    lastReconnectAttempt = System.currentTimeMillis();
+
                     serverSocket = new Socket(host, port); // Throws the errors
-                    printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
 
-                    in  = serverSocket.getInputStream();
-                    out = serverSocket.getOutputStream();
-
-                    SignalMap = new SignalMap();
-
-                    handler = new MessageHandler();
                     handler.sendName(clientName);
+
+                    if (serverSocket.isConnected())
+                        printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
 
                     Runtime.getRuntime().addShutdownHook(new Thread("shutdownHook")
                     {
@@ -100,8 +122,7 @@ public class EastAngliaMapClient
                         {
                             try
                             {
-                                handler.sendSocketClose();
-                                handler.closeSocket();
+                                handler.stop();
                             }
                             catch (NullPointerException e) {}
                         }
@@ -109,14 +130,16 @@ public class EastAngliaMapClient
                 }
                 catch (ConnectException e)
                 {
-                    printStartup("Couldnt connect, server probably down.\n" + e, true);
+                    printStartup("Couldnt connect, server probably down:\n" + String.valueOf(e), true);
                     JOptionPane.showMessageDialog(null, "Unable to connect to host, the server may be down but check your internet connection", "Connection error (ConnEx)", JOptionPane.ERROR_MESSAGE);
                 }
                 catch (IOException e)
                 {
-                    printStartup("Unable to connect to server\n" + e, true);
+                    printStartup("Unable to connect to server:\n" + String.valueOf(e), true);
                     JOptionPane.showMessageDialog(null, "Unable to connect to host, the server may be down but check your internet connection", "Connection error (IOEx)", JOptionPane.ERROR_MESSAGE);
                 }
+
+                SignalMap.setVisible(true);
             }
         });
 
@@ -140,32 +163,40 @@ public class EastAngliaMapClient
         catch (NullPointerException e) {}
     }
 
-    public static void reconnect()
+    public static synchronized void reconnect()
     {
-        handler.sendSocketClose();
-        handler.closeSocket();
-
-        try
+        if (System.currentTimeMillis() - lastReconnectAttempt > 5000)
         {
-            serverSocket = new Socket(host, port);
-            printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
+            lastReconnectAttempt = System.currentTimeMillis();
 
-            in  = serverSocket.getInputStream();
-            out = serverSocket.getOutputStream();
+            handler.sendSocketClose();
+            handler.closeSocket();
 
-            handler = new MessageHandler();
-            handler.sendName(clientName);
+            try
+            {
+                serverSocket = new Socket(InetAddress.getByName(host), port);
+
+                handler.sendName(EastAngliaMapClient.clientName);
+
+                if (serverSocket.isConnected())
+                    printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
+            }
+            catch (ConnectException e)
+            {
+                printStartup("Unable connect, server probably down.\n" + e, true);
+                //JOptionPane.showMessageDialog(null, "Unable to connect to host, the server may be down but check your internet connection", "Connection error (ConnEx)", JOptionPane.ERROR_MESSAGE);
+            }
+            catch (IOException e)
+            {
+                printStartup("Unable to connect to server\n" + e, true);
+                //JOptionPane.showMessageDialog(null, "Unable to connect to host, the server may be down but check your internet connection", "Connection error (IOEx)", JOptionPane.ERROR_MESSAGE);
+            }
         }
-        catch (ConnectException e)
-        {
-            printStartup("Couldnt connect, server probably down.\n" + e, true);
-            JOptionPane.showMessageDialog(null, "Unable to connect to host, the server may be down but check your internet connection", "Connection error (ConnEx)", JOptionPane.ERROR_MESSAGE);
-        }
-        catch (IOException e)
-        {
-            printStartup("Unable to connect to server\n" + e, true);
-            JOptionPane.showMessageDialog(null, "Unable to connect to host, the server may be down but check your internet connection", "Connection error (IOEx)", JOptionPane.ERROR_MESSAGE);
-        }
+        else
+            try { Thread.sleep(1000); }
+            catch (InterruptedException e) {}
+
+        System.gc();
     }
 
     public static String getTime()

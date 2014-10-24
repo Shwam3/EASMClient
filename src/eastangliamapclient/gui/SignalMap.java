@@ -194,7 +194,6 @@ public class SignalMap
 
         frame.pack();
         frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
 
         frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/eastangliamapclient/resources/Icon.png")));
     }
@@ -2842,6 +2841,16 @@ public class SignalMap
         frame.dispose();
     }
 
+    public void setVisible(boolean visible)
+    {
+        frame.setVisible(visible);
+    }
+
+    public boolean isVisible()
+    {
+        return frame.isVisible();
+    }
+
     public SignalMap readFromMap()
     {
         return readFromMap(EastAngliaMapClient.CClassMap);
@@ -2893,5 +2902,11 @@ public class SignalMap
     {
         for (JButton button : buttons)
             button.setVisible(!button.isVisible());
+    }
+
+    public void setTitle(String title)
+    {
+        if (!frame.getTitle().equals(title))
+            frame.setTitle(title);
     }
 }

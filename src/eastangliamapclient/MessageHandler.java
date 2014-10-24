@@ -24,12 +24,12 @@ public class MessageHandler implements Runnable
     public void run()
     {
         startTimeoutTimer();
-        
+
         while (!stop)
         {
             try
             {
-                Object obj = new ObjectInputStream(EastAngliaMapClient.in).readObject();
+                Object obj = new ObjectInputStream(EastAngliaMapClient.serverSocket.getInputStream()).readObject();
 
                 if (obj instanceof HashMap)
                 {
@@ -41,9 +41,8 @@ public class MessageHandler implements Runnable
                     switch (type)
                     {
                         case SOCKET_CLOSE:
-                            JOptionPane.showMessageDialog(null, "Connection to the host has closed/lost.\nYou will need to relaunch the application to reconnect.", "Connection closed by host", JOptionPane.PLAIN_MESSAGE);
-                            printMsgHandler("Connection to host ended", false);
-                            System.exit(0);
+                            JOptionPane.showMessageDialog(null, "Connection to the host has been closed.", "Connection closed by host", JOptionPane.WARNING_MESSAGE);
+                            printMsgHandler("Connection to host closed", false);
                             break;
 
                         case HEARTBEAT_REQUEST:
@@ -53,15 +52,16 @@ public class MessageHandler implements Runnable
 
                         case SEND_ALL:
                             printMsgHandler("Received full map", false);
-                            EastAngliaMapClient.CClassMap.putAll((HashMap) message.get("message"));
+                            HashMap<String, String> fullMap = (HashMap<String, String>) message.get("message");
+                            EastAngliaMapClient.CClassMap.putAll(fullMap);
 
                             if (EastAngliaMapClient.SignalMap != null)
-                                EastAngliaMapClient.SignalMap.readFromMap();
+                                EastAngliaMapClient.SignalMap.readFromMap(fullMap);
                             break;
 
                         case SEND_UPDATE:
                             printMsgHandler("Received update map", false);
-                            Map updateMap = (Map) message.get("message");
+                            HashMap<String, String> updateMap = (HashMap<String, String>) message.get("message");
                             EastAngliaMapClient.CClassMap.putAll(updateMap);
 
                             if (EastAngliaMapClient.SignalMap != null)
@@ -85,6 +85,7 @@ public class MessageHandler implements Runnable
                 }
                 errors = 0;
             }
+            catch (NullPointerException e) {}
             catch (EOFException e) { errors++; }
             catch (IOException | ClassNotFoundException e) {}
         }
@@ -92,18 +93,27 @@ public class MessageHandler implements Runnable
 
     public void stop()
     {
+        timeoutTimer.cancel();
         stop = true;
+
+        sendSocketClose();
+        closeSocket();
+
+        printMsgHandler("Handler & Socket closed", false);
     }
 
     //<editor-fold defaultstate="collapsed" desc="SOCKET_CLOSE">
     public void sendSocketClose()
     {
-        HashMap<String, Object> message = new HashMap<>();
+        if (EastAngliaMapClient.serverSocket != null)
+        {
+            HashMap<String, Object> message = new HashMap<>();
 
-        message.put("type", MessageType.SOCKET_CLOSE.getValue());
+            message.put("type", MessageType.SOCKET_CLOSE.getValue());
 
-        try { new ObjectOutputStream(EastAngliaMapClient.out).writeObject(message); errors = 0; }
-        catch (IOException e) {}
+            try { new ObjectOutputStream(EastAngliaMapClient.serverSocket.getOutputStream()).writeObject(message); errors = 0; }
+            catch (IOException e) {}
+        }
     }
     //</editor-fold>
 
@@ -179,15 +189,23 @@ public class MessageHandler implements Runnable
 
     private void sendMessage(Object message)
     {
-        try { new ObjectOutputStream(EastAngliaMapClient.out).writeObject(message); errors = 0; }
-        catch (IOException e) { errors++; }
+        if (EastAngliaMapClient.serverSocket != null)
+        {
+            try { new ObjectOutputStream(EastAngliaMapClient.serverSocket.getOutputStream()).writeObject(message); errors = 0; }
+            catch (IOException e) { errors++; }
 
-        testErrors();
+            testErrors();
+        }
     }
 
     private void testErrors()
     {
         if (errors > 3)
+        {
+            EastAngliaMapClient.reconnect();
+        }
+
+        if (errors > 5)
         {
             sendSocketClose();
             closeSocket();
@@ -226,21 +244,14 @@ public class MessageHandler implements Runnable
 
     public void closeSocket()
     {
-        if (!stop)
-        {
-            try { EastAngliaMapClient.serverSocket.close(); }
-            catch (IOException e) {}
+        try { EastAngliaMapClient.serverSocket.close(); }
+        catch (IOException e) {}
 
-            try { EastAngliaMapClient.serverSocket.getInputStream().close(); }
-            catch (IOException e) {}
+        try { EastAngliaMapClient.serverSocket.getInputStream().close(); }
+        catch (IOException e) {}
 
-            try { EastAngliaMapClient.serverSocket.getOutputStream().close(); }
-            catch (IOException e) {}
-
-            stop = true;
-
-            printMsgHandler("Connection closed", false);
-        }
+        try { EastAngliaMapClient.serverSocket.getOutputStream().close(); }
+        catch (IOException e) {}
     }
 
     private void printMsgHandler(String message, boolean toErr)
