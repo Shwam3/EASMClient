@@ -5,19 +5,19 @@ import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.*;
-import java.util.List;
+import java.util.ArrayList;
 import javax.swing.*;
 
 public class ListDialog
 {
     private JDialog dialog;
 
-    public ListDialog(final Berth berth, String title, String message, List<String> list)
+    public ListDialog(final Berth berth, String title, String message, ArrayList<String> list)
     {
         if (list == null)
         {
-            JOptionPane.showMessageDialog(null, "Problem with Dialog parameters (1)", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            list = new ArrayList<>();
+            list.add("Error in list (null)");
         }
 
         dialog = new JDialog();
@@ -38,8 +38,7 @@ public class ListDialog
                 {
                     if (berth != null)
                     {
-                        EventHandler.tempOpaqueBerth = null;
-                        berth.setOpaque(false);
+                        EventHandler.getRidOfBerth();
                     }
                 }
             });
@@ -64,7 +63,7 @@ public class ListDialog
         jListSP.setBounds(0, 25, pnl.getWidth(), pnl.getHeight() - 58);
         pnl.add(jListSP);
 
-        JButton okButton = new JButton("OK");
+        final JButton okButton = new JButton("OK");
         okButton.setBounds(102, pnl.getHeight() - 23, 73, 23);
         okButton.addMouseListener(new MouseAdapter()
         {
@@ -76,6 +75,14 @@ public class ListDialog
         });
         pnl.add(okButton);
 
+        dialog.getRootPane().registerKeyboardAction(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                dialog.dispose();
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
 
         dialog.add(pnl);
         dialog.setResizable(false);

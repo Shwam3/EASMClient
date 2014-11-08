@@ -1,20 +1,19 @@
 package eastangliamapclient;
 
-import eastangliamapclient.gui.ListDialog;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 
 public class Berth
 {
-    public        JLabel   label = new JLabel();
+    private final JLabel   label = new JLabel();
 
     private final String[] BERTH_IDs;
     private final String   BERTH_DESCRIPTION;
     private       String   currentHeadcode = "";
     private       String   currentBerthId  = "";
-    private       boolean  isProblematic  = false;
-    private boolean showDescription = false;
+    private       boolean  isProblematic   = false;
+    private       boolean  showDescription = false;
 
     public Berth(JPanel pnl, int x, int y, String... berthIds)
     {
@@ -22,7 +21,15 @@ public class Berth
 
         initLabel(pnl, x, y);
 
-        BERTH_DESCRIPTION = label.getToolTipText().substring(3);
+        BERTH_DESCRIPTION = label.getToolTipText();
+
+        showDescription = EastAngliaMapClient.showDescriptions;
+
+        label.setText(showDescription ? BERTH_DESCRIPTION.substring(2, 6) : "");
+        label.setVisible(EastAngliaMapClient.visible);
+        setOpaque(false);
+
+        colourise();
     }
 
     public void cancel(String berthId)
@@ -63,8 +70,17 @@ public class Berth
         colourise();
     }
 
+    public void setVisible(boolean visible)
+    {
+        label.setVisible(visible);
+        colourise();
+    }
+
     public boolean isProperHeadcode()
     {
+        if (label.getText() != null && label.getText().equals(""))
+            return false;
+
         return Berths.isProperHeadcode(label.getText());
     }
 
@@ -93,13 +109,13 @@ public class Berth
         label.setVerticalAlignment(SwingConstants.CENTER);
         label.setFocusable(false);
         label.setBounds(x, y, 48, 16);
-        label.setText("");
+
         label.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                EventHandler.tdMouseClick(evt);
+                EventHandler.berthClick(evt);
             }
 
             @Override
@@ -138,10 +154,10 @@ public class Berth
             else
                 tooltip.append(", " + BERTH_IDs[i]);
 
-            Berths.putBerth(BERTH_IDs[i], this);
+            Berths.putBerth(BERTH_IDs[i], this, label);
         }
 
-        label.setToolTipText("TD " + tooltip.toString());
+        label.setToolTipText(tooltip.toString());
 
         pnl.add(label);
     }
@@ -173,15 +189,6 @@ public class Berth
         setOpaque(false);
     }
 
-    public void displayBerthsHistory()
-    {
-        List<String> berthsHistory = new ArrayList<>();
-
-        new ListDialog(this, "Berth's History", "Trains which have passed through this berth (" + getBerthDescription() + "):", berthsHistory);
-
-        EventHandler.berthContextMenu.actionInProgress = false;
-    }
-
     @Override
     public String toString()
     {
@@ -191,15 +198,6 @@ public class Berth
     public boolean hasTrain()
     {
         return label.getText() != null && !label.getText().isEmpty();
-    }
-
-    public void displayTrainsHistory()
-    {
-        List<String> trainsHistory = new ArrayList<>();
-
-        new ListDialog(this, "Train's History", "Berths which this train has passed through (" + getBerthDescription() + ") :", trainsHistory);
-
-        EventHandler.berthContextMenu.actionInProgress = false;
     }
 
     public String getHeadcode()

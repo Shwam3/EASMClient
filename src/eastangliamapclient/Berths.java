@@ -2,6 +2,7 @@ package eastangliamapclient;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.swing.JLabel;
 
 public class Berths
@@ -11,16 +12,15 @@ public class Berths
 
     public static boolean containsBerth(String berthId)
     {
-        boolean containsKey = berthMap.containsKey(berthId);
-        return containsKey;
+        return berthMap.containsKey(berthId);
     }
 
-    public static void putBerth(String berthId, Berth berth)
+    public static void putBerth(String berthId, Berth berth, JLabel label)
     {
         if (!containsBerth(berthId))
         {
             berthMap.put(berthId, berth);
-            labelMap.put(berth.label, berth);
+            labelMap.put(label, berth);
         }
     }
 
@@ -28,9 +28,9 @@ public class Berths
     {
         try
         {
-            return Pattern.matches("([0-9][A-Z][0-9][0-9]|[0-9][0-9][0-9][A-Z])", headcode);
+            return Pattern.matches("([0-9][A-Z][0-9]{2}|[0-9]{3}[A-Z])", headcode);
         }
-        catch (Exception e)
+        catch (PatternSyntaxException e)
         {
             return false;
         }
@@ -54,7 +54,7 @@ public class Berths
 
     public static Object[] getAsArray()
     {
-        List<String> list = new ArrayList<>();
+        ArrayList<String> list = new ArrayList<>();
 
         for (Map.Entry pairs : berthMap.entrySet())
         {
@@ -80,7 +80,7 @@ public class Berths
     {
         printBerths("Berth Ids:", false);
 
-        List<String> berthIds = new ArrayList<>();
+        ArrayList<String> berthIds = new ArrayList<>();
 
         for (Map.Entry pairs : berthMap.entrySet())
             berthIds.add(pairs.getKey().toString());
@@ -105,21 +105,21 @@ public class Berths
     {
         EastAngliaMapClient.showDescriptions = !EastAngliaMapClient.showDescriptions;
 
-        List<String> sortedKeys = new ArrayList<>(Berths.getKeySet());
+        ArrayList<String> sortedKeys = new ArrayList<>(Berths.getKeySet());
         for (String key : sortedKeys)
-            Berths.getBerth(key).showDescription(EastAngliaMapClient.showDescriptions);
+            Berths.getBerth(key).showDescription(EastAngliaMapClient.showDescriptions); // Is safe (no null pointing)
     }
 
     public static void toggleBerthVisibilities()
     {
         EastAngliaMapClient.visible = !EastAngliaMapClient.visible;
 
-        List<String> sortedKeys = new ArrayList<>(Berths.getKeySet());
+        ArrayList<String> sortedKeys = new ArrayList<>(Berths.getKeySet());
         for (String key : sortedKeys)
-            Berths.getBerth(key).label.setVisible(EastAngliaMapClient.visible);
+            Berths.getBerth(key).setVisible(EastAngliaMapClient.visible); // Is safe (no null pointing)
     }
 
-    public static void clearMaps()
+    public static void clearMaps() // Why?
     {
         berthMap = new HashMap<>();
         labelMap = new HashMap<>();

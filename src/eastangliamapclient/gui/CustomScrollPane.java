@@ -1,5 +1,6 @@
 package eastangliamapclient.gui;
 
+import eastangliamapclient.EastAngliaMapClient;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseWheelEvent;
 import javax.swing.JScrollBar;
@@ -18,36 +19,39 @@ public class CustomScrollPane extends JScrollPane
 
         addMouseWheelListener(new MouseAdapter()
         {
-            JScrollBar scrollBar;
+            JScrollBar scrollBar = null;
 
             @Override
             public void mouseWheelMoved(MouseWheelEvent evt)
             {
-                if (evt.isShiftDown())
+                if (evt.isControlDown())
+                {
+                    int newValue = EastAngliaMapClient.SignalMap.TabBar.getSelectedIndex() + evt.getWheelRotation();
+
+                    if (newValue < 0)
+                        EastAngliaMapClient.SignalMap.TabBar.setSelectedIndex(EastAngliaMapClient.SignalMap.TabBar.getTabCount() - 1);
+                    else if (newValue > EastAngliaMapClient.SignalMap.TabBar.getTabCount() - 1)
+                        EastAngliaMapClient.SignalMap.TabBar.setSelectedIndex(0);
+                    else
+                        EastAngliaMapClient.SignalMap.TabBar.setSelectedIndex(newValue);
+
+                    EastAngliaMapClient.SignalMap.TabBar.requestFocusInWindow();
+                    evt.consume();
+                    return;
+                }
+                else if (evt.isShiftDown())
                     scrollBar = getHorizontalScrollBar();
-                else
+                else if (!evt.isControlDown() && !evt.isShiftDown() && !evt.isAltDown() && !evt.isAltGraphDown())
                     scrollBar = getVerticalScrollBar();
+                else
+                    return;
 
                 if (evt.getWheelRotation() >= 1) // Down/Right
-                {
-                    int scrollAmount = evt.getScrollAmount();
-                    int newValue = scrollBar.getValue() + scrollBar.getUnitIncrement() * scrollAmount;
-
-                    if (newValue <= scrollBar.getMaximum())
-                        scrollBar.setValue(newValue);
-
-                    evt.consume();
-                }
+                    scrollBar.setValue(Math.max(Math.min(scrollBar.getValue() + scrollBar.getUnitIncrement() * evt.getScrollAmount(), scrollBar.getMaximum()), scrollBar.getMinimum()));
                 else if (evt.getWheelRotation() <= -1) // Up/Left
-                {
-                    int scrollAmount = evt.getScrollAmount();
-                    int newValue = scrollBar.getValue() - scrollBar.getUnitIncrement() * scrollAmount;
+                    scrollBar.setValue(Math.max(Math.min(scrollBar.getValue() - scrollBar.getUnitIncrement() * evt.getScrollAmount(), scrollBar.getMaximum()), scrollBar.getMinimum()));
 
-                    if (newValue >= 0)
-                        scrollBar.setValue(newValue);
-
-                    evt.consume();
-                }
+                evt.consume();
             }
         });
     }

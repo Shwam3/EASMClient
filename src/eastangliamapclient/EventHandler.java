@@ -15,203 +15,95 @@ import javax.swing.*;
 
 public class EventHandler
 {
-    public static Berth tempOpaqueBerth = null;
-    public static BerthContextMenu berthContextMenu = null;
+    public  static Berth tempOpaqueBerth = null;
+    public  static BerthContextMenu berthContextMenu = null;
     private static String screencapPath;
-
-    //<editor-fold defaultstate="collapsed" desc="Update Last Message Clocks">
-    public static void updateLastMsgClock()
-    {
-        /*Date currentTime = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-
-        EastAngliaMapClient.lastMessageTime = currentTime.getTime();
-
-        for (JLabel lbl : EastAngliaMapClient.SignalMap.lastMsgLbls)
-            lbl.setText(sdf.format(currentTime));*/
-    }
-    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Station Click">
     public static void stnClick(MouseEvent evt)
     {
-        if (evt.getButton() == 1)
+        if (SwingUtilities.isLeftMouseButton(evt))
         {
             JLabel lbl = (JLabel) evt.getComponent();
 
             try
             {
                 if (evt.isControlDown())
-                    EastAngliaMapClient.desktop.browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + lbl.getToolTipText() + new SimpleDateFormat("/yyyy/MM/dd").format(new Date()) + "/0000-2359?stp=WVS&show=all&order=wtt"));
+                    Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + lbl.getToolTipText() + new SimpleDateFormat("/yyyy/MM/dd").format(new Date()) + "/0000-2359?stp=WVS&show=all&order=wtt"));
                 else
-                    EastAngliaMapClient.desktop.browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + lbl.getToolTipText() + "?stp=WVS&show=all&order=wtt"));
-            }
-            catch (URISyntaxException | IOException ex) {}
-            finally
-            {
+                    Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + lbl.getToolTipText() + "?stp=WVS&show=all&order=wtt"));
+
                 evt.consume();
             }
+            catch (URISyntaxException | IOException ex) {}
         }
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Last Messsage Click">
-    public static void lastMessageClick(MouseEvent evt)
-    {
-        /*JLabel evtLabel = (JLabel)evt.getComponent();
-
-        if (evtLabel.getText().equals("NO  DATA") && EastAngliaMapClient.connect)
-            lastMessageNoData();
-
-        for (JLabel lbl : EastAngliaMapClient.SignalMap.lastMsgLbls)
-        {
-            lbl.setForeground(EastAngliaMapClient.GREEN);
-            lbl.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-        }*/
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Last Message (No Data)">
-    public static void lastMessageNoData()
-    {
-        /*if (EastAngliaMapClient.connect)
-        {
-            for (JLabel lbl : EastAngliaMapClient.SignalMap.lastMsgLbls)
-            {
-                lbl.setText("NO  DATA");
-                lbl.setForeground(Color.red);
-                lbl.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            }
-        }*/
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Log File Button Click">
-    public static void butOutputClicked(MouseEvent evt)
-    {
-        /*if (evt.getButton() == 1)
-        {
-            try
-            {
-                EastAngliaMapClient.desktop.open(EastAngliaMapClient.outFile);
-            }
-            catch (IOException | NullPointerException e) {}
-            evt.consume();
-        }*/
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Filtered Log File Button Click">
-    public static void butErrorClicked(MouseEvent evt)
-    {
-        /*if (evt.getButton() == 1)
-        {
-            try
-            {
-                EastAngliaMapClient.desktop.open(EastAngliaMapClient.errFile);
-            }
-            catch (IOException | NullPointerException e) {}
-            evt.consume();
-        }*/
-    }
-    //</editor-fold>
-
     //<editor-fold defaultstate="collapsed" desc="Berth Click">
-    public static void tdMouseClick(MouseEvent evt)
+    public static void berthClick(MouseEvent evt)
     {
-        JLabel lbl = (JLabel) evt.getComponent();
-        Berth berth = Berths.getBerth(lbl);
+        Berth berth = Berths.getBerth((JLabel) evt.getComponent());
 
-        if (evt.getButton() == 3 || evt.isPopupTrigger())
+        if (berth == null)
+            return;
+
+        if (SwingUtilities.isRightMouseButton(evt) || evt.isPopupTrigger())
         {
             tempOpaqueBerth = berth;
             tempOpaqueBerth.setOpaque(true);
 
             berthContextMenu = new BerthContextMenu(berth, evt.getComponent(), evt.getX(), evt.getY());
             evt.consume();
-
         }
 
-        if (evt.getButton() == 1)
-        {
-            berth.setOpaque(true);
-
-            if (berthEvent(evt.isShiftDown(), evt.isControlDown(), evt.isAltDown() || evt.isAltGraphDown(), berth.isProperHeadcode(), berth))
+        try {
+            if (SwingUtilities.isLeftMouseButton(evt))
             {
-                tempOpaqueBerth = null;
+                berth.setOpaque(true);
+
+                if (berth.isProperHeadcode())
+                    Desktop.getDesktop().browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s%s", berth.getHeadcode(), evt.isControlDown() || berth.getHeadcode().matches("[0-9]{3}[A-Z]") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
+
+                getRidOfBerth();
                 evt.consume();
             }
         }
+        catch (URISyntaxException | IOException e) {}
 
         berth.setOpaque(false);
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Berth Event">
-    private static boolean berthEvent(boolean shift, boolean control, boolean alt, boolean properHeadcode, Berth berth)
-    {
-        EastAngliaMapClient.blockKeyInput = true;
-
-        if (alt && !shift && !control)
-        {
-            if (berth.setProblematicBerth(!berth.isProblematic()))
-            {
-                if (!berth.hasTrain())
-                    berth.interpose("-LP-", berth.getCurrentId(true));
-            }
-            else
-                if (berth.getHeadcode().equals("-LP-"))
-                    berth.cancel(berth.getCurrentId(true));
-
-            EastAngliaMapClient.blockKeyInput = false;
-            return true;
-        }
-
-        try
-        {
-            if (properHeadcode)
-            {
-                EastAngliaMapClient.desktop.browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s%s",
-                        berth.getHeadcode(), control || berth.getHeadcode().matches("[0-9]{3}[A-Z]") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
-
-                EastAngliaMapClient.blockKeyInput = false;
-                return true;
-            }
-        }
-        finally
-        {
-            EastAngliaMapClient.blockKeyInput = false;
-            return false;
-        }
-    }
-    //</editor-fold>
-
     //<editor-fold defaultstate="collapsed" desc="Berth Menu Click">
-    public static void berthMenuItemClick(ActionEvent evt, Berth berth)
+    public static void berthMenuClick(ActionEvent evt, Berth berth)
     {
-        boolean isProperHeadcode = berth.isProperHeadcode();
-
-        switch (evt.getActionCommand().toLowerCase())
+        switch (evt.getActionCommand())
         {
-            case "search headcode":
-                berthEvent(false, false, false, isProperHeadcode, berth);
+            case "Search Headcode":
+                try
+                {
+                    Desktop.getDesktop().browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s%s", berth.getHeadcode(), berth.getHeadcode().matches("[0-9]{3}[A-Z]") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
+                }
+                catch (URISyntaxException | IOException e) {}
                 break;
 
-            case "train\'s history":
+            case "Train\'s History":
                 if (berth.hasTrain())
                     EastAngliaMapClient.handler.requestHistoryOfTrain(berth.getCurrentId(true));
+                else
+                    getRidOfBerth();
                 break;
 
-            case "berth\'s history":
+            case "Berth\'s History":
                 EastAngliaMapClient.handler.requestHistoryOfBerth(berth.getCurrentId(true));
                 break;
 
             default:
-                if (evt.getActionCommand().toLowerCase().startsWith("berth\'s history"))
+                if (evt.getActionCommand().startsWith("Berth\'s History"))
                 {
                     String id = evt.getActionCommand().substring(17, 23);
                     EastAngliaMapClient.handler.requestHistoryOfBerth(id);
-                    //System.out.println("id: " + id);
                 }
                 break;
         }
@@ -228,28 +120,30 @@ public class EventHandler
             @Override
             public boolean dispatchKeyEvent(KeyEvent evt)
             {
-                if (!EastAngliaMapClient.blockKeyInput)
+                if (evt.isConsumed())
+                    return false;
+
+                if (evt.getID() == KeyEvent.KEY_PRESSED || evt.getID() == KeyEvent.KEY_TYPED && !EastAngliaMapClient.blockKeyInput)
                 {
-                    int keyCode = evt.getKeyCode();
-                    int newIndex = -1;
+                    int keyCode = evt.getKeyCode() - 112;
 
-                    if (((keyCode >= 49) && (keyCode <= 57))) // Number keys
+                    if (keyCode >= 0 && keyCode <= EastAngliaMapClient.SignalMap.TabBar.getTabCount() - 1) // Function keys
                     {
-                        newIndex = keyCode - 49;
-                    }
-                    else if (((keyCode >= 112) && (keyCode <= 123))) // Function keys
-                    {
-                        newIndex = keyCode - 112;
-                    }
+                        if (evt.isControlDown()) // Control for 13-24
+                            keyCode += 13;
+                        if (evt.isShiftDown()) // Shift for 25-36, both for 37-48
+                            keyCode += 25;
 
-                    if (newIndex != -1 || newIndex >= 0 && newIndex <= SignalMap.TabBar.getTabCount() - 1)
-                    {
-                        SignalMap.TabBar.setSelectedIndex(newIndex);
-                        evt.consume();
+                        if (keyCode >= 0 && keyCode <= EastAngliaMapClient.SignalMap.TabBar.getTabCount() - 1)
+                        {
+                            EastAngliaMapClient.SignalMap.TabBar.setSelectedIndex(keyCode);
+                            evt.consume();
+                            return true;
+                        }
                     }
                 }
 
-                if (!evt.isConsumed() && evt.getID() == KeyEvent.KEY_TYPED)
+                if (evt.getID() == KeyEvent.KEY_TYPED)
                 {
                     switch (Character.toString(evt.getKeyChar()).toLowerCase())
                     {
@@ -271,7 +165,7 @@ public class EventHandler
 
                         case "r":
                             EastAngliaMapClient.blockKeyInput = false;
-                            EastAngliaMapClient.refresh();
+                            //EastAngliaMapClient.refresh();
                             System.gc();
                             break;
 
@@ -292,27 +186,20 @@ public class EventHandler
                             break;
 
                         case "t":
-                            int tab = EastAngliaMapClient.SignalMap.TabBar.getSelectedIndex();
+                            if (!EastAngliaMapClient.blockKeyInput)
+                            {
+                                int tab = EastAngliaMapClient.SignalMap.TabBar.getSelectedIndex();
 
-                            EastAngliaMapClient.SignalMap.dispose();
-                            EastAngliaMapClient.SignalMap = new SignalMap();
-                            EastAngliaMapClient.SignalMap.setVisible(true);
-                            EastAngliaMapClient.SignalMap.readFromMap(EastAngliaMapClient.CClassMap);
+                                EastAngliaMapClient.SignalMap.dispose();
+                                EastAngliaMapClient.SignalMap = new SignalMap();
+                                EastAngliaMapClient.SignalMap.setVisible(true);
+                                EastAngliaMapClient.SignalMap.readFromMap(EastAngliaMapClient.CClassMap);
 
-                            EastAngliaMapClient.SignalMap.TabBar.setSelectedIndex(tab);
+                                EastAngliaMapClient.SignalMap.TabBar.setSelectedIndex(tab);
 
-                            // Lovely code
-                            Berths.toggleBerthDescriptions();
-                            Berths.toggleBerthDescriptions();
-
-                            Berths.toggleBerthsOpacities();
-                            Berths.toggleBerthsOpacities();
-
-                            Berths.toggleBerthVisibilities();
-                            Berths.toggleBerthVisibilities();
-
+                                evt.consume();
+                            }
                             System.gc();
-                            evt.consume();
                             break;
 
                     }
@@ -348,7 +235,7 @@ public class EventHandler
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                for (JLabel lbl : EastAngliaMapClient.SignalMap.clockLbls)
+                for (JLabel lbl : EastAngliaMapClient.SignalMap.clocks)
                     lbl.setText(EastAngliaMapClient.getTime());
             }
         });
@@ -373,10 +260,14 @@ public class EventHandler
             @Override
             public void run()
             {
-                if (EastAngliaMapClient.serverSocket != null && EastAngliaMapClient.screencap && EastAngliaMapClient.serverSocket.isConnected())
-                    takeScreencaps();
-                else
-                    printScreencap("Not taking screencaps", false);
+                try
+                {
+                    if (EastAngliaMapClient.serverSocket != null && EastAngliaMapClient.screencap && EastAngliaMapClient.serverSocket.isConnected())
+                        takeScreencaps();
+                    else if (Arrays.deepToString(EastAngliaMapClient.args).contains("-screencap"))
+                        printScreencap("Not taking screencaps", false);
+                }
+                finally { return; }
             }
         }, calendar.getTime(), interval);
 
@@ -387,32 +278,52 @@ public class EventHandler
     {
         try
         {
+            //final long startTime = System.currentTimeMillis();
+
             EastAngliaMapClient.SignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
 
             printScreencap("Updating images (" + EastAngliaMapClient.getTime() + ")", false);
             EastAngliaMapClient.handler.requestAll();
 
-            java.util.List<BufferedImage> images = new ArrayList<>();
-            java.util.List<String> names = new ArrayList<>();
+            ArrayList<BufferedImage> images = new ArrayList<>();
+            ArrayList<String> names = new ArrayList<>();
 
-            EastAngliaMapClient.SignalMap.toggleButtonVisibility();
-            for (JPanel pnl : EastAngliaMapClient.SignalMap.getPanels())
+            EastAngliaMapClient.SignalMap.prepForScreencap();
+            EastAngliaMapClient.SignalMap.repaint();
+
+            for (JPanel panel : EastAngliaMapClient.SignalMap.getPanels())
             {
-                Dimension dim = pnl.getSize();
-                BufferedImage image = (BufferedImage) pnl.createImage(dim.width, dim.height);
+                BufferedImage image = (BufferedImage) panel.createImage(1851, 854);
 
                 Graphics2D g2d = image.createGraphics();
-                g2d.setBackground(pnl.getBackground());
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2d.clearRect(0, 0, dim.width, dim.width);
+                g2d.setBackground(panel.getBackground());
+                //g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.clearRect(0, 0, 1851, 854);
 
-                pnl.paint(g2d);
+                panel.paint(g2d);
+                panel.paintAll(g2d);
 
                 images.add(image);
-                names.add(pnl.getName().replace("/", " + "));
+                names.add(panel.getName().replace("/", " + "));
             }
 
-            EastAngliaMapClient.SignalMap.toggleButtonVisibility();
+            // Fix for Liv St panel
+            JPanel panel = EastAngliaMapClient.SignalMap.getPanels().get(0);
+
+            BufferedImage image = (BufferedImage) panel.createImage(1851, 854);
+
+            Graphics2D g = image.createGraphics();
+            g.setBackground(panel.getBackground());
+            //g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.clearRect(0, 0, 1851, 854);
+
+            panel.paint(g);
+            panel.paintAll(g);
+
+            images.set(0, image);
+            names.set(0, panel.getName().replace("/", " + "));
+
+            EastAngliaMapClient.SignalMap.finishScreencap();
 
             try
             {
@@ -460,35 +371,69 @@ public class EventHandler
                     }
                     catch (FileNotFoundException e)
                     {
-                        printScreencap("FileNotFoundException creating screencap \"" + names.get(i) + "\":\n" + e, true);
+                        printScreencap("FileNotFoundException creating screencap \"" + names.get(i) + "\":\n" + String.valueOf(e), true);
+                        SysTrayHandler.popup("Unable to create screencap \"" + names.get(i) + "\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
                     }
                     catch (IOException e)
                     {
-                        printScreencap("IOException creating screencap \"" + names.get(i) + "\":\n" + e, true);
+                        printScreencap("IOException creating screencap \"" + names.get(i) + "\":\n" + String.valueOf(e), true);
+                        SysTrayHandler.popup("Unable to create screencap \"" + names.get(i) + "\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
                     }
                 }
 
                 ImageIO.write(bigImage, "png", new File(screencapPath, "All.png"));
                 printScreencap("    All.png", false);
-
-                ProcessBuilder pb = new ProcessBuilder(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java.exe",
-                        "-jar", "\"C:\\Users\\Shwam\\Documents\\GitHub\\FTPUploader\\dist\\FTPUploader.jar\"");
-                pb.redirectError(ProcessBuilder.Redirect.INHERIT);
-                pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-                pb.start();
             }
             catch (FileNotFoundException e)
             {
-                printScreencap("FileNotFoundException creating screencap \"All\":\n" + e, true);
+                printScreencap("FileNotFoundException creating screencap \"All\":\n" + String.valueOf(e), true);
+                SysTrayHandler.popup("Unable to create screencap \"All\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
             }
             catch (IOException e)
             {
-                printScreencap("IOException creating screencap \"All\":\n" + e, true);
+                printScreencap("IOException creating screencap \"All\":\n" + String.valueOf(e), true);
+                SysTrayHandler.popup("Unable to create screencap \"All\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
             }
+
+            ProcessBuilder pb = new ProcessBuilder(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java.exe",
+                    "-jar", "\"C:\\Users\\Shwam\\Documents\\GitHub\\FTPUploader\\dist\\FTPUploader.jar\"");
+            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+
+            final Process p = pb.start();
+
+//            final Thread t = new Thread("screencapProcThing")
+//            {
+//                @Override
+//                public void run()
+//                {
+//                    int exit = -9999;
+//                    try { exit = p.waitFor(); }
+//                    catch (InterruptedException e) { printScreencap("Interrupted", true); }
+//
+//                    String doneTime = ((System.currentTimeMillis() - startTime) / 1000) + "." + ((System.currentTimeMillis() - startTime) - (Math.round((System.currentTimeMillis() - startTime) / 1000) * 1000));
+//                    if (!EastAngliaMapClient.SignalMap.isVisible())
+//                        SysTrayHandler.popup("Screencaps done in " + doneTime + "secs" + (exit != 0 ? " (" + exit + ")" : ""), TrayIcon.MessageType.INFO);
+//
+//                    printScreencap("Screencap time: " + doneTime + "s, exit: " + exit, false);
+//                }
+//            };
+//            t.start();
+//
+//            new Timer().schedule(new TimerTask()
+//            {
+//                @Override
+//                public void run()
+//                {
+//                    t.interrupt();
+//                }
+//            }, 120000);
         }
-        catch (NullPointerException e)
+        catch (NullPointerException e) {}
+        catch (IOException e)
         {
-            printScreencap("NPE", true);
+            printScreencap("Unable to start FTP Uploader:\n" + String.valueOf(e), true);
+            SysTrayHandler.popup("Unable to start FTP Uploader\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
         }
         finally
         {
@@ -500,7 +445,8 @@ public class EventHandler
     {
         EastAngliaMapClient.screencap = !EastAngliaMapClient.screencap;
 
-        EastAngliaMapClient.SignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
+        try { EastAngliaMapClient.SignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : "")); }
+        catch (NullPointerException e) {}
         EastAngliaMapClient.handler.sendName(EastAngliaMapClient.clientName);
     }
 
@@ -510,5 +456,15 @@ public class EventHandler
             EastAngliaMapClient.printErr("[Screencap] " + message);
         else
             EastAngliaMapClient.printOut("[Screencap] " + message);
+    }
+
+    public static void getRidOfBerth()
+    {
+        if (tempOpaqueBerth != null)
+        {
+            Berth berth = tempOpaqueBerth;
+            tempOpaqueBerth = null;
+            berth.setOpaque(false);
+        }
     }
 }

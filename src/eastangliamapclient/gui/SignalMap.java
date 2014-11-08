@@ -7,32 +7,22 @@ import eastangliamapclient.EventHandler;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 public class SignalMap
 {
     public JFrame frame;
 
-    public java.util.List<JLabel>  clockLbls    = new ArrayList<>();
-    //public java.util.List<JLabel>  lastMsgLbls  = new ArrayList<>();
-    private java.util.List<JButton> buttons      = new ArrayList<>();
+    public  final ArrayList<JLabel>      clocks    = new ArrayList<>();
+    private final ArrayList<JButton>     buttons   = new ArrayList<>();
+    private final ArrayList<JScrollPane> motdPanes = new ArrayList<>();
 
     //<editor-fold defaultstate="collapsed" desc="Form variables">
-    public static JTabbedPane TabBar;
-
-    private final JLabel bgNorwich     = new JLabel();
-    private final JLabel bgCambridgeEN = new JLabel();
-    private final JLabel bgCambridgeCA = new JLabel();
-    private final JLabel bgIpswich     = new JLabel();
-    private final JLabel bgClacton     = new JLabel();
-    private final JLabel bgColchester  = new JLabel();
-    private final JLabel bgHarlow      = new JLabel();
-    private final JLabel bgHackney     = new JLabel();
-    private final JLabel bgWitham      = new JLabel();
-    private final JLabel bgShenfield   = new JLabel();
-    private final JLabel bgIlford      = new JLabel();
-    private final JLabel bgStratford   = new JLabel();
+    public        JTabbedPane TabBar;
 
     private final JPanel pnlNorwich     = new JPanel();
     private final JPanel pnlCambridgeEN = new JPanel();
@@ -63,13 +53,51 @@ public class SignalMap
 
     public SignalMap()
     {
+        this(new Dimension(1874, 922));
+    }
+
+    public SignalMap(Dimension dim)
+    {
         frame = new JFrame("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
         TabBar = new JTabbedPane();
 
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
+        if (SystemTray.isSupported())
+            frame.addWindowListener(new WindowAdapter()
+            {
+                @Override
+                public void windowClosing(WindowEvent evt)
+                {
+                    EastAngliaMapClient.writeSetting("windowSize", ((int) frame.getSize().getWidth()) + "," + ((int) frame.getSize().getHeight()));
+
+                    if (EastAngliaMapClient.minimiseToSysTray)
+                    {
+                        frame.setVisible(false);
+                        SysTrayHandler.popup("App now in System Tray", TrayIcon.MessageType.INFO);
+                    }
+                    else
+                    {
+                        dispose();
+                        System.exit(0);
+                    }
+                }
+            });
+        else
+            frame.addWindowListener(new WindowAdapter()
+            {
+                @Override
+                public void windowClosing(WindowEvent evt)
+                {
+                    EastAngliaMapClient.writeSetting("windowSize", frame.getSize().getWidth() + "," + frame.getSize().getHeight());
+                    dispose();
+                    System.exit(0);
+                }
+            });
+
         frame.setLocationByPlatform(true);
         frame.setMinimumSize(new Dimension(800, 600));
-        frame.setPreferredSize(new Dimension(1874, 922));
+        frame.setPreferredSize(new Dimension(Math.min(Math.max((int) dim.getWidth(), 800), 1874), Math.min(Math.max((int) dim.getHeight(), 600), 922)));
         frame.setMaximumSize(new Dimension(1874, 922));
         frame.setLayout(new BorderLayout());
 
@@ -177,18 +205,18 @@ public class SignalMap
         spCambridgeEN.setViewportView(pnlCambridgeEN);
         spNorwich    .setViewportView(pnlNorwich);
 
-        TabBar.addTab(pnlStratford.getName(),   null, spStratford,   "London Liverpool Street - Manor Park, Coppermill Jnc & Orient Way");
-        TabBar.addTab(pnlIlford.getName(),      null, spIlford,      "Forest Gate - Harold Wood");
-        TabBar.addTab(pnlShenfield.getName(),   null, spShenfield,   "Harold Wood - Ingatestone");
-        TabBar.addTab(pnlWitham.getName(),      null, spWitham,      "Shenfield - Colchester");
-        TabBar.addTab(pnlHackney.getName(),     null, spHackney,     "Hackney Downs - Chingford, Enfield Town & Cheshunt");
-        TabBar.addTab(pnlHarlow.getName(),      null, spHarlow,      "Cheshunt - Elsenham, Hertford East & Stansted Airport");
-        TabBar.addTab(pnlColchester.getName(),  null, spColchester,  "Colchester - Ipswich");
-        TabBar.addTab(pnlClacton.getName(),     null, spClacton,     "Colchester - Colchester Town, Clacton-on-Sea & Walton-on-the-Naze");
-        TabBar.addTab(pnlIpswich.getName(),     null, spIpswich,     "Ipswich - Stowmarket");
-        TabBar.addTab(pnlCambridgeCA.getName(), null, spCambridgeCA, "Elsenham - Ely");
-        TabBar.addTab(pnlCambridgeEN.getName(), null, spCambridgeEN, "<html>Ely North Jnc - Manea, Kings Lynn & Wymondham<br>Bury St. Edmunds - Ely & Cambridge</html>");
-        TabBar.addTab(pnlNorwich.getName(),     null, spNorwich,     "Stowmarket, Sheringham & Whitlingham Jnc - Norwich");
+        TabBar.addTab(pnlStratford  .getName(), null, spStratford,   "<html>London Liverpool Street - Manor Park, Coppermill Jnc &amp; Orient Way</html>");
+        TabBar.addTab(pnlIlford     .getName(), null, spIlford,      "<html>Forest Gate             - Harold Wood</html>");
+        TabBar.addTab(pnlShenfield  .getName(), null, spShenfield,   "<html>Harold Wood             - Ingatestone</html>");
+        TabBar.addTab(pnlWitham     .getName(), null, spWitham,      "<html>Shenfield               - Colchester</html>");
+        TabBar.addTab(pnlHackney    .getName(), null, spHackney,     "<html>Hackney Downs           - Chingford, Enfield Town &amp; Cheshunt</html>");
+        TabBar.addTab(pnlHarlow     .getName(), null, spHarlow,      "<html>Cheshunt                - Elsenham, Hertford East &amp; Stansted Airport</html>");
+        TabBar.addTab(pnlColchester .getName(), null, spColchester,  "<html>Colchester              - Ipswich</html>");
+        TabBar.addTab(pnlClacton    .getName(), null, spClacton,     "<html>Colchester              - Colchester Town, Clacton-on-Sea &amp; Walton-on-the-Naze</html>");
+        TabBar.addTab(pnlIpswich    .getName(), null, spIpswich,     "<html>Ipswich                 - Stowmarket</html>");
+        TabBar.addTab(pnlCambridgeCA.getName(), null, spCambridgeCA, "<html>Elsenham                - Ely</html>");
+        TabBar.addTab(pnlCambridgeEN.getName(), null, spCambridgeEN, "<html>Ely North Jnc           - Manea, Kings Lynn &amp; Wymondham<br>Bury St. Edmunds - Ely &amp; Cambridge</html>");
+        TabBar.addTab(pnlNorwich    .getName(), null, spNorwich,     "<html>Stowmarket, Sheringham &amp; Whitlingham Jnc - Norwich</html>");
 
         frame.add(TabBar, BorderLayout.CENTER);
 
@@ -324,33 +352,38 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
+        makeNavButton(pnlNorwich, 30,  266, "IPSWICH",   9);
+        makeNavButton(pnlNorwich, 790, 322, "CAMBRIDGE", 11);
+        makeNavButton(pnlNorwich, 820, 338, "(EN)",      11);
+        makeNavButton(pnlNorwich, 704, 162, "BURY ST",   11);
+        makeNavButton(pnlNorwich, 704, 178, "EDMUNDS",   11);
         //</editor-fold>
 
-        placeClocks(pnlNorwich);
-        placeButtons(pnlNorwich);
+        //<editor-fold defaultstate="collapsed" desc="Stations">
+        largeStation(pnlNorwich, 1660, 442, "NORWICH", "NRW");
 
-        //<editor-fold defaultstate="collapsed" desc="Timing Points">
-        makeLargeStation(pnlNorwich, 1660, 442, "NORWICH", "NRW");
-
-        makeSmallStation(pnlNorwich, 630,  226, "DISS",        "DIS");
-        makeSmallStation(pnlNorwich, 573,  458, "CROMER",      "CMR");
-        makeSmallStation(pnlNorwich, 426,  130, "ELMSWELL",    "ESW");
-        makeSmallStation(pnlNorwich, 744,  450, "GUNTON",      "GNT");
-        makeSmallStation(pnlNorwich, 1047, 538, "HOVETON &",   "HXM");
-        makeSmallStation(pnlNorwich, 807,  538, "N WALSHAM",   "NWA");
-        makeSmallStation(pnlNorwich, 666,  506, "ROUGHTON RD", "RNR");
-        makeSmallStation(pnlNorwich, 1122, 538, "SALHOUSE",    "SAH");
-        makeSmallStation(pnlNorwich, 548,  546, "SHERINGHAM",  "SHM");
-        makeSmallStation(pnlNorwich, 554,  130, "THURSTON",    "TRS");
-        makeSmallStation(pnlNorwich, 616,  602, "W RUNTON",    "WRN");
-        makeSmallStation(pnlNorwich, 938,  450, "WORSTEAD",    "WRT");
-        makeSmallStation(pnlNorwich, 1053, 546, "WROXHAM",     "HXM");
+        smallStation(pnlNorwich, 630,  226, "DISS",        "DIS");
+        smallStation(pnlNorwich, 573,  458, "CROMER",      "CMR");
+        smallStation(pnlNorwich, 426,  130, "ELMSWELL",    "ESW");
+        smallStation(pnlNorwich, 744,  450, "GUNTON",      "GNT");
+        smallStation(pnlNorwich, 1047, 538, "HOVETON &",   "HXM");
+        smallStation(pnlNorwich, 807,  538, "N WALSHAM",   "NWA");
+        smallStation(pnlNorwich, 666,  506, "ROUGHTON RD", "RNR");
+        smallStation(pnlNorwich, 1122, 538, "SALHOUSE",    "SAH");
+        smallStation(pnlNorwich, 548,  546, "SHERINGHAM",  "SHM");
+        smallStation(pnlNorwich, 554,  130, "THURSTON",    "TRS");
+        smallStation(pnlNorwich, 616,  602, "W RUNTON",    "WRN");
+        smallStation(pnlNorwich, 938,  450, "WORSTEAD",    "WRT");
+        smallStation(pnlNorwich, 1053, 546, "WROXHAM",     "HXM");
         //</editor-fold>
 
-        bgNorwich.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Norwich+Trowse.png")));
-        bgNorwich.setFocusable(false);
-        pnlNorwich.add(bgNorwich);
-        bgNorwich.setBounds(0, 0, 1854, 860);
+        placeTopBits(pnlNorwich);
+
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Norwich+Trowse.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlNorwich.add(background);
     }
     //</editor-fold>
 
@@ -428,9 +461,9 @@ public class SignalMap
         new Berth(pnlCambridgeEN, 602,  266, "CALT06");
         new Berth(pnlCambridgeEN, 666,  234, "CALT22");
         new Berth(pnlCambridgeEN, 602,  234, "CALT24");
-        new Berth(pnlCambridgeEN, 1130, 266, "CAMR01");
+        new Berth(pnlCambridgeEN, 1002, 266, "CAMR01");
         new Berth(pnlCambridgeEN, 1066, 266, "CAMR02");
-        new Berth(pnlCambridgeEN, 1002, 266, "CAMR03");
+        new Berth(pnlCambridgeEN, 1130, 266, "CAMR03");
         new Berth(pnlCambridgeEN, 1066, 298, "CAMR04");
         new Berth(pnlCambridgeEN, 1130, 298, "CAMR05");
         new Berth(pnlCambridgeEN, 1194, 298, "CAMR06");
@@ -516,39 +549,47 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
+        makeNavButton(pnlCambridgeEN, 1714, 122, "NORWICH", 12);
+
+        makeNavButton(pnlCambridgeEN, 38, 450, "CAMBRIDGE", 10);
+        makeNavButton(pnlCambridgeEN, 68, 466, "(CA)",      10);
+
+        makeNavButton(pnlCambridgeEN, 50,   698, "THURSTON",  12);
+        makeNavButton(pnlCambridgeEN, 1210, 682, "CAMBRIDGE", 10);
+        makeNavButton(pnlCambridgeEN, 1226, 778, "ELY",       12);
         //</editor-fold>
 
-        placeClocks(pnlCambridgeEN);
-        placeButtons(pnlCambridgeEN);
+        //<editor-fold defaultstate="collapsed" desc="Stations">
+        smallStation(pnlCambridgeEN, 1206, 82,  "ATTLEBOROUGH", "ATL");
+        smallStation(pnlCambridgeEN, 477,  170, "BRANDON",      "BND");
+        smallStation(pnlCambridgeEN, 991,  170, "ECCLES RD",    "ECS");
+        smallStation(pnlCambridgeEN, 794,  170, "HARLING RD",   "HRD");
+        smallStation(pnlCambridgeEN, 364,  170, "LAKENHEATH",   "LAK");
+        smallStation(pnlCambridgeEN, 214,  170, "SHIPPEA HILL", "SPP");
+        smallStation(pnlCambridgeEN, 1353, 82,  "SPOONER ROW",  "SPN");
+        smallStation(pnlCambridgeEN, 698,  170, "THETFORD",     "TTF");
+        smallStation(pnlCambridgeEN, 1495, 82,  "WYMONDHAM",    "WMD");
 
-        //<editor-fold defaultstate="collapsed" desc="Timing Points">
-        makeSmallStation(pnlCambridgeEN, 1206, 82,  "ATTLEBOROUGH", "ATL");
-        makeSmallStation(pnlCambridgeEN, 477,  170, "BRANDON",      "BND");
-        makeSmallStation(pnlCambridgeEN, 991,  170, "ECCLES RD",    "ECS");
-        makeSmallStation(pnlCambridgeEN, 794,  170, "HARLING RD",   "HRD");
-        makeSmallStation(pnlCambridgeEN, 364,  82,  "LAKENHEATH",   "LAK");
-        makeSmallStation(pnlCambridgeEN, 214,  82,  "SHIPPEA HILL", "SPP");
-        makeSmallStation(pnlCambridgeEN, 1353, 82,  "SPOONER ROW",  "SPN");
-        makeSmallStation(pnlCambridgeEN, 698,  82,  "THETFORD",     "TTF");
-        makeSmallStation(pnlCambridgeEN, 1495, 82,  "WYMONDHAM",    "WMD");
+        smallStation(pnlCambridgeEN, 852,  330, "DOWNHAM MKT", "DOW");
+        smallStation(pnlCambridgeEN, 1640, 354, "KINGS LYNN",  "KLN");
+        smallStation(pnlCambridgeEN, 660,  298, "LITTLEPORT",  "LTP");
+        smallStation(pnlCambridgeEN, 1121, 242, "WATLINGTON",  "WTG");
 
-        makeSmallStation(pnlCambridgeEN, 852,  330, "DOWNHAM MKT", "DOW");
-        makeSmallStation(pnlCambridgeEN, 1640, 354, "KINGS LYNN",  "KLN");
-        makeSmallStation(pnlCambridgeEN, 660,  298, "LITTLEPORT",  "LTP");
-        makeSmallStation(pnlCambridgeEN, 1121, 242, "WATLINGTON",  "WTG");
+        smallStation(pnlCambridgeEN, 875,  372, "MANEA", "MNE");
 
-        makeSmallStation(pnlCambridgeEN, 875,  372, "MANEA", "MNE");
-
-        makeSmallStation(pnlCambridgeEN, 229,  658, "BURY ST EDMUNDS", "BSE");
-        makeSmallStation(pnlCambridgeEN, 916,  658, "DULLINGHAM",      "DUL");
-        makeSmallStation(pnlCambridgeEN, 597,  658, "KENNETT",         "KNE");
-        makeSmallStation(pnlCambridgeEN, 815,  710, "NEWMARKET",       "NMK");
+        smallStation(pnlCambridgeEN, 229,  658, "BURY ST EDMUNDS", "BSE");
+        smallStation(pnlCambridgeEN, 916,  658, "DULLINGHAM",      "DUL");
+        smallStation(pnlCambridgeEN, 597,  658, "KENNETT",         "KNE");
+        smallStation(pnlCambridgeEN, 815,  710, "NEWMARKET",       "NMK");
         //</editor-fold>
 
-        bgCambridgeEN.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/CambridgeEN.png")));
-        bgCambridgeEN.setFocusable(false);
-        pnlCambridgeEN.add(bgCambridgeEN);
-        bgCambridgeEN.setBounds(0, 0, 1854, 860);
+        placeTopBits(pnlCambridgeEN);
+
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/CambridgeEN.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlCambridgeEN.add(background);
     }
     //</editor-fold>
 
@@ -556,55 +597,56 @@ public class SignalMap
     private void initCambridgeCA()
     {
         //<editor-fold defaultstate="collapsed" desc="TD Berths">
-        new Berth(pnlCambridgeCA, 128,  666, "CA0019");
-        new Berth(pnlCambridgeCA, 192,  698, "CA0020");
-        new Berth(pnlCambridgeCA, 192,  666, "CA0021");
-        new Berth(pnlCambridgeCA, 272,  698, "CA0022");
-        new Berth(pnlCambridgeCA, 336,  666, "CA0023");
-        new Berth(pnlCambridgeCA, 336,  698, "CA0024");
-        new Berth(pnlCambridgeCA, 400,  698, "CA0026");
-        new Berth(pnlCambridgeCA, 400,  666, "CA0027");
-        new Berth(pnlCambridgeCA, 464,  698, "CA0028");
-        new Berth(pnlCambridgeCA, 464,  666, "CA0029");
-        new Berth(pnlCambridgeCA, 528,  698, "CA0030");
-        new Berth(pnlCambridgeCA, 528,  666, "CA0031");
-        new Berth(pnlCambridgeCA, 592,  698, "CA0032");
-        new Berth(pnlCambridgeCA, 592,  666, "CA0033");
-        new Berth(pnlCambridgeCA, 656,  698, "CA0034");
-        new Berth(pnlCambridgeCA, 656,  666, "CA0037");
-        new Berth(pnlCambridgeCA, 720,  698, "CA0038");
-        new Berth(pnlCambridgeCA, 720,  666, "CA0039");
-        new Berth(pnlCambridgeCA, 784,  698, "CA0040");
-        new Berth(pnlCambridgeCA, 784,  666, "CA0041");
-        new Berth(pnlCambridgeCA, 848,  698, "CA0042");
-        new Berth(pnlCambridgeCA, 848,  666, "CA0043");
-        new Berth(pnlCambridgeCA, 912,  698, "CA0044", "CA0047");
-        new Berth(pnlCambridgeCA, 912,  666, "CA0045");
-        new Berth(pnlCambridgeCA, 976,  698, "CA0050");
-        new Berth(pnlCambridgeCA, 976,  666, "CA0051");
-        new Berth(pnlCambridgeCA, 1040, 698, "CA0052");
-        new Berth(pnlCambridgeCA, 1040, 666, "CA0053");
-        new Berth(pnlCambridgeCA, 1104, 698, "CA0054");
-        new Berth(pnlCambridgeCA, 1104, 666, "CA0055");
-        new Berth(pnlCambridgeCA, 1168, 698, "CA0056");
-        new Berth(pnlCambridgeCA, 1168, 666, "CA0057");
-        new Berth(pnlCambridgeCA, 1232, 698, "CA0058");
-        new Berth(pnlCambridgeCA, 1296, 666, "CA0059");
-        new Berth(pnlCambridgeCA, 1296, 698, "CA0060");
-        new Berth(pnlCambridgeCA, 1360, 666, "CA0061");
-        new Berth(pnlCambridgeCA, 1360, 698, "CA0062");
-        new Berth(pnlCambridgeCA, 1360, 730, "CA0064");
-        new Berth(pnlCambridgeCA, 1520, 698, "CA0066");
-        new Berth(pnlCambridgeCA, 1456, 666, "CA0067");
-        new Berth(pnlCambridgeCA, 1584, 698, "CA0072");
-        new Berth(pnlCambridgeCA, 1520, 666, "CA0073");
-        new Berth(pnlCambridgeCA, 1648, 698, "CA0074");
-        new Berth(pnlCambridgeCA, 1584, 666, "CA0075");
-        new Berth(pnlCambridgeCA, 1712, 698, "CA0076");
-        new Berth(pnlCambridgeCA, 1648, 666, "CA0077");
-        new Berth(pnlCambridgeCA, 1712, 666, "CA0079");
-        new Berth(pnlCambridgeCA, 32,   666, "CAL187");
-        new Berth(pnlCambridgeCA, 32,   698, "CAL188");
+        new Berth(pnlCambridgeCA, 272,  154, "CA0211");
+        new Berth(pnlCambridgeCA, 272,  186, "CA0212");
+        new Berth(pnlCambridgeCA, 352,  186, "CA0220");
+        new Berth(pnlCambridgeCA, 352,  122, "CA0223");
+        new Berth(pnlCambridgeCA, 352,  154, "CA0225");
+        new Berth(pnlCambridgeCA, 432,  186, "CA0228");
+        new Berth(pnlCambridgeCA, 432,  154, "CA0229");
+        new Berth(pnlCambridgeCA, 496,  186, "CA0230");
+        new Berth(pnlCambridgeCA, 496,  154, "CA0231");
+        new Berth(pnlCambridgeCA, 560,  186, "CA0232");
+        new Berth(pnlCambridgeCA, 624,  154, "CA0235");
+        new Berth(pnlCambridgeCA, 688,  186, "CA0236");
+        new Berth(pnlCambridgeCA, 688,  154, "CA0237");
+        new Berth(pnlCambridgeCA, 752,  186, "CA0238");
+        new Berth(pnlCambridgeCA, 752,  154, "CA0239");
+        new Berth(pnlCambridgeCA, 816,  186, "CA0240");
+        new Berth(pnlCambridgeCA, 816,  154, "CA0241");
+        new Berth(pnlCambridgeCA, 880,  186, "CA0244");
+        new Berth(pnlCambridgeCA, 880,  154, "CA0245");
+        new Berth(pnlCambridgeCA, 944,  186, "CA0246");
+        new Berth(pnlCambridgeCA, 944,  154, "CA0247");
+        new Berth(pnlCambridgeCA, 1008, 186, "CA0248");
+        new Berth(pnlCambridgeCA, 1008, 154, "CA0249");
+        new Berth(pnlCambridgeCA, 1072, 186, "CA0250");
+        new Berth(pnlCambridgeCA, 1072, 154, "CA0251");
+        new Berth(pnlCambridgeCA, 1136, 186, "CA0252");
+        new Berth(pnlCambridgeCA, 1136, 154, "CA0253");
+        new Berth(pnlCambridgeCA, 1200, 186, "CA0254");
+        new Berth(pnlCambridgeCA, 1200, 122, "CA0255");
+        new Berth(pnlCambridgeCA, 1200, 154, "CA0257");
+        new Berth(pnlCambridgeCA, 1216, 250, "CA0259");
+        new Berth(pnlCambridgeCA, 1280, 218, "CA0262");
+        new Berth(pnlCambridgeCA, 1344, 250, "CA0270");
+        new Berth(pnlCambridgeCA, 1360, 186, "CA0271");
+        new Berth(pnlCambridgeCA, 1424, 234, "CA0272");
+        new Berth(pnlCambridgeCA, 1360, 122, "CA0273");
+        new Berth(pnlCambridgeCA, 1440, 218, "CA0274");
+        new Berth(pnlCambridgeCA, 1440, 186, "CA0276");
+        new Berth(pnlCambridgeCA, 1440, 154, "CA0278");
+        new Berth(pnlCambridgeCA, 1504, 154, "CA0281");
+        new Berth(pnlCambridgeCA, 1504, 186, "CA0283");
+        new Berth(pnlCambridgeCA, 1504, 218, "CA0285");
+        new Berth(pnlCambridgeCA, 1520, 250, "CA0287");
+        new Berth(pnlCambridgeCA, 1600, 186, "CA0288");
+        new Berth(pnlCambridgeCA, 1600, 154, "CA0290");
+        new Berth(pnlCambridgeCA, 1648, 154, "CA0293");
+        new Berth(pnlCambridgeCA, 1648, 186, "CA0295");
+        new Berth(pnlCambridgeCA, 1360, 90,  "CA0765");
+        new Berth(pnlCambridgeCA, 1280, 122, "CA1273");
+        new Berth(pnlCambridgeCA, 1280, 90,  "CA1765");
 
         new Berth(pnlCambridgeCA, 160,  474, "CA0078");
         new Berth(pnlCambridgeCA, 224,  474, "CA0080");
@@ -683,87 +725,90 @@ public class SignalMap
         new Berth(pnlCambridgeCA, 144,  314, "CA0981");
         new Berth(pnlCambridgeCA, 144,  346, "CA0986");
 
-        new Berth(pnlCambridgeCA, 272,  154, "CA0211");
-        new Berth(pnlCambridgeCA, 272,  186, "CA0212");
-        new Berth(pnlCambridgeCA, 352,  186, "CA0220");
-        new Berth(pnlCambridgeCA, 352,  122, "CA0223");
-        new Berth(pnlCambridgeCA, 352,  154, "CA0225");
-        new Berth(pnlCambridgeCA, 432,  186, "CA0228");
-        new Berth(pnlCambridgeCA, 432,  154, "CA0229");
-        new Berth(pnlCambridgeCA, 496,  186, "CA0230");
-        new Berth(pnlCambridgeCA, 496,  154, "CA0231");
-        new Berth(pnlCambridgeCA, 560,  186, "CA0232");
-        new Berth(pnlCambridgeCA, 624,  154, "CA0235");
-        new Berth(pnlCambridgeCA, 688,  186, "CA0236");
-        new Berth(pnlCambridgeCA, 688,  154, "CA0237");
-        new Berth(pnlCambridgeCA, 752,  186, "CA0238");
-        new Berth(pnlCambridgeCA, 752,  154, "CA0239");
-        new Berth(pnlCambridgeCA, 816,  186, "CA0240");
-        new Berth(pnlCambridgeCA, 816,  154, "CA0241");
-        new Berth(pnlCambridgeCA, 880,  186, "CA0244");
-        new Berth(pnlCambridgeCA, 880,  154, "CA0245");
-        new Berth(pnlCambridgeCA, 944,  186, "CA0246");
-        new Berth(pnlCambridgeCA, 944,  154, "CA0247");
-        new Berth(pnlCambridgeCA, 1008, 186, "CA0248");
-        new Berth(pnlCambridgeCA, 1008, 154, "CA0249");
-        new Berth(pnlCambridgeCA, 1072, 186, "CA0250");
-        new Berth(pnlCambridgeCA, 1072, 154, "CA0251");
-        new Berth(pnlCambridgeCA, 1136, 186, "CA0252");
-        new Berth(pnlCambridgeCA, 1136, 154, "CA0253");
-        new Berth(pnlCambridgeCA, 1200, 186, "CA0254");
-        new Berth(pnlCambridgeCA, 1200, 122, "CA0255");
-        new Berth(pnlCambridgeCA, 1200, 154, "CA0257");
-        new Berth(pnlCambridgeCA, 1216, 250, "CA0259");
-        new Berth(pnlCambridgeCA, 1280, 218, "CA0262");
-        new Berth(pnlCambridgeCA, 1344, 250, "CA0270");
-        new Berth(pnlCambridgeCA, 1360, 186, "CA0271");
-        new Berth(pnlCambridgeCA, 1424, 234, "CA0272");
-        new Berth(pnlCambridgeCA, 1360, 122, "CA0273");
-        new Berth(pnlCambridgeCA, 1440, 218, "CA0274");
-        new Berth(pnlCambridgeCA, 1440, 186, "CA0276");
-        new Berth(pnlCambridgeCA, 1440, 154, "CA0278");
-        new Berth(pnlCambridgeCA, 1504, 154, "CA0281");
-        new Berth(pnlCambridgeCA, 1504, 186, "CA0283");
-        new Berth(pnlCambridgeCA, 1504, 218, "CA0285");
-        new Berth(pnlCambridgeCA, 1520, 250, "CA0287");
-        new Berth(pnlCambridgeCA, 1600, 186, "CA0288");
-        new Berth(pnlCambridgeCA, 1600, 154, "CA0290");
-        new Berth(pnlCambridgeCA, 1648, 154, "CA0293");
-        new Berth(pnlCambridgeCA, 1648, 186, "CA0295");
-        new Berth(pnlCambridgeCA, 1360, 90,  "CA0765");
-        new Berth(pnlCambridgeCA, 1280, 122, "CA1273");
-        new Berth(pnlCambridgeCA, 1280, 90,  "CA1765");
+        new Berth(pnlCambridgeCA, 128,  666, "CA0019");
+        new Berth(pnlCambridgeCA, 192,  698, "CA0020");
+        new Berth(pnlCambridgeCA, 192,  666, "CA0021");
+        new Berth(pnlCambridgeCA, 272,  698, "CA0022");
+        new Berth(pnlCambridgeCA, 336,  666, "CA0023");
+        new Berth(pnlCambridgeCA, 336,  698, "CA0024");
+        new Berth(pnlCambridgeCA, 400,  698, "CA0026");
+        new Berth(pnlCambridgeCA, 400,  666, "CA0027");
+        new Berth(pnlCambridgeCA, 464,  698, "CA0028");
+        new Berth(pnlCambridgeCA, 464,  666, "CA0029");
+        new Berth(pnlCambridgeCA, 528,  698, "CA0030");
+        new Berth(pnlCambridgeCA, 528,  666, "CA0031");
+        new Berth(pnlCambridgeCA, 592,  698, "CA0032");
+        new Berth(pnlCambridgeCA, 592,  666, "CA0033");
+        new Berth(pnlCambridgeCA, 656,  698, "CA0034");
+        new Berth(pnlCambridgeCA, 656,  666, "CA0037");
+        new Berth(pnlCambridgeCA, 720,  698, "CA0038");
+        new Berth(pnlCambridgeCA, 720,  666, "CA0039");
+        new Berth(pnlCambridgeCA, 784,  698, "CA0040");
+        new Berth(pnlCambridgeCA, 784,  666, "CA0041");
+        new Berth(pnlCambridgeCA, 848,  698, "CA0042");
+        new Berth(pnlCambridgeCA, 848,  666, "CA0043");
+        new Berth(pnlCambridgeCA, 912,  698, "CA0044", "CA0047");
+        new Berth(pnlCambridgeCA, 912,  666, "CA0045");
+        new Berth(pnlCambridgeCA, 976,  698, "CA0050");
+        new Berth(pnlCambridgeCA, 976,  666, "CA0051");
+        new Berth(pnlCambridgeCA, 1040, 698, "CA0052");
+        new Berth(pnlCambridgeCA, 1040, 666, "CA0053");
+        new Berth(pnlCambridgeCA, 1104, 698, "CA0054");
+        new Berth(pnlCambridgeCA, 1104, 666, "CA0055");
+        new Berth(pnlCambridgeCA, 1168, 698, "CA0056");
+        new Berth(pnlCambridgeCA, 1168, 666, "CA0057");
+        new Berth(pnlCambridgeCA, 1232, 698, "CA0058");
+        new Berth(pnlCambridgeCA, 1296, 666, "CA0059");
+        new Berth(pnlCambridgeCA, 1296, 698, "CA0060");
+        new Berth(pnlCambridgeCA, 1360, 666, "CA0061");
+        new Berth(pnlCambridgeCA, 1360, 698, "CA0062");
+        new Berth(pnlCambridgeCA, 1360, 730, "CA0064");
+        new Berth(pnlCambridgeCA, 1520, 698, "CA0066");
+        new Berth(pnlCambridgeCA, 1456, 666, "CA0067");
+        new Berth(pnlCambridgeCA, 1584, 698, "CA0072");
+        new Berth(pnlCambridgeCA, 1520, 666, "CA0073");
+        new Berth(pnlCambridgeCA, 1648, 698, "CA0074");
+        new Berth(pnlCambridgeCA, 1584, 666, "CA0075");
+        new Berth(pnlCambridgeCA, 1712, 698, "CA0076");
+        new Berth(pnlCambridgeCA, 1648, 666, "CA0077");
+        new Berth(pnlCambridgeCA, 1712, 666, "CA0079");
+        new Berth(pnlCambridgeCA, 32,   666, "CAL187");
+        new Berth(pnlCambridgeCA, 32,   698, "CAL188");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
+        makeNavButton(pnlCambridgeCA, 1748, 162, "ELY",   11);
+        makeNavButton(pnlCambridgeCA, 1736, 178, "N JNC", 11);
+
+        makeNavButton(pnlCambridgeCA, 20, 642, "HARLOW", 6);
         //</editor-fold>
 
-        placeClocks(pnlCambridgeCA);
-        placeButtons(pnlCambridgeCA);
+        //<editor-fold defaultstate="collapsed" desc="Stations">
+        largeStation(pnlCambridgeCA, 1266, 354, "CAMBRIDGE", "CBG");
+        largeStation(pnlCambridgeCA, 1478, 122, "ELY",       "ELY");
 
-        //<editor-fold defaultstate="collapsed" desc="Timing Points">
-        makeLargeStation(pnlCambridgeCA, 1266, 354, "CAMBRIDGE", "CBG");
-        makeLargeStation(pnlCambridgeCA, 1478, 122, "ELY",       "ELY");
-
-        makeSmallStation(pnlCambridgeCA, 906,  730, "AUDLEY END",   "AUD");
-        makeSmallStation(pnlCambridgeCA, 1447, 738, "CHESTERFORD",  "GRC"); //GREAT
-        makeSmallStation(pnlCambridgeCA, 192,  730, "ELSENHAM",     "ESM");
-        makeSmallStation(pnlCambridgeCA, 723,  738, "(ESSEX)",      "NWE"); //NEWPORT
-        makeSmallStation(pnlCambridgeCA, 582,  378, "FOXTON",       "FXN");
-        makeSmallStation(pnlCambridgeCA, 1465, 730, "GREAT",        "GRC"); //CHESTERFORD
-        makeSmallStation(pnlCambridgeCA, 352,  378, "MELDRETH",     "MEL");
-        makeSmallStation(pnlCambridgeCA, 723,  730, "NEWPORT",      "NWE"); //(ESSEX)
-        makeSmallStation(pnlCambridgeCA, 227,  514, "PARKWAY",      "WLF"); //WHITTLESFORD
-        makeSmallStation(pnlCambridgeCA, 712,  506, "SHELFORD",     "SED");
-        makeSmallStation(pnlCambridgeCA, 480,  378, "SHEPRETH",     "STH");
-        makeSmallStation(pnlCambridgeCA, 586,  218, "WATERBEACH",   "WBC");
-        makeSmallStation(pnlCambridgeCA, 212,  506, "WHITTLESFORD", "WLF"); //PARKWAY
+        smallStation(pnlCambridgeCA, 906,  730, "AUDLEY END",   "AUD");
+        smallStation(pnlCambridgeCA, 1447, 738, "CHESTERFORD",  "GRC"); //GREAT
+        smallStation(pnlCambridgeCA, 192,  730, "ELSENHAM",     "ESM");
+        smallStation(pnlCambridgeCA, 723,  738, "(ESSEX)",      "NWE"); //NEWPORT
+        smallStation(pnlCambridgeCA, 582,  378, "FOXTON",       "FXN");
+        smallStation(pnlCambridgeCA, 1465, 730, "GREAT",        "GRC"); //CHESTERFORD
+        smallStation(pnlCambridgeCA, 352,  378, "MELDRETH",     "MEL");
+        smallStation(pnlCambridgeCA, 723,  730, "NEWPORT",      "NWE"); //(ESSEX)
+        smallStation(pnlCambridgeCA, 227,  514, "PARKWAY",      "WLF"); //WHITTLESFORD
+        smallStation(pnlCambridgeCA, 712,  506, "SHELFORD",     "SED");
+        smallStation(pnlCambridgeCA, 480,  378, "SHEPRETH",     "STH");
+        smallStation(pnlCambridgeCA, 586,  218, "WATERBEACH",   "WBC");
+        smallStation(pnlCambridgeCA, 212,  506, "WHITTLESFORD", "WLF"); //PARKWAY
         //</editor-fold>
 
-        bgCambridgeCA.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/CambridgeCA.png")));
-        bgCambridgeCA.setFocusable(false);
-        pnlCambridgeCA.add(bgCambridgeCA);
-        bgCambridgeCA.setBounds(0, 0, 1854, 860);
+        placeTopBits(pnlCambridgeCA);
+
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/CambridgeCA.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlCambridgeCA.add(background);
     }
     //</editor-fold>
 
@@ -899,36 +944,39 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
+        makeNavButton(pnlIpswich, 26, 226, "COLCHESTER", 7);
+
+        makeNavButton(pnlIpswich, 1538, 266, "NORWICH", 12);
         //</editor-fold>
 
-        placeClocks(pnlIpswich);
-        placeButtons(pnlIpswich);
+        //<editor-fold defaultstate="collapsed" desc="Stations">
+        largeStation(pnlIpswich, 216, 370, "IPSWICH", "IPS");
 
-        //<editor-fold defaultstate="collapsed" desc="Timing Points">
-        makeLargeStation(pnlIpswich, 216, 370, "IPSWICH", "IPS");
-
-        makeSmallStation(pnlIpswich, 1293, 642, "BECCLES",        "BCC");
-        makeSmallStation(pnlIpswich, 1186, 698, "BRAMPTON",       "BRP");
-        makeSmallStation(pnlIpswich, 1024, 610, "DARSHAM",        "DSM");
-        makeSmallStation(pnlIpswich, 1140, 450, "DERBY ROAD",     "DBR");
-        makeSmallStation(pnlIpswich, 1604, 450, "FELIXSTOWE",     "FLX");
-        makeSmallStation(pnlIpswich, 1082, 610, "HALESWORTH",     "HAS");
-        makeSmallStation(pnlIpswich, 728,  610, "MELTON",         "MES");
-        makeSmallStation(pnlIpswich, 1137, 314, "NEEDHAM MKT",    "NMT");
-        makeSmallStation(pnlIpswich, 1488, 698, "OULTON BROAD S", "OUS");
-        makeSmallStation(pnlIpswich, 852,  610, "SAXMUNDHAM",     "SAX");
-        makeSmallStation(pnlIpswich, 1428, 314, "STOWMARKET",     "SMK");
-        makeSmallStation(pnlIpswich, 1453, 450, "TRIMLEY",        "TRM");
-        makeSmallStation(pnlIpswich, 777,  610, "WICKHAM MKT",    "WCM");
-        makeSmallStation(pnlIpswich, 961,  354, "WESTERFIELD",    "WFI"); // COL
-        makeSmallStation(pnlIpswich, 497,  610, "WESTERFIELD",    "WFI"); // SAX
-        makeSmallStation(pnlIpswich, 644,  610, "WOODBRIDGE",     "WDB");
+        smallStation(pnlIpswich, 1293, 642, "BECCLES",        "BCC");
+        smallStation(pnlIpswich, 1186, 698, "BRAMPTON",       "BRP");
+        smallStation(pnlIpswich, 1024, 610, "DARSHAM",        "DSM");
+        smallStation(pnlIpswich, 1140, 450, "DERBY ROAD",     "DBR");
+        smallStation(pnlIpswich, 1604, 450, "FELIXSTOWE",     "FLX");
+        smallStation(pnlIpswich, 1082, 610, "HALESWORTH",     "HAS");
+        smallStation(pnlIpswich, 728,  610, "MELTON",         "MES");
+        smallStation(pnlIpswich, 1137, 314, "NEEDHAM MKT",    "NMT");
+        smallStation(pnlIpswich, 1488, 698, "OULTON BROAD S", "OUS");
+        smallStation(pnlIpswich, 852,  610, "SAXMUNDHAM",     "SAX");
+        smallStation(pnlIpswich, 1428, 314, "STOWMARKET",     "SMK");
+        smallStation(pnlIpswich, 1453, 450, "TRIMLEY",        "TRM");
+        smallStation(pnlIpswich, 777,  610, "WICKHAM MKT",    "WCM");
+        smallStation(pnlIpswich, 961,  354, "WESTERFIELD",    "WFI"); // COL
+        smallStation(pnlIpswich, 497,  610, "WESTERFIELD",    "WFI"); // SAX
+        smallStation(pnlIpswich, 644,  610, "WOODBRIDGE",     "WDB");
         //</editor-fold>
 
-        bgIpswich.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Ipswich+Saxmundham.png")));
-        bgIpswich.setFocusable(false);
-        pnlIpswich.add(bgIpswich);
-        bgIpswich.setBounds(0, 0, 1854, 860);
+        placeTopBits(pnlIpswich);
+
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Ipswich+Saxmundham.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlIpswich.add(background);
     }
     //</editor-fold>
 
@@ -999,34 +1047,34 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
-
+        makeNavButton(pnlClacton, 26, 242, "COLCHESTER", 7);
         //</editor-fold>
 
-        placeClocks(pnlClacton);
-        placeButtons(pnlClacton);
-
-        //<editor-fold defaultstate="collapsed" desc="Timing Points">
-        makeSmallStation(pnlClacton, 727,  266, "ALRESFORD",       "ALR"); // (ESSEX)
-        makeSmallStation(pnlClacton, 1034, 570, "CLACTON",         "CLT"); // ON-SEA
-        makeSmallStation(pnlClacton, 144,  354, "COLCH TOWN",      "CET");
-        makeSmallStation(pnlClacton, 446,  506, "FRINTON",         "FRI"); // ON-SEA
-        makeSmallStation(pnlClacton, 1037, 578, "ON-SEA",          "CLT"); // CLACTON
-        makeSmallStation(pnlClacton, 448,  514, "ON-SEA",          "FRI"); // FRINTON
-        makeSmallStation(pnlClacton, 828,  274, "GT BENTLEY",      "GRB");
-        makeSmallStation(pnlClacton, 733,  274, "(ESSEX)",         "ALR"); // ALRESFORD
-        makeSmallStation(pnlClacton, 419,  274, "HYTHE",           "HYH");
-        makeSmallStation(pnlClacton, 305,  514, "KIRBY CROSS",     "KBX");
-        makeSmallStation(pnlClacton, 1205, 282, "THORPE-LE-SOKEN", "TLS");
-        makeSmallStation(pnlClacton, 507,  570, "WALTON-ON",       "WON");
-        makeSmallStation(pnlClacton, 510,  578, "THE-NAZE",        "WON");
-        makeSmallStation(pnlClacton, 984,  274, "WEELEY",          "WEE");
-        makeSmallStation(pnlClacton, 530,  274, "WIVENHOE",        "WIV");
+        //<editor-fold defaultstate="collapsed" desc="Stations">
+        smallStation(pnlClacton, 727,  266, "ALRESFORD",       "ALR"); // (ESSEX)
+        smallStation(pnlClacton, 1034, 570, "CLACTON",         "CLT"); // ON-SEA
+        smallStation(pnlClacton, 144,  354, "COLCH TOWN",      "CET");
+        smallStation(pnlClacton, 446,  506, "FRINTON",         "FRI"); // ON-SEA
+        smallStation(pnlClacton, 1037, 578, "ON-SEA",          "CLT"); // CLACTON
+        smallStation(pnlClacton, 448,  514, "ON-SEA",          "FRI"); // FRINTON
+        smallStation(pnlClacton, 828,  274, "GT BENTLEY",      "GRB");
+        smallStation(pnlClacton, 733,  274, "(ESSEX)",         "ALR"); // ALRESFORD
+        smallStation(pnlClacton, 419,  274, "HYTHE",           "HYH");
+        smallStation(pnlClacton, 305,  514, "KIRBY CROSS",     "KBX");
+        smallStation(pnlClacton, 1205, 282, "THORPE-LE-SOKEN", "TLS");
+        smallStation(pnlClacton, 507,  570, "WALTON-ON",       "WON");
+        smallStation(pnlClacton, 510,  578, "THE-NAZE",        "WON");
+        smallStation(pnlClacton, 984,  274, "WEELEY",          "WEE");
+        smallStation(pnlClacton, 530,  274, "WIVENHOE",        "WIV");
         //</editor-fold>
 
-        bgClacton.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/EastGates+Thorpe+Clacton.png")));
-        bgClacton.setFocusable(false);
-        pnlClacton.add(bgClacton);
-        bgClacton.setBounds(0, 0, 1854, 860);
+        placeTopBits(pnlClacton);
+
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/EastGates+Thorpe+Clacton.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlClacton.add(background);
     }
     //</editor-fold>
 
@@ -1034,64 +1082,6 @@ public class SignalMap
     private void initColchester()
     {
         //<editor-fold defaultstate="collapsed" desc="TD Berths">
-        new Berth(pnlColchester, 870,  602, "CC0177");
-        new Berth(pnlColchester, 934,  634, "CC0178");
-        new Berth(pnlColchester, 934,  602, "CC0179");
-        new Berth(pnlColchester, 998,  634, "CC0180");
-        new Berth(pnlColchester, 998,  602, "CC0181");
-        new Berth(pnlColchester, 1062, 634, "CC0182");
-        new Berth(pnlColchester, 1062, 602, "CC0183");
-        new Berth(pnlColchester, 1142, 634, "CC0184");
-        new Berth(pnlColchester, 1142, 602, "CC0185");
-        new Berth(pnlColchester, 1206, 634, "CC0186");
-        new Berth(pnlColchester, 1206, 602, "CC0187");
-        new Berth(pnlColchester, 1270, 634, "CC0188");
-        new Berth(pnlColchester, 1270, 602, "CC0189");
-        new Berth(pnlColchester, 134,  634, "CC1004");
-        new Berth(pnlColchester, 134,  602, "CC1005");
-        new Berth(pnlColchester, 198,  634, "CC1006", "CC4009");
-        new Berth(pnlColchester, 198,  602, "CC1007");
-        new Berth(pnlColchester, 262,  634, "CC1008");
-        new Berth(pnlColchester, 262,  602, "CC1009", "CC4006");
-        new Berth(pnlColchester, 326,  634, "CC1010", "CC4013");
-        new Berth(pnlColchester, 326,  602, "CC1011");
-        new Berth(pnlColchester, 422,  666, "CC1020");
-        new Berth(pnlColchester, 438,  490, "CC1021");
-        new Berth(pnlColchester, 422,  634, "CC1022");
-        new Berth(pnlColchester, 438,  522, "CC1023");
-        new Berth(pnlColchester, 470,  602, "CC1027");
-        new Berth(pnlColchester, 406,  538, "CC1028");
-        new Berth(pnlColchester, 438,  554, "CC1030");
-        new Berth(pnlColchester, 470,  634, "CC1033");
-        new Berth(pnlColchester, 518,  458, "CC1034");
-        new Berth(pnlColchester, 486,  666, "CC1035");
-        new Berth(pnlColchester, 502,  522, "CC1036");
-        new Berth(pnlColchester, 486,  586, "CC1039");
-        new Berth(pnlColchester, 582,  634, "CC1040");
-        new Berth(pnlColchester, 614,  714, "CC1046");
-        new Berth(pnlColchester, 566,  458, "CC1047");
-        new Berth(pnlColchester, 614,  666, "CC1048");
-        new Berth(pnlColchester, 566,  490, "CC1051");
-        new Berth(pnlColchester, 614,  570, "CC1054");
-        new Berth(pnlColchester, 566,  522, "CC1055");
-        new Berth(pnlColchester, 614,  602, "CC1056");
-        new Berth(pnlColchester, 534,  545, "CC1057");
-        new Berth(pnlColchester, 534,  563, "CC1059");
-        new Berth(pnlColchester, 630,  634, "CC1063");
-        new Berth(pnlColchester, 678,  570, "CC1065");
-        new Berth(pnlColchester, 678,  602, "CC1067");
-        new Berth(pnlColchester, 694,  666, "CC1069", "CC1058");
-        new Berth(pnlColchester, 678,  698, "CC1071");
-        new Berth(pnlColchester, 806,  666, "CC1072", "CC1085");
-        new Berth(pnlColchester, 742,  722, "CC1073");
-        new Berth(pnlColchester, 806,  634, "CC1074");
-        new Berth(pnlColchester, 806,  602, "CC1075");
-        new Berth(pnlColchester, 870,  634, "CC1076");
-        new Berth(pnlColchester, 806,  570, "CC1080", "CC1083");
-        new Berth(pnlColchester, 422,  602, "CC4010");
-        new Berth(pnlColchester, 38,   602, "CCAPDM");
-        new Berth(pnlColchester, 38,   634, "CCAPUM");
-
         new Berth(pnlColchester, 214,  282, "CC0190");
         new Berth(pnlColchester, 214,  250, "CC0191");
         new Berth(pnlColchester, 294,  282, "CC0194");
@@ -1158,34 +1148,97 @@ public class SignalMap
         new Berth(pnlColchester, 1622, 378, "CCP058");
         new Berth(pnlColchester, 1670, 378, "CCP065");
         new Berth(pnlColchester, 1734, 378, "CCP074");
-        new Berth(pnlColchester, 678,  722, "CCP5AR");
-        new Berth(pnlColchester, 614,  690, "CCP6AR");
         new Berth(pnlColchester, 1254, 330, "CCPKSD");
         new Berth(pnlColchester, 1206, 410, "CCPKTP");
         new Berth(pnlColchester, 254,  314, "CCR201");
+
+        new Berth(pnlColchester, 1062, 602, "CC0177");
+        new Berth(pnlColchester, 1126, 634, "CC0178");
+        new Berth(pnlColchester, 1126, 602, "CC0179");
+        new Berth(pnlColchester, 1190, 634, "CC0180");
+        new Berth(pnlColchester, 1190, 602, "CC0181");
+        new Berth(pnlColchester, 1254, 634, "CC0182");
+        new Berth(pnlColchester, 1254, 602, "CC0183");
+        new Berth(pnlColchester, 1334, 634, "CC0184");
+        new Berth(pnlColchester, 1334, 602, "CC0185");
+        new Berth(pnlColchester, 1398, 634, "CC0186");
+        new Berth(pnlColchester, 1398, 602, "CC0187");
+        new Berth(pnlColchester, 1462, 634, "CC0188");
+        new Berth(pnlColchester, 1462, 602, "CC0189");
+        new Berth(pnlColchester, 326,  634, "CC1004");
+        new Berth(pnlColchester, 326,  602, "CC1005");
+        new Berth(pnlColchester, 390,  634, "CC1006", "CC4009");
+        new Berth(pnlColchester, 390,  602, "CC1007");
+        new Berth(pnlColchester, 454,  634, "CC1008");
+        new Berth(pnlColchester, 454,  602, "CC1009", "CC4006");
+        new Berth(pnlColchester, 518,  634, "CC1010", "CC4013");
+        new Berth(pnlColchester, 518,  602, "CC1011");
+        new Berth(pnlColchester, 614,  666, "CC1020");
+        new Berth(pnlColchester, 630,  490, "CC1021");
+        new Berth(pnlColchester, 614,  634, "CC1022");
+        new Berth(pnlColchester, 630,  522, "CC1023");
+        new Berth(pnlColchester, 662,  602, "CC1027");
+        new Berth(pnlColchester, 598,  538, "CC1028");
+        new Berth(pnlColchester, 630,  554, "CC1030");
+        new Berth(pnlColchester, 662,  634, "CC1033");
+        new Berth(pnlColchester, 710,  458, "CC1034");
+        new Berth(pnlColchester, 662,  666, "CC1035");
+        new Berth(pnlColchester, 694,  522, "CC1036");
+        new Berth(pnlColchester, 678,  586, "CC1039");
+        new Berth(pnlColchester, 774,  634, "CC1040");
+        new Berth(pnlColchester, 806,  714, "CC1046");
+        new Berth(pnlColchester, 758,  458, "CC1047");
+        new Berth(pnlColchester, 806,  666, "CC1048");
+        new Berth(pnlColchester, 758,  490, "CC1051");
+        new Berth(pnlColchester, 806,  570, "CC1054");
+        new Berth(pnlColchester, 758,  522, "CC1055");
+        new Berth(pnlColchester, 806,  602, "CC1056");
+        new Berth(pnlColchester, 726,  545, "CC1057");
+        new Berth(pnlColchester, 726,  563, "CC1059");
+        new Berth(pnlColchester, 822,  634, "CC1063");
+        new Berth(pnlColchester, 870,  570, "CC1065");
+        new Berth(pnlColchester, 870,  602, "CC1067");
+        new Berth(pnlColchester, 886,  666, "CC1069", "CC1058");
+        new Berth(pnlColchester, 870,  698, "CC1071");
+        new Berth(pnlColchester, 998,  666, "CC1072", "CC1085");
+        new Berth(pnlColchester, 934,  722, "CC1073");
+        new Berth(pnlColchester, 998,  634, "CC1074");
+        new Berth(pnlColchester, 998,  602, "CC1075");
+        new Berth(pnlColchester, 1062, 634, "CC1076");
+        new Berth(pnlColchester, 998,  570, "CC1080", "CC1083");
+        new Berth(pnlColchester, 614,  602, "CC4010");
+        new Berth(pnlColchester, 230,  602, "CCAPDM");
+        new Berth(pnlColchester, 230,  634, "CCAPUM");
+        new Berth(pnlColchester, 870,  722, "CCP5AR");
+        new Berth(pnlColchester, 806,  690, "CCP6AR");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
+        makeNavButton(pnlColchester, 1262, 266, "IPSWICH", 9);
+
+        makeNavButton(pnlColchester, 142,  618, "WITHAM",  4);
+        makeNavButton(pnlColchester, 1094, 570, "CLACTON", 8);
+        makeNavButton(pnlColchester, 1094, 666, "CLACTON", 8);
         //</editor-fold>
 
-        placeClocks(pnlColchester);
-        placeButtons(pnlColchester);
+        //<editor-fold defaultstate="collapsed" desc="Stations">
+        largeStation(pnlColchester, 802, 746, "COLCHESTER", "COL");
+        largeStation(pnlColchester, 276, 194, "MANNINGTREE", "MNG");
 
-        //<editor-fold defaultstate="collapsed" desc="Timing Points">
-        makeLargeStation(pnlColchester, 610, 746, "COLCHESTER", "COL");
-        makeLargeStation(pnlColchester, 276, 194, "MANNINGTREE", "MNG");
-
-        makeSmallStation(pnlColchester, 1616, 410, "DOVERCOURT",   "DVC");
-        makeSmallStation(pnlColchester, 1414, 322, "HARWICH INT",  "HPQ");
-        makeSmallStation(pnlColchester, 1722, 410, "HARWICH TOWN", "HWC");
-        makeSmallStation(pnlColchester, 681,  322, "MISTLEY",      "MIS");
-        makeSmallStation(pnlColchester, 950,  322, "WRABNESS",     "WRB");
+        smallStation(pnlColchester, 1616, 410, "DOVERCOURT",   "DVC");
+        smallStation(pnlColchester, 1414, 322, "HARWICH INT",  "HPQ");
+        smallStation(pnlColchester, 1722, 410, "HARWICH TOWN", "HWC");
+        smallStation(pnlColchester, 681,  322, "MISTLEY",      "MIS");
+        smallStation(pnlColchester, 950,  322, "WRABNESS",     "WRB");
         //</editor-fold>
 
-        bgColchester.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Colchester+Parkeston.png")));
-        bgColchester.setFocusable(false);
-        pnlColchester.add(bgColchester);
-        bgColchester.setBounds(0, 0, 1854, 860);
+        placeTopBits(pnlColchester);
+
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Colchester+Parkeston.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlColchester.add(background);
     }
     //</editor-fold>
 
@@ -1364,35 +1417,35 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
-        makeNavButton(pnlHarlow, 102, 250, "BRIMSDOWN", 4);
+        makeNavButton(pnlHarlow, 102, 250, "BRIMSDOWN", 5);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Stations">
-        makeSmallStation(pnlHarlow, 548,  138, "BROXBOURNE",     "BXB");
-        makeSmallStation(pnlHarlow, 973,  314, "BISHOPS",        "BIS"); // STORTFORD
-        makeSmallStation(pnlHarlow, 1690, 250, "HARLOW MILL",    "HWM");
-        makeSmallStation(pnlHarlow, 1393, 274, "HARLOW TOWN",    "HWN");
-        makeSmallStation(pnlHarlow, 1406, 322, "MOUNTFITCHET",   "SST"); // STANSTED
-        makeSmallStation(pnlHarlow, 1056, 250, "ROYDON",         "RYN");
-        makeSmallStation(pnlHarlow, 360,  322, "SAWBRIDGEWORTH", "SAW");
-        makeSmallStation(pnlHarlow, 1418, 314, "STANSTED",       "SST"); // MOUNTFITCHET
-        makeSmallStation(pnlHarlow, 967,  322, "STORTFORD",      "BIS"); // BISHOPS
+        smallStation(pnlHarlow, 548,  138, "BROXBOURNE",     "BXB");
+        smallStation(pnlHarlow, 973,  314, "BISHOPS",        "BIS"); // STORTFORD
+        smallStation(pnlHarlow, 1690, 250, "HARLOW MILL",    "HWM");
+        smallStation(pnlHarlow, 1393, 274, "HARLOW TOWN",    "HWN");
+        smallStation(pnlHarlow, 1406, 322, "MOUNTFITCHET",   "SST"); // STANSTED
+        smallStation(pnlHarlow, 1056, 250, "ROYDON",         "RYN");
+        smallStation(pnlHarlow, 360,  322, "SAWBRIDGEWORTH", "SAW");
+        smallStation(pnlHarlow, 1418, 314, "STANSTED",       "SST"); // MOUNTFITCHET
+        smallStation(pnlHarlow, 967,  322, "STORTFORD",      "BIS"); // BISHOPS
 
-        makeSmallStation(pnlHarlow, 1039, 570, "HERTFORD EAST", "HFE");
-        makeSmallStation(pnlHarlow, 183,  570, "RYE HOUSE",     "RYH");
-        makeSmallStation(pnlHarlow, 430,  570, "ST MARGARETS",  "SMT");
-        makeSmallStation(pnlHarlow, 734,  570, "WARE",          "WAR");
+        smallStation(pnlHarlow, 1039, 570, "HERTFORD EAST", "HFE");
+        smallStation(pnlHarlow, 183,  570, "RYE HOUSE",     "RYH");
+        smallStation(pnlHarlow, 430,  570, "ST MARGARETS",  "SMT");
+        smallStation(pnlHarlow, 734,  570, "WARE",          "WAR");
 
-        makeSmallStation(pnlHarlow, 569,  722, "STANSTED AIRPORT", "SSD");
+        smallStation(pnlHarlow, 569,  722, "STANSTED AIRPORT", "SSD");
         //</editor-fold>
 
-        placeClocks(pnlHarlow);
-        placeButtons(pnlHarlow);
+        placeTopBits(pnlHarlow);
 
-        bgHarlow.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Harlow.png")));
-        bgHarlow.setFocusable(false);
-        pnlHarlow.add(bgHarlow);
-        bgHarlow.setBounds(0, 0, 1854, 860);
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Harlow.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlHarlow.add(background);
     }
     //</editor-fold>
 
@@ -1502,7 +1555,7 @@ public class SignalMap
         new Berth(pnlHackney, 586,  330, "WG1325");
         new Berth(pnlHackney, 666,  362, "WG1326");
         new Berth(pnlHackney, 618,  378, "WG1327");
-        new Berth(pnlHackney, 666,  330, "WG1329");
+        new Berth(pnlHackney, 666,  330, "WG1329", "WG5514");
         new Berth(pnlHackney, 794,  362, "WG1330");
         new Berth(pnlHackney, 730,  330, "WG1331");
         new Berth(pnlHackney, 858,  362, "WG1332");
@@ -1620,193 +1673,203 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
-        makeNavButton(pnlHackney, 150, 202, "LIVERPOOL ST", 0);
-        makeNavButton(pnlHackney, 38,  666, "STRATFORD",    0);
+        makeNavButton(pnlHackney, 150, 202, "LIVERPOOL ST", 1);
+        makeNavButton(pnlHackney, 38,  666, "STRATFORD",    1);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Stations">
-        makeSmallStation(pnlHackney, 746,  578, "ANGEL RD",       "AGR");
-        makeSmallStation(pnlHackney, 1191, 578, "BRIMSDOWN",      "BMD");
-        makeSmallStation(pnlHackney, 849,  306, "BRUCE GROVE",    "BVC");
-        makeSmallStation(pnlHackney, 1383, 698, "BUSH HILL",      "BHK"); // PARK
-        makeSmallStation(pnlHackney, 383,  122, "CAMBRIDGE",      "CBH"); // HEATH
-        makeSmallStation(pnlHackney, 301,  722, "CENTRAL",        "WHC"); // WALTHAMSTOW
-        makeSmallStation(pnlHackney, 1706, 666, "CHESHUNT",       "CHN");
-        makeSmallStation(pnlHackney, 1131, 810, "CHINGFORD",      "CHI");
-        makeSmallStation(pnlHackney, 1085, 194, "CLAPTON",        "CPT");
-        makeSmallStation(pnlHackney, 803,  130, "DOWNS",          "HAC"); // HACKNEY
-        makeSmallStation(pnlHackney, 1242, 298, "EDMONTON",       "EDR"); // GREEN
-        makeSmallStation(pnlHackney, 1326, 578, "ENFIELD LOCK",   "ENL");
-        makeSmallStation(pnlHackney, 1650, 826, "ENFIELD TOWN",   "ENF");
-        makeSmallStation(pnlHackney, 560,  130, "FIELDS",         "LOF"); // LONDON
-        makeSmallStation(pnlHackney, 1251, 306, "GREEN",          "EDR"); // EDMONTON
-        makeSmallStation(pnlHackney, 1219, 482, "GROVE",          "TEO"); // THEOBALDS
-        makeSmallStation(pnlHackney, 797,  122, "HACKNEY",        "HAC"); // DOWNS
-        makeSmallStation(pnlHackney, 502,  578, "HALE",           "TOM"); // TOTTENAM
-        makeSmallStation(pnlHackney, 395,  130, "HEATH",          "CBH"); // CAMBRIDGE
-        makeSmallStation(pnlHackney, 749,  714, "HIGHAMS",        "HIP"); // PARK
-        makeSmallStation(pnlHackney, 470,  306, "HILL",           "HIP"); // STAMFORD
-        makeSmallStation(pnlHackney, 560,  122, "LONDON",         "LOF"); // FIELDS
-        makeSmallStation(pnlHackney, 263,  306, "NEWINGTON",      "SKW"); // STOKE
-        makeSmallStation(pnlHackney, 600,  570, "NORTHUMBERLAND", "NUM"); // PARK
-        makeSmallStation(pnlHackney, 1398, 706, "PARK",           "BHK"); // BUSH HILL
-        makeSmallStation(pnlHackney, 758,  722, "PARK",           "HIP"); // HIGHAMS
-        makeSmallStation(pnlHackney, 630,  578, "PARK",           "NUM"); // NORTHUMBERLAND
-        makeSmallStation(pnlHackney, 1057, 578, "PONDERS END",    "PON");
-        makeSmallStation(pnlHackney, 132,  306, "RECTORY RD",     "REC");
-        makeSmallStation(pnlHackney, 675,  298, "SEVEN",          "SVS"); // SISTERS
-        makeSmallStation(pnlHackney, 1111, 306, "SILVER ST",      "SLV");
-        makeSmallStation(pnlHackney, 669,  306, "SISTERS",        "SVS"); // SEVEN
-        makeSmallStation(pnlHackney, 887,  482, "SOUTHBURY",      "SBU");
-        makeSmallStation(pnlHackney, 161,  722, "ST JAMES ST",    "SJS");
-        makeSmallStation(pnlHackney, 458,  298, "STAMFORD",       "SMH"); // HILL
-        makeSmallStation(pnlHackney, 275,  298, "STOKE",          "SKW"); // NEWINGTON
-        makeSmallStation(pnlHackney, 1463, 482, "TURKEY ST",      "TUR");
-        makeSmallStation(pnlHackney, 1207, 474, "THEOBALDS",      "TEO"); // GROVE
-        makeSmallStation(pnlHackney, 487,  570, "TOTTENHAM",      "TOM"); // HALE
-        makeSmallStation(pnlHackney, 289,  714, "WALTHAMSTOW",    "WHC"); // CENTRAL
-        makeSmallStation(pnlHackney, 1451, 578, "WALTHAM CROSS",  "WLC");
-        makeSmallStation(pnlHackney, 971,  306, "WHITE HART LN",  "WHL");
-        makeSmallStation(pnlHackney, 493,  722, "WOOD ST",        "WST");
+        smallStation(pnlHackney, 746,  578, "ANGEL RD",       "AGR");
+        smallStation(pnlHackney, 1191, 578, "BRIMSDOWN",      "BMD");
+        smallStation(pnlHackney, 849,  306, "BRUCE GROVE",    "BVC");
+        smallStation(pnlHackney, 1383, 698, "BUSH HILL",      "BHK"); // PARK
+        smallStation(pnlHackney, 383,  122, "CAMBRIDGE",      "CBH"); // HEATH
+        smallStation(pnlHackney, 301,  722, "CENTRAL",        "WHC"); // WALTHAMSTOW
+        smallStation(pnlHackney, 1706, 666, "CHESHUNT",       "CHN");
+        smallStation(pnlHackney, 1131, 810, "CHINGFORD",      "CHI");
+        smallStation(pnlHackney, 1085, 194, "CLAPTON",        "CPT");
+        smallStation(pnlHackney, 803,  130, "DOWNS",          "HAC"); // HACKNEY
+        smallStation(pnlHackney, 1242, 298, "EDMONTON",       "EDR"); // GREEN
+        smallStation(pnlHackney, 1326, 578, "ENFIELD LOCK",   "ENL");
+        smallStation(pnlHackney, 1650, 826, "ENFIELD TOWN",   "ENF");
+        smallStation(pnlHackney, 560,  130, "FIELDS",         "LOF"); // LONDON
+        smallStation(pnlHackney, 1251, 306, "GREEN",          "EDR"); // EDMONTON
+        smallStation(pnlHackney, 1219, 482, "GROVE",          "TEO"); // THEOBALDS
+        smallStation(pnlHackney, 797,  122, "HACKNEY",        "HAC"); // DOWNS
+        smallStation(pnlHackney, 502,  578, "HALE",           "TOM"); // TOTTENAM
+        smallStation(pnlHackney, 395,  130, "HEATH",          "CBH"); // CAMBRIDGE
+        smallStation(pnlHackney, 749,  714, "HIGHAMS",        "HIP"); // PARK
+        smallStation(pnlHackney, 470,  306, "HILL",           "HIP"); // STAMFORD
+        smallStation(pnlHackney, 560,  122, "LONDON",         "LOF"); // FIELDS
+        smallStation(pnlHackney, 263,  306, "NEWINGTON",      "SKW"); // STOKE
+        smallStation(pnlHackney, 600,  570, "NORTHUMBERLAND", "NUM"); // PARK
+        smallStation(pnlHackney, 1398, 706, "PARK",           "BHK"); // BUSH HILL
+        smallStation(pnlHackney, 758,  722, "PARK",           "HIP"); // HIGHAMS
+        smallStation(pnlHackney, 630,  578, "PARK",           "NUM"); // NORTHUMBERLAND
+        smallStation(pnlHackney, 1057, 578, "PONDERS END",    "PON");
+        smallStation(pnlHackney, 132,  306, "RECTORY RD",     "REC");
+        smallStation(pnlHackney, 675,  298, "SEVEN",          "SVS"); // SISTERS
+        smallStation(pnlHackney, 1111, 306, "SILVER ST",      "SLV");
+        smallStation(pnlHackney, 669,  306, "SISTERS",        "SVS"); // SEVEN
+        smallStation(pnlHackney, 887,  482, "SOUTHBURY",      "SBU");
+        smallStation(pnlHackney, 161,  722, "ST JAMES ST",    "SJS");
+        smallStation(pnlHackney, 458,  298, "STAMFORD",       "SMH"); // HILL
+        smallStation(pnlHackney, 275,  298, "STOKE",          "SKW"); // NEWINGTON
+        smallStation(pnlHackney, 1463, 482, "TURKEY ST",      "TUR");
+        smallStation(pnlHackney, 1207, 474, "THEOBALDS",      "TEO"); // GROVE
+        smallStation(pnlHackney, 487,  570, "TOTTENHAM",      "TOM"); // HALE
+        smallStation(pnlHackney, 289,  714, "WALTHAMSTOW",    "WHC"); // CENTRAL
+        smallStation(pnlHackney, 1451, 578, "WALTHAM CROSS",  "WLC");
+        smallStation(pnlHackney, 971,  306, "WHITE HART LN",  "WHL");
+        smallStation(pnlHackney, 493,  722, "WOOD ST",        "WST");
         //</editor-fold>
 
-        placeClocks(pnlHackney);
-        placeButtons(pnlHackney);
+        placeTopBits(pnlHackney);
 
-        bgHackney.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Hackney+Brimsdown.png")));
-        bgHackney.setFocusable(false);
-        pnlHackney.add(bgHackney);
-        bgHackney.setBounds(0, 0, 1854, 860);
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Hackney+Brimsdown.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlHackney.add(background);
     }
-//</editor-fold>
+    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Witham">
     private void initWitham()
     {
         //<editor-fold defaultstate="collapsed" desc="TD Berths">
-        new Berth(pnlWitham, 730,  394, "SE0669");
-        new Berth(pnlWitham, 794,  394, "SE0671");
-        new Berth(pnlWitham, 858,  362, "SE0675");
-        new Berth(pnlWitham, 858,  394, "SE0677");
-        new Berth(pnlWitham, 922,  394, "SE0683", "SE0712");
-        new Berth(pnlWitham, 986,  394, "SE0685", "SE0716");
-        new Berth(pnlWitham, 1066, 394, "SE0691");
-        new Berth(pnlWitham, 1130, 394, "SE0693", "SE0724");
-        new Berth(pnlWitham, 1194, 394, "SE0695");
-        new Berth(pnlWitham, 1258, 394, "SE0697");
-        new Berth(pnlWitham, 1386, 394, "SE0703", "SE0736");
-        new Berth(pnlWitham, 1450, 394, "SE0705");
-        new Berth(pnlWitham, 858,  426, "SE0710", "SE0679");
-        new Berth(pnlWitham, 1514, 394, "SE0711");
-        new Berth(pnlWitham, 922,  426, "SE0714");
-        new Berth(pnlWitham, 1578, 394, "SE0715", "SE0758");
-        new Berth(pnlWitham, 986,  426, "SE0718", "SE0687");
-        new Berth(pnlWitham, 1066, 426, "SE0722");
-        new Berth(pnlWitham, 1642, 362, "SE0723", "SE0762");
-        new Berth(pnlWitham, 1642, 394, "SE0725", "SE0764");
-        new Berth(pnlWitham, 1130, 426, "SE0726");
-        new Berth(pnlWitham, 1722, 394, "SE0729", "SE0770");
-        new Berth(pnlWitham, 1194, 426, "SE0730");
-        new Berth(pnlWitham, 74,   202, "SE0731");
-        new Berth(pnlWitham, 1258, 426, "SE0732", "SE0701");
-        new Berth(pnlWitham, 138,  202, "SE0733");
-        new Berth(pnlWitham, 1322, 426, "SE0734");
-        new Berth(pnlWitham, 202,  202, "SE0735");
-        new Berth(pnlWitham, 282,  202, "SE0739", "SE0786");
-        new Berth(pnlWitham, 1386, 426, "SE0740");
-        new Berth(pnlWitham, 346,  202, "SE0741");
-        new Berth(pnlWitham, 1450, 426, "SE0742");
-        new Berth(pnlWitham, 410,  202, "SE0747");
-        new Berth(pnlWitham, 474,  202, "SE0751", "SE0794");
-        new Berth(pnlWitham, 538,  202, "SE0755");
-        new Berth(pnlWitham, 1514, 426, "SE0756", "SE0713");
-        new Berth(pnlWitham, 602,  202, "SE0759");
-        new Berth(pnlWitham, 1578, 426, "SE0760", "SE0717");
-        new Berth(pnlWitham, 666,  202, "SE0761");
-        new Berth(pnlWitham, 762,  170, "SE0765", "SE0810");
-        new Berth(pnlWitham, 1642, 426, "SE0766", "SE0727");
-        new Berth(pnlWitham, 826,  138, "SE0767", "SE0818");
-        new Berth(pnlWitham, 762,  202, "SE0769", "SE0812");
-        new Berth(pnlWitham, 1722, 426, "SE0772");
-        new Berth(pnlWitham, 74,   234, "SE0778");
-        new Berth(pnlWitham, 842,  170, "SE0779", "SE0820");
-        new Berth(pnlWitham, 842,  202, "SE0781", "SE0822");
-        new Berth(pnlWitham, 138,  234, "SE0782");
-        new Berth(pnlWitham, 202,  234, "SE0784", "SE0737");
-        new Berth(pnlWitham, 906,  202, "SE0785", "SE0828");
-        new Berth(pnlWitham, 970,  202, "SE0787");
-        new Berth(pnlWitham, 282,  234, "SE0788");
-        new Berth(pnlWitham, 1034, 202, "SE0789");
-        new Berth(pnlWitham, 346,  234, "SE0790");
-        new Berth(pnlWitham, 1098, 202, "SE0791");
-        new Berth(pnlWitham, 410,  234, "SE0792");
-        new Berth(pnlWitham, 474,  234, "SE0796", "SE0753");
-        new Berth(pnlWitham, 1178, 202, "SE0799", "SE0844");
-        new Berth(pnlWitham, 538,  234, "SE0800");
-        new Berth(pnlWitham, 1242, 202, "SE0801");
-        new Berth(pnlWitham, 1306, 202, "SE0803");
-        new Berth(pnlWitham, 602,  234, "SE0804");
-        new Berth(pnlWitham, 1370, 202, "SE0805", "SE0854");
-        new Berth(pnlWitham, 666,  234, "SE0806", "SE0763");
-        new Berth(pnlWitham, 1434, 202, "SE0815");
-        new Berth(pnlWitham, 762,  234, "SE0814", "SE0771");
-        new Berth(pnlWitham, 762,  266, "SE0816", "SE0773");
-        new Berth(pnlWitham, 1498, 202, "SE0817");
-        new Berth(pnlWitham, 1482, 154, "SE0823");
-        new Berth(pnlWitham, 842,  234, "SE0824");
-        new Berth(pnlWitham, 842,  266, "SE0826");
-        new Berth(pnlWitham, 1562, 202, "SE0827", "SE0862");
-        new Berth(pnlWitham, 906,  234, "SE0830");
-        new Berth(pnlWitham, 970,  234, "SE0832");
-        new Berth(pnlWitham, 1034, 234, "SE0834");
-        new Berth(pnlWitham, 1098, 234, "SE0836", "SE0793");
-        new Berth(pnlWitham, 1722, 202, "SE0837", "SE0884");
-        new Berth(pnlWitham, 1178, 234, "SE0846");
-        new Berth(pnlWitham, 1242, 234, "SE0848");
-        new Berth(pnlWitham, 1306, 234, "SE0850", "SE0807");
-        new Berth(pnlWitham, 1370, 234, "SE0856");
-        new Berth(pnlWitham, 1434, 234, "SE0858");
-        new Berth(pnlWitham, 1498, 234, "SE0860", "SE0819");
-        new Berth(pnlWitham, 1562, 234, "SE0864", "SE0829");
-        new Berth(pnlWitham, 1562, 170, "SE0868", "SE0825");
-        new Berth(pnlWitham, 1658, 202, "SE0872");
-        new Berth(pnlWitham, 1658, 234, "SE0874");
-        new Berth(pnlWitham, 1658, 266, "SE0876", "SE5203");
-        new Berth(pnlWitham, 1658, 298, "SE0878", "SEUSDG");
-        new Berth(pnlWitham, 1722, 234, "SE0882", "SE0839");
-        new Berth(pnlWitham, 986,  138, "SE0896");
-        new Berth(pnlWitham, 1050, 138, "SER896");
-        new Berth(pnlWitham, 1338, 154, "SE0898");
-        new Berth(pnlWitham, 1274, 154, "SER898");
-        new Berth(pnlWitham, 1626, 170, "SE5202");
-        new Berth(pnlWitham, 906,  138, "SECRES");
-        new Berth(pnlWitham, 1698, 170, "SEDEPO");
-        new Berth(pnlWitham, 1418, 154, "SESHAL");
+        new Berth(pnlWitham, 186,  202, "SE0747");
+        new Berth(pnlWitham, 250,  202, "SE0751", "SE0794");
+        new Berth(pnlWitham, 314,  202, "SE0755");
+        new Berth(pnlWitham, 378,  202, "SE0759");
+        new Berth(pnlWitham, 442,  202, "SE0761");
+        new Berth(pnlWitham, 602,  170, "SE0765");
+        new Berth(pnlWitham, 666,  138, "SE0767");
+        new Berth(pnlWitham, 602,  202, "SE0769");
+        new Berth(pnlWitham, 602,  234, "SE0771");
+        new Berth(pnlWitham, 602,  266, "SE0773");
+        new Berth(pnlWitham, 682,  170, "SE0779", "SE0820");
+        new Berth(pnlWitham, 682,  202, "SE0781", "SE0822");
+        new Berth(pnlWitham, 746,  202, "SE0785", "SE0828");
+        new Berth(pnlWitham, 810,  202, "SE0787");
+        new Berth(pnlWitham, 874,  202, "SE0789");
+        new Berth(pnlWitham, 938,  202, "SE0791");
+        new Berth(pnlWitham, 186,  234, "SE0792");
+        new Berth(pnlWitham, 250,  234, "SE0796", "SE0753");
+        new Berth(pnlWitham, 1018, 202, "SE0799", "SE0844");
+        new Berth(pnlWitham, 314,  234, "SE0800");
+        new Berth(pnlWitham, 1082, 202, "SE0801");
+        new Berth(pnlWitham, 1146, 202, "SE0803");
+        new Berth(pnlWitham, 378,  234, "SE0804");
+        new Berth(pnlWitham, 1210, 202, "SE0805", "SE0854");
+        new Berth(pnlWitham, 442,  234, "SE0806", "SE0763");
+        new Berth(pnlWitham, 538,  170, "SE0810");
+        new Berth(pnlWitham, 538,  202, "SE0812");
+        new Berth(pnlWitham, 1274, 202, "SE0815");
+        new Berth(pnlWitham, 538,  234, "SE0814");
+        new Berth(pnlWitham, 538,  266, "SE0816");
+        new Berth(pnlWitham, 1338, 202, "SE0817");
+        new Berth(pnlWitham, 714,  138, "SE0818");
+        new Berth(pnlWitham, 1322, 154, "SE0823");
+        new Berth(pnlWitham, 682,  234, "SE0824");
+        new Berth(pnlWitham, 682,  266, "SE0826");
+        new Berth(pnlWitham, 1402, 202, "SE0827", "SE0862");
+        new Berth(pnlWitham, 746,  234, "SE0830");
+        new Berth(pnlWitham, 810,  234, "SE0832");
+        new Berth(pnlWitham, 874,  234, "SE0834");
+        new Berth(pnlWitham, 938,  234, "SE0836", "SE0793");
+        new Berth(pnlWitham, 1498, 202, "SE0837", "SE0884");
+        new Berth(pnlWitham, 1018, 234, "SE0846");
+        new Berth(pnlWitham, 1082, 234, "SE0848");
+        new Berth(pnlWitham, 1146, 234, "SE0850", "SE0807");
+        new Berth(pnlWitham, 1210, 234, "SE0856");
+        new Berth(pnlWitham, 1274, 234, "SE0858");
+        new Berth(pnlWitham, 1338, 234, "SE0860", "SE0819");
+        new Berth(pnlWitham, 1402, 234, "SE0864", "SE0829");
+        new Berth(pnlWitham, 1402, 170, "SE0868", "SE0825");
+        new Berth(pnlWitham, 1562, 202, "SE0872");
+        new Berth(pnlWitham, 1498, 234, "SE0874");
+        new Berth(pnlWitham, 1498, 266, "SE0876", "SE5203");
+        new Berth(pnlWitham, 1498, 298, "SE0878");
+        new Berth(pnlWitham, 1570, 298, "SEUSDG");
+        new Berth(pnlWitham, 1562, 234, "SE0882", "SE0839");
+        new Berth(pnlWitham, 906,  138, "SE0896");
+        new Berth(pnlWitham, 970,  138, "SER896");
+        new Berth(pnlWitham, 1178, 154, "SE0898");
+        new Berth(pnlWitham, 1114, 154, "SER898");
+        new Berth(pnlWitham, 602,  290, "SE5189");
+        new Berth(pnlWitham, 1466, 170, "SE5202");
+        new Berth(pnlWitham, 810,  138, "SECRES");
+        new Berth(pnlWitham, 1538, 170, "SEDEPO");
+        new Berth(pnlWitham, 1250, 154, "SESHAL");
+
+        new Berth(pnlWitham, 250,  394, "SE0669");
+        new Berth(pnlWitham, 314,  394, "SE0671");
+        new Berth(pnlWitham, 378,  362, "SE0675");
+        new Berth(pnlWitham, 378,  394, "SE0677");
+        new Berth(pnlWitham, 442,  394, "SE0683", "SE0712");
+        new Berth(pnlWitham, 506,  394, "SE0685", "SE0716");
+        new Berth(pnlWitham, 586,  394, "SE0691");
+        new Berth(pnlWitham, 650,  394, "SE0693", "SE0724");
+        new Berth(pnlWitham, 714,  394, "SE0695");
+        new Berth(pnlWitham, 778,  394, "SE0697");
+        new Berth(pnlWitham, 906,  394, "SE0703", "SE0736");
+        new Berth(pnlWitham, 970,  394, "SE0705");
+        new Berth(pnlWitham, 378,  426, "SE0710", "SE0679");
+        new Berth(pnlWitham, 1034, 394, "SE0711");
+        new Berth(pnlWitham, 442,  426, "SE0714");
+        new Berth(pnlWitham, 1098, 394, "SE0715", "SE0758");
+        new Berth(pnlWitham, 506,  426, "SE0718", "SE0687");
+        new Berth(pnlWitham, 586,  426, "SE0722");
+        new Berth(pnlWitham, 1162, 362, "SE0723", "SE0762");
+        new Berth(pnlWitham, 1162, 394, "SE0725", "SE0764");
+        new Berth(pnlWitham, 650,  426, "SE0726");
+        new Berth(pnlWitham, 1242, 394, "SE0729", "SE0770");
+        new Berth(pnlWitham, 714,  426, "SE0730");
+        new Berth(pnlWitham, 1306, 394, "SE0731");
+        new Berth(pnlWitham, 778,  426, "SE0732", "SE0701");
+        new Berth(pnlWitham, 1370, 394, "SE0733");
+        new Berth(pnlWitham, 842,  426, "SE0734");
+        new Berth(pnlWitham, 1434, 394, "SE0735");
+        new Berth(pnlWitham, 1514, 394, "SE0739", "SE0786");
+        new Berth(pnlWitham, 906,  426, "SE0740");
+        new Berth(pnlWitham, 1578, 394, "SE0741");
+        new Berth(pnlWitham, 970,  426, "SE0742");
+        new Berth(pnlWitham, 1034, 426, "SE0756", "SE0713");
+        new Berth(pnlWitham, 1098, 426, "SE0760", "SE0717");
+        new Berth(pnlWitham, 1162, 426, "SE0766", "SE0727");
+        new Berth(pnlWitham, 1242, 426, "SE0772");
+        new Berth(pnlWitham, 1306, 426, "SE0778");
+        new Berth(pnlWitham, 1370, 426, "SE0782");
+        new Berth(pnlWitham, 1434, 426, "SE0784", "SE0737");
+        new Berth(pnlWitham, 1514, 426, "SE0788");
+        new Berth(pnlWitham, 1578, 426, "SE0790");
+        new Berth(pnlWitham, 1162, 330, "SE5186");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
-        makeNavButton(pnlWitham, 568, 410, "SHENFIELD", 2);
+        makeNavButton(pnlWitham, 1650, 218, "COLCHESTER", 7);
+        makeNavButton(pnlWitham, 102,  410, "SHENFIELD",  3);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Stations">
-        makeSmallStation(pnlWitham, 983,  122, "BRAINTREE",   "BTR");
-        makeSmallStation(pnlWitham, 1572, 458, "CHELMSFORD",  "CHM");
-        makeSmallStation(pnlWitham, 474,  266, "HATFIELD",    "HAP");
-        makeSmallStation(pnlWitham, 913,  458, "INGATESTONE", "INT");
-        makeSmallStation(pnlWitham, 1178, 266, "KELVEDON",    "KEL");
-        makeSmallStation(pnlWitham, 1556, 154, "MARKS TEY",   "MKT");
-        makeSmallStation(pnlWitham, 477,  274, "PEVERAL",     "HAP");
-        makeSmallStation(pnlWitham, 1341, 130, "SUDBURY",     "SUY");
-        makeSmallStation(pnlWitham, 768,  290, "WITHAM",      "WTM");
+        smallStation(pnlWitham, 907,  122, "BRAINTREE",   "BTR");
+        smallStation(pnlWitham, 1092, 458, "CHELMSFORD",  "CHM");
+        smallStation(pnlWitham, 250,  266, "HATFIELD",    "HAP");
+        smallStation(pnlWitham, 433,  458, "INGATESTONE", "INT");
+        smallStation(pnlWitham, 1018, 266, "KELVEDON",    "KEL");
+        smallStation(pnlWitham, 1399, 154, "MARKS TEY",   "MKT");
+        smallStation(pnlWitham, 253,  274, "PEVERAL",     "HAP");
+        smallStation(pnlWitham, 1177, 130, "SUDBURY",     "SUY");
+        smallStation(pnlWitham, 576,  154, "WITHAM",      "WTM");
         //</editor-fold>
 
-        placeClocks(pnlWitham);
-        placeButtons(pnlWitham);
+        placeTopBits(pnlWitham);
 
-        bgWitham.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Witham.png")));
-        bgWitham.setFocusable(false);
-        pnlWitham.add(bgWitham);
-        bgWitham.setBounds(0, 0, 1854, 860);
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Witham.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlWitham.add(background);
     }
     //</editor-fold>
 
@@ -1870,16 +1933,18 @@ public class SignalMap
         new Berth(pnlShenfield, 1178, 186, "SE0518");
         new Berth(pnlShenfield, 1178, 250, "SE0522");
         new Berth(pnlShenfield, 1178, 282, "SE0524");
-        new Berth(pnlShenfield, 1434, 154, "SE0528", "SE0505");
+        new Berth(pnlShenfield, 1434, 154, "SE0528");
+        new Berth(pnlShenfield, 1482, 186, "SE0505");
         new Berth(pnlShenfield, 1418, 186, "SE0530", "SE0507");
         new Berth(pnlShenfield, 1370, 250, "SE0534");
         new Berth(pnlShenfield, 1450, 250, "SE0538", "SE0511");
         new Berth(pnlShenfield, 1514, 250, "SE0542");
         new Berth(pnlShenfield, 1578, 250, "SE0544");
+        new Berth(pnlShenfield, 1482, 298, "SE0550");
         new Berth(pnlShenfield, 1322, 314, "SE0552");
         new Berth(pnlShenfield, 1386, 314, "SE0554");
         new Berth(pnlShenfield, 1178, 218, "SE5132");
-        new Berth(pnlShenfield, 1242, 314, "SE5134", "SEUPSG");
+        new Berth(pnlShenfield, 1242, 314, "SE5134");
         new Berth(pnlShenfield, 1082, 122, "SE5137");
         new Berth(pnlShenfield, 1098, 282, "SE5139");
         new Berth(pnlShenfield, 1358, 202, "SEA136");
@@ -1889,8 +1954,9 @@ public class SignalMap
         new Berth(pnlShenfield, 1306, 98,  "SER138");
         new Berth(pnlShenfield, 1306, 202, "SESMS1");
         new Berth(pnlShenfield, 1306, 170, "SESMS2");
+        new Berth(pnlShenfield, 1242, 338, "SEUPSG");
 
-        new Berth(pnlShenfield, 202,  410, "SE0517", "SE0550");
+        new Berth(pnlShenfield, 202,  410, "SE0517");
         new Berth(pnlShenfield, 202,  442, "SE0519");
         new Berth(pnlShenfield, 282,  442, "SE0521", "SE0558");
         new Berth(pnlShenfield, 346,  442, "SE0523");
@@ -2006,52 +2072,55 @@ public class SignalMap
         new Berth(pnlShenfield, 378,  698, "SE0696");
         new Berth(pnlShenfield, 474,  698, "SEBURN");
         new Berth(pnlShenfield, 538,  698, "SE0708");
-        new Berth(pnlShenfield, 602,  698, "SER708");
         new Berth(pnlShenfield, 1194, 506, "SE5146");
         new Berth(pnlShenfield, 1162, 410, "SE5157");
+        new Berth(pnlShenfield, 602,  698, "SER708");
         new Berth(pnlShenfield, 1090, 410, "SEWDNS");
+        new Berth(pnlShenfield, 538,  722, "SEX708");
         new Berth(pnlShenfield, 1434, 514, "SE5165", "SEDNSN");
         new Berth(pnlShenfield, 1434, 658, "SE5167", "SEUPSN");
         new Berth(pnlShenfield, 1530, 658, "SE5170", "SEUPSS");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Stations">
-        makeSmallStation(pnlShenfield, 745,  130, "BRENTWOOD",     "BRE");
-        makeSmallStation(pnlShenfield, 289,  130, "HAROLD WOOD",   "HRO");
-        makeSmallStation(pnlShenfield, 1207, 130, "SHENFIELD",     "SNF");
+        smallStation(pnlShenfield, 745,  130, "BRENTWOOD",     "BRE");
+        smallStation(pnlShenfield, 289,  130, "HAROLD WOOD",   "HRO");
+        smallStation(pnlShenfield, 1207, 130, "SHENFIELD",     "SNF");
 
-        makeSmallStation(pnlShenfield, 1165, 546, "AIRPORT",       "SIA"); // SOUTHEND
-        makeSmallStation(pnlShenfield, 418,  674, "ALTHORNE",      "ALN");
-        makeSmallStation(pnlShenfield, 163,  730, "BATTLESBRIDGE", "BLB");
-        makeSmallStation(pnlShenfield, 596,  418, "BILLERICAY",    "BIC");
-        makeSmallStation(pnlShenfield, 474,  730, "BURNHAM-",      "BUU"); // ON-CROUCH
-        makeSmallStation(pnlShenfield, 229,  674, "FERRERS",       "SOF"); // S WOODHAM
-        makeSmallStation(pnlShenfield, 637,  546, "HOCKLEY",       "HOC");
-        makeSmallStation(pnlShenfield, 305,  762, "N FAMBRIDGE",   "NFA");
-        makeSmallStation(pnlShenfield, 471,  738, "ON-CROUCH",     "BUU"); // BURNHAM-
-        makeSmallStation(pnlShenfield, 1345, 546, "PRITTLEWELL",   "PRL");
-        makeSmallStation(pnlShenfield, 186,  546, "RAYLEIGH",      "RLG");
-        makeSmallStation(pnlShenfield, 1034, 546, "ROCHFORD",      "RFD");
-        makeSmallStation(pnlShenfield, 223,  666, "S WOODHAM",     "SOF"); // FERRERS
-        makeSmallStation(pnlShenfield, 1162, 538, "SOUTHEND",      "SIA"); // AIRPORT
-        makeSmallStation(pnlShenfield, 1790, 586, "SOUTHEND",      "SOV"); // VICTORIA
-        makeSmallStation(pnlShenfield, 526,  674, "SOUTHMINSTER",  "SMN");
-        makeSmallStation(pnlShenfield, 1790, 594, "VICTORIA",      "SOV"); // SOUTHEND
-        makeSmallStation(pnlShenfield, 1258, 394, "WICKFORD",      "WIC");
+        smallStation(pnlShenfield, 596,  418, "BILLERICAY",    "BIC");
+        smallStation(pnlShenfield, 1258, 394, "WICKFORD",      "WIC");
+
+        smallStation(pnlShenfield, 1165, 546+99, "AIRPORT",       "SIA"); // SOUTHEND
+        smallStation(pnlShenfield, 637,  546+88, "HOCKLEY",       "HOC");
+        smallStation(pnlShenfield, 1345, 546+88, "PRITTLEWELL",   "PRL");
+        smallStation(pnlShenfield, 186,  546+88, "RAYLEIGH",      "RLG");
+        smallStation(pnlShenfield, 1034, 546+88, "ROCHFORD",      "RFD");
+        smallStation(pnlShenfield, 1162, 538+99, "SOUTHEND",      "SIA"); // AIRPORT
+        smallStation(pnlShenfield, 1790, 586, "SOUTHEND",      "SOV"); // VICTORIA
+        smallStation(pnlShenfield, 1790, 594, "VICTORIA",      "SOV"); // SOUTHEND
+
+        smallStation(pnlShenfield, 418,  674, "ALTHORNE",      "ALN");
+        smallStation(pnlShenfield, 163,  730, "BATTLESBRIDGE", "BLB");
+        smallStation(pnlShenfield, 474,  730, "BURNHAM-",      "BUU"); // ON-CROUCH
+        smallStation(pnlShenfield, 229,  674, "FERRERS",       "SOF"); // S WOODHAM
+        smallStation(pnlShenfield, 305,  762, "N FAMBRIDGE",   "NFA");
+        smallStation(pnlShenfield, 471,  738, "ON-CROUCH",     "BUU"); // BURNHAM-
+        smallStation(pnlShenfield, 223,  666, "S WOODHAM",     "SOF"); // FERRERS
+        smallStation(pnlShenfield, 526,  674, "SOUTHMINSTER",  "SMN");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
-        makeNavButton(pnlShenfield, 1674, 234, "WITHAM", 3);
-        makeNavButton(pnlShenfield, 112,  202, "ILFORD", 1);
+        makeNavButton(pnlShenfield, 1674, 234, "WITHAM", 4);
+        makeNavButton(pnlShenfield, 112,  202, "ILFORD", 2);
         //</editor-fold>
 
-        placeClocks(pnlShenfield);
-        placeButtons(pnlShenfield);
+        placeTopBits(pnlShenfield);
 
-        bgShenfield.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Shenfield.png")));
-        bgShenfield.setFocusable(false);
-        pnlShenfield.add(bgShenfield);
-        bgShenfield.setBounds(0, 0, 1854, 860);
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Shenfield.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlShenfield.add(background);
     }
     //</editor-fold>
 
@@ -2138,6 +2207,7 @@ public class SignalMap
         new Berth(pnlIlford, 1002, 250, "SIROM1");
         new Berth(pnlIlford, 826,  274, "SIRRED");
         new Berth(pnlIlford, 938,  250, "SIRROM");
+        new Berth(pnlIlford, 1002, 282, "SIXROM");
         new Berth(pnlIlford, 1194, 250, "SIUMIN");
 
         new Berth(pnlIlford, 218,  394, "SI0321");
@@ -2221,28 +2291,28 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Stations">
-        makeSmallStation(pnlIlford, 1268, 106, "GIDEA PARK",  "GDP");
-        makeSmallStation(pnlIlford, 957,  98,  "ROMFORD",     "RMF");
-        makeSmallStation(pnlIlford, 362,  90,  "CHADWELL",    "CTH");
-        makeSmallStation(pnlIlford, 371,  98,  "HEATH",       "CTH");
-        makeSmallStation(pnlIlford, 1654, 370, "GOODMAYES",   "GMY");
-        makeSmallStation(pnlIlford, 1328, 370, "SEVEN KINGS", "SVK");
-        makeSmallStation(pnlIlford, 831,  346, "ILFORD",      "IFD");
-        makeSmallStation(pnlIlford, 339,  370, "MANOR PARK",  "MNP");
+        smallStation(pnlIlford, 1268, 106, "GIDEA PARK",  "GDP");
+        smallStation(pnlIlford, 957,  98,  "ROMFORD",     "RMF");
+        smallStation(pnlIlford, 362,  90,  "CHADWELL",    "CTH");
+        smallStation(pnlIlford, 371,  98,  "HEATH",       "CTH");
+        smallStation(pnlIlford, 1654, 370, "GOODMAYES",   "GMY");
+        smallStation(pnlIlford, 1328, 370, "SEVEN KINGS", "SVK");
+        smallStation(pnlIlford, 831,  346, "ILFORD",      "IFD");
+        smallStation(pnlIlford, 339,  370, "MANOR PARK",  "MNP");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
-        makeNavButton(pnlIlford, 1674, 170, "SHENFIELD", 2);
-        makeNavButton(pnlIlford, 61,   442, "STRATFORD", 0);
+        makeNavButton(pnlIlford, 1674, 170, "SHENFIELD", 3);
+        makeNavButton(pnlIlford, 61,   442, "STRATFORD", 1);
         //</editor-fold>
 
-        placeClocks(pnlIlford);
-        placeButtons(pnlIlford);
+        placeTopBits(pnlIlford);
 
-        bgIlford.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Ilford.png")));
-        bgIlford.setFocusable(false);
-        pnlIlford.add(bgIlford);
-        bgIlford.setBounds(0, 0, 1854, 860);
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Ilford.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlIlford.add(background);
     }
     //</editor-fold>
 
@@ -2453,18 +2523,18 @@ public class SignalMap
         new Berth(pnlStratford, 1162, 330, "SI0303");
         new Berth(pnlStratford, 1098, 266, "SI0304");
         new Berth(pnlStratford, 1226, 330, "SI0305");
-        new Berth(pnlStratford, 1162, 298, "SI0306");
+        new Berth(pnlStratford, 1162, 298, "SI0306", "SI0301");
         new Berth(pnlStratford, 1290, 330, "SI0307");
         new Berth(pnlStratford, 1354, 266, "SI0309");
         new Berth(pnlStratford, 1162, 362, "SI0310");
         new Berth(pnlStratford, 1354, 330, "SI0313");
         new Berth(pnlStratford, 1290, 362, "SI0314");
-        new Berth(pnlStratford, 1482, 330, "SI0317");
-        new Berth(pnlStratford, 1354, 298, "SI0316");
-        new Berth(pnlStratford, 1354, 362, "SI0320");
+        new Berth(pnlStratford, 1482, 330, "SI0317", "SI0328");
+        new Berth(pnlStratford, 1354, 298, "SI0316", "SI0311");
+        new Berth(pnlStratford, 1354, 362, "SI0320", "SI0315");
         new Berth(pnlStratford, 1098, 362, "SI0324");
         new Berth(pnlStratford, 1482, 298, "SI0326");
-        new Berth(pnlStratford, 1482, 362, "SI0330");
+        new Berth(pnlStratford, 1482, 362, "SI0330", "SI0319");
         new Berth(pnlStratford, 1562, 378, "SI0332");
         new Berth(pnlStratford, 1514, 378, "SI0334");
         new Berth(pnlStratford, 1546, 394, "SI0909");
@@ -2500,34 +2570,34 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Stations">
-        makeLargeStation(pnlStratford, 1620, 434, "STRATFORD",               "SRA");
-        makeLargeStation(pnlStratford, 56,   140, "LONDON LIVERPOOL STREET", "LST");
+        largeStation(pnlStratford, 1620, 434, "STRATFORD",               "SRA");
+        largeStation(pnlStratford, 56,   140, "LONDON LIVERPOOL STREET", "LST");
 
-        makeSmallStation(pnlStratford, 845,  410, "BETHNAL",     "BET"); // GREEN
-        makeSmallStation(pnlStratford, 1281, 242, "FOREST GATE", "FOG");
-        makeSmallStation(pnlStratford, 851,  418, "GREEN",       "BET"); // BETHNAL
-        makeSmallStation(pnlStratford, 906,  242, "MARYLAND",    "MYL");
+        smallStation(pnlStratford, 845,  410, "BETHNAL",     "BET"); // GREEN
+        smallStation(pnlStratford, 1281, 242, "FOREST GATE", "FOG");
+        smallStation(pnlStratford, 851,  418, "GREEN",       "BET"); // BETHNAL
+        smallStation(pnlStratford, 906,  242, "MARYLAND",    "MYL");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
-        makeNavButton(pnlStratford, 1700, 58,  "BRIMSDOWN", 4);
-        makeNavButton(pnlStratford, 1124, 490, "HACKNEY",  4);
-        makeNavButton(pnlStratford, 1622, 314, "ILFORD",   1);
+        makeNavButton(pnlStratford, 1700, 58,  "BRIMSDOWN", 5);
+        makeNavButton(pnlStratford, 1124, 490, "HACKNEY",   5);
+        makeNavButton(pnlStratford, 1622, 314, "ILFORD",    2);
         //</editor-fold>
 
-        placeClocks(pnlStratford);
-        placeButtons(pnlStratford);
+        placeTopBits(pnlStratford);
 
-        bgStratford.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Stratford+LivSt.png")));
-        bgStratford.setFocusable(false);
-        pnlStratford.add(bgStratford);
-        bgStratford.setBounds(0, 0, 1854, 860);
+        JLabel background = new JLabel();
+        background.setIcon(new ImageIcon(getClass().getResource("/eastangliamapclient/resources/Stratford+LivSt.png")));
+        background.setFocusable(false);
+        background.setBounds(0, 0, 1854, 860);
+        pnlStratford.add(background);
     }
     //</editor-fold>
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Util methods">
-    private void makeLargeStation(JPanel pnl, int x, int y, String name, String crsCode)
+    private void largeStation(JPanel pnl, int x, int y, String name, String crsCode)
     {
         JLabel lbl = new JLabel(name.toUpperCase());
 
@@ -2572,7 +2642,7 @@ public class SignalMap
         pnl.add(lbl);
     }
 
-    private void makeSmallStation(JPanel pnl, int x, int y, String name, String url)
+    private void smallStation(JPanel pnl, int x, int y, String name, String url)
     {
         JLabel lbl = new JLabel(name.toUpperCase());
 
@@ -2626,13 +2696,13 @@ public class SignalMap
         lbl.setForeground(EastAngliaMapClient.GREEN);
         lbl.setHorizontalAlignment(SwingConstants.CENTER);
         lbl.setFocusable(false);
-        lbl.setToolTipText(String.valueOf(tabIndex));
+        lbl.setToolTipText("Tab: " + String.valueOf(tabIndex));
         lbl.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                TabBar.setSelectedIndex(tabIndex);
+                TabBar.setSelectedIndex(tabIndex - 1);
             }
 
             @Override
@@ -2662,101 +2732,22 @@ public class SignalMap
         pnl.add(lbl);
     }
 
-    private void placeButtons(JPanel pnl)
+    private void placeTopBits(final JPanel pnl)
     {
-        //<editor-fold defaultstate="collapsed" desc="Obsolete buttons">
-        /*JButton outBut = new JButton("Filtered log file");
-        outBut.setToolTipText("Open filtered log file");
-        outBut.setFocusable(false);
-        outBut.setEnabled(EastAngliaMapClient.logToFile);
-        outBut.setOpaque(false);
-        outBut.setBounds(70, 10, 110, 23);
-        outBut.addMouseListener(new MouseAdapter()
-        {
-        @Override
-        public void mouseClicked(MouseEvent evt)
-        {
-        EventHandler.butOutputClicked(evt);
-        }
-        });
-        pnl.add(outBut);
+        JLabel lblClock = new JLabel(EastAngliaMapClient.getTime());
 
-        JButton errBut = new JButton("Log file");
-        errBut.setToolTipText("Open log file");
-        errBut.setEnabled(EastAngliaMapClient.logToFile);
-        errBut.setOpaque(false);
-        errBut.setBounds(190, 10, 73, 23);
-        errBut.addMouseListener(new MouseAdapter()
-        {
-        @Override
-        public void mouseClicked(MouseEvent evt)
-        {
-        EventHandler.butErrorClicked(evt);
-        }
-        });
-        pnl.add(errBut);
-
-        JButton reconnect = new JButton("Reconnect");
-        reconnect.setToolTipText("Reconnect");
-        reconnect.setFocusable(false);
-        reconnect.setEnabled(false);
-        reconnect.setOpaque(false);
-        reconnect.setBounds(273, 10, 85, 23);
-        reconnect.addMouseListener(new MouseAdapter()
-        {
-        @Override
-        public void mouseClicked(MouseEvent evt)
-        {
-        String reconnectOrConnect = EastAngliaMapClient.connect ? "reconnect" : "connect";
-
-        boolean ok = JOptionPane.showConfirmDialog(null, "Are you sure you wish to try and " + reconnectOrConnect + "?", "Confirmation", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-
-        if (ok)
-        {
-        if (!StompConnectionHandler.isConnected())
-        {
-        EventHandler.lastMessageNoData();
-        EastAngliaMapClient.printAll("Stomp client not " + reconnectOrConnect + "ed");
-        }
-
-        try
-        {
-        EastAngliaMapClient.printAll("Attempting to (forcefully) " + reconnectOrConnect + "...");
-
-        if (StompConnectionHandler.client != null)
-        StompConnectionHandler.client.disconnect();
-
-        StompConnectionHandler.connect();
-
-        if (StompConnectionHandler.isConnected())
-        {
-        EastAngliaMapClient.printAll("Succesfully " + reconnectOrConnect + "ed");
-
-        EastAngliaMapClient.connect = true;
-
-        for (JButton but : reconButtons)
-        {
-        but.setText("Reconnect");
-        }
-        }
-        else
-        {
-        EastAngliaMapClient.printAll("Failed to " + reconnectOrConnect);
-        JOptionPane.showMessageDialog(null, "Unable to " + reconnectOrConnect, "Error", JOptionPane.ERROR_MESSAGE);
-        EventHandler.lastMessageNoData();
-        }
-        }
-        catch (LoginException e)
-        {
-        EastAngliaMapClient.printAll("Failed to " + reconnectOrConnect);
-        JOptionPane.showMessageDialog(null, "Unable to " + reconnectOrConnect + " as another client with the same name is already connected", "Error", JOptionPane.ERROR_MESSAGE);
-        EventHandler.lastMessageNoData();
-        }
-        }
-        }
-        });
-        pnl.add(reconnect);*/
-        //</editor-fold>
+        lblClock.setBackground(EastAngliaMapClient.GREY);
+        lblClock.setFont(EastAngliaMapClient.TD_FONT.deriveFont(45f));
+        lblClock.setForeground(EastAngliaMapClient.GREEN);
+        lblClock.setHorizontalAlignment(SwingConstants.CENTER);
+        lblClock.setToolTipText("Clock");
+        lblClock.setFocusable(false);
+        lblClock.setOpaque(true);
+        lblClock.setHorizontalTextPosition(SwingConstants.CENTER);
+        pnl.add(lblClock);
+        lblClock.setSize(280, 50);
+        lblClock.setLocation(780, 10);
+        clocks.add(lblClock);
 
         JButton menu = new JButton("▼");
         menu.setToolTipText("Options");
@@ -2790,48 +2781,26 @@ public class SignalMap
         });
         pnl.add(help);
 
+        final JLabel motdLabel = new JLabel("XXMOTD");
+        motdLabel.setFocusable(false);
+        motdLabel.setOpaque(true);
+        motdLabel.setBackground(new Color(30, 30, 30));
+
+        motdLabel.setVerticalAlignment(JLabel.TOP);
+        motdLabel.setHorizontalAlignment(JLabel.LEFT);
+
+        motdLabel.setFont(new Font(Font.MONOSPACED, Font.TRUETYPE_FONT, 16));
+        motdLabel.setForeground(EastAngliaMapClient.GREEN);
+        //motdLabel.setBounds(200, 11, 550, 48);
+        motdLabel.setPreferredSize(new Dimension(520, 48));
+        motdLabel.setBorder(new EmptyBorder(0, 10, 0, 10));
+        JScrollPane spMOTD = new JScrollPane(motdLabel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        spMOTD.setBounds(200, 10, 550, 50);
+        pnl.add(spMOTD);
+        motdPanes.add(spMOTD);
+
         buttons.add(menu);
         buttons.add(help);
-    }
-
-    private void placeClocks(JPanel pnl)
-    {
-        JLabel lblClock = new JLabel(EastAngliaMapClient.getTime());
-
-        lblClock.setBackground(EastAngliaMapClient.GREY);
-        lblClock.setFont(EastAngliaMapClient.TD_FONT.deriveFont(45f));
-        lblClock.setForeground(EastAngliaMapClient.GREEN);
-        lblClock.setHorizontalAlignment(SwingConstants.CENTER);
-        lblClock.setToolTipText("Clock");
-        lblClock.setFocusable(false);
-        lblClock.setOpaque(true);
-        lblClock.setHorizontalTextPosition(SwingConstants.CENTER);
-        pnl.add(lblClock);
-        lblClock.setBounds(857, 10, 280, 50);
-
-        /*JLabel lblLastMsg = new JLabel("--:--:--");
-
-        lblLastMsg.setBackground(EastAngliaMapClient.GREY);
-        lblLastMsg.setFont(EastAngliaMapClient.TD_FONT.deriveFont(24f));
-        lblLastMsg.setForeground(EastAngliaMapClient.GREEN);
-        lblLastMsg.setHorizontalAlignment(SwingConstants.CENTER);
-        lblLastMsg.setToolTipText("Time of last message");
-        lblLastMsg.setFocusable(false);
-        lblLastMsg.setOpaque(true);
-        lblLastMsg.setHorizontalTextPosition(SwingConstants.CENTER);
-        lblLastMsg.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent evt)
-            {
-                EventHandler.lastMessageClick(evt);
-            }
-        });
-        pnl.add(lblLastMsg);
-        lblLastMsg.setBounds(857, 60, 280, 25);*/
-
-        clockLbls.add(lblClock);
-        /*lastMsgLbls.add(lblLastMsg);*/
     }
     //</editor-fold>
 
@@ -2843,7 +2812,10 @@ public class SignalMap
 
     public void setVisible(boolean visible)
     {
-        frame.setVisible(visible);
+        if (visible == true && isVisible() == true)
+            frame.requestFocus();
+        else
+            frame.setVisible(visible);
     }
 
     public boolean isVisible()
@@ -2851,62 +2823,119 @@ public class SignalMap
         return frame.isVisible();
     }
 
-    public SignalMap readFromMap()
+    public void readFromMap()
     {
-        return readFromMap(EastAngliaMapClient.CClassMap);
+        readFromMap(EastAngliaMapClient.CClassMap);
     }
 
-    public SignalMap readFromMap(Map<String, String> map)
+    public void readFromMap(Map<String, String> map)
     {
-        if (frame.isVisible())
-            for (Map.Entry pairs : map.entrySet())
+        for (Map.Entry pairs : map.entrySet())
+        {
+            String id = (String) pairs.getKey();
+            String hc = (String) pairs.getValue();
+
+            if (id.equals("XXMOTD"))
+                setMOTD(hc);
+
+            Berth berth = Berths.getBerth(id);
+
+            if (berth != null)
             {
-                String id = (String) pairs.getKey();
-                String hc = (String) pairs.getValue();
-                Berth berth = Berths.getBerth(id);
+                if (map.containsKey(id))
+                    if (!hc.equals("") || id.equals(berth.getCurrentId(false)))
+                        berth.interpose(map.get(id), id);
 
-                if (berth != null)
-                {
-                    if (map.containsKey(id))
-                        if (!hc.equals("") || id.equals(berth.getCurrentId(false)))
-                            berth.interpose(map.get(id), id);
-
-                    berth.setOpaque(false);
-                }
+                berth.setOpaque(false);
             }
-
-        return this;
+        }
     }
 
-    public java.util.List<JPanel> getPanels()
+    public ArrayList<JPanel> getPanels()
     {
-        java.util.List<JPanel> list = new ArrayList<>();
+        ArrayList<JPanel> panels = new ArrayList<>();
 
-        list.add(pnlStratford);
-        list.add(pnlIlford);
-        list.add(pnlShenfield);
-        list.add(pnlWitham);
-        list.add(pnlHackney);
-        list.add(pnlHarlow);
-        list.add(pnlColchester);
-        list.add(pnlClacton);
-        list.add(pnlIpswich);
-        list.add(pnlCambridgeCA);
-        list.add(pnlCambridgeEN);
-        list.add(pnlNorwich);
+        panels.add(pnlStratford);
+        panels.add(pnlIlford);
+        panels.add(pnlShenfield);
+        panels.add(pnlWitham);
+        panels.add(pnlHackney);
+        panels.add(pnlHarlow);
+        panels.add(pnlColchester);
+        panels.add(pnlClacton);
+        panels.add(pnlIpswich);
+        panels.add(pnlCambridgeCA);
+        panels.add(pnlCambridgeEN);
+        panels.add(pnlNorwich);
 
-        return list;
+        for (JPanel panel : panels)
+        {
+            //pnl.repaint();//pnl.getBounds());
+            panel.addNotify();
+            panel.doLayout();
+        }
+
+        return panels;
     }
 
-    public void toggleButtonVisibility()
+    public void prepForScreencap()
     {
         for (JButton button : buttons)
-            button.setVisible(!button.isVisible());
+            button.setVisible(false);
+
+        ArrayList<String> sortedKeys = new ArrayList<>(Berths.getKeySet());
+        for (String key : sortedKeys)
+        {
+            Berths.getBerth(key).showDescription(false);
+            Berths.getBerth(key).setOpaque(false);
+            Berths.getBerth(key).setVisible(true);
+        }
+
+        for (JScrollPane sp : motdPanes)
+            sp.setVisible(false);
+
+        try { Thread.sleep(10); }
+        catch (InterruptedException e) {}
+    }
+
+    public void finishScreencap()
+    {
+        for (JButton button : buttons)
+            button.setVisible(true);
+
+        ArrayList<String> sortedKeys = new ArrayList<>(Berths.getKeySet());
+        for (String key : sortedKeys)
+        {
+            Berths.getBerth(key).showDescription(EastAngliaMapClient.showDescriptions);
+            Berths.getBerth(key).setOpaque(EastAngliaMapClient.opaque);
+            Berths.getBerth(key).setVisible(EastAngliaMapClient.visible);
+        }
+
+        for (JScrollPane sp : motdPanes)
+            sp.setVisible(true);
     }
 
     public void setTitle(String title)
     {
         if (!frame.getTitle().equals(title))
             frame.setTitle(title);
+    }
+
+    public boolean hasFocus()
+    {
+        return frame.hasFocus();
+    }
+
+    public void repaint()
+    {
+        frame.repaint();
+    }
+
+    public void setMOTD(String motd)
+    {
+        for (JScrollPane sp : motdPanes)
+            ((JLabel) sp.getViewport().getView()).setText("<html><body style='width:auto'>" + motd + "</body></html>");
+            //lbl.setText(" " + (motd.length() > 68 ? motd.substring(16, 64) + " -->" : motd.substring(16)));
+            //lbl.setToolTipText((motd.length() > 68 ? "Full " : "") + "MOTD: " + motd);
     }
 }

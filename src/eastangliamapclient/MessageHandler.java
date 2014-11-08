@@ -1,6 +1,8 @@
 package eastangliamapclient;
 
 import eastangliamapclient.gui.ListDialog;
+import eastangliamapclient.gui.SysTrayHandler;
+import java.awt.TrayIcon;
 import java.io.*;
 import java.util.*;
 import javax.swing.JOptionPane;
@@ -30,19 +32,20 @@ public class MessageHandler implements Runnable
             try
             {
                 Object obj = new ObjectInputStream(EastAngliaMapClient.serverSocket.getInputStream()).readObject();
-
                 if (obj instanceof HashMap)
                 {
                     lastMessageTime = System.currentTimeMillis();
 
-                    HashMap<String, Object> message = (HashMap<String, Object>) obj;
-                    MessageType type = MessageType.getType((int) message.get("type"));
+                    final HashMap<String, Object> message = (HashMap<String, Object>) obj;
 
-                    switch (type)
+                    switch (MessageType.getType((int) message.get("type")))
                     {
                         case SOCKET_CLOSE:
-                            JOptionPane.showMessageDialog(null, "Connection to the host has been closed.", "Connection closed by host", JOptionPane.WARNING_MESSAGE);
-                            printMsgHandler("Connection to host closed", false);
+                            //JOptionPane.showMessageDialog(null, "Connection to the host has been closed.", "Connection closed by host", JOptionPane.WARNING_MESSAGE);
+                            EastAngliaMapClient.connected = false;
+                            SysTrayHandler.trayTooltip("Disconnected (Closed" + (message.get("reason") != null ? ", " + message.get("reason") : ")"));
+                            SysTrayHandler.popup("Connection closed by host" + (message.get("reason") != null ? "\n" + message.get("reason") : ""), TrayIcon.MessageType.WARNING);
+                            printMsgHandler("Connection to host closed (" + String.valueOf(message.get("reason")) + ")", false);
                             break;
 
                         case HEARTBEAT_REQUEST:
@@ -50,18 +53,22 @@ public class MessageHandler implements Runnable
                             sendHeartbeatReply();
                             break;
 
+                        case HEARTBEAT_REPLY:
+                            printMsgHandler("Received heartbeat reply", false);
+                            break;
+
                         case SEND_ALL:
-                            printMsgHandler("Received full map", false);
                             HashMap<String, String> fullMap = (HashMap<String, String>) message.get("message");
                             EastAngliaMapClient.CClassMap.putAll(fullMap);
+                            printMsgHandler("Received full map (" + fullMap.size() + ")", false);
 
                             if (EastAngliaMapClient.SignalMap != null)
                                 EastAngliaMapClient.SignalMap.readFromMap(fullMap);
                             break;
 
                         case SEND_UPDATE:
-                            printMsgHandler("Received update map", false);
                             HashMap<String, String> updateMap = (HashMap<String, String>) message.get("message");
+                            printMsgHandler("Received update map (" + updateMap.size() + ")", false);
                             EastAngliaMapClient.CClassMap.putAll(updateMap);
 
                             if (EastAngliaMapClient.SignalMap != null)
@@ -69,25 +76,54 @@ public class MessageHandler implements Runnable
                             break;
 
                         case SEND_HIST_TRAIN:
-                            printMsgHandler("Received history for train " + message.get("headcode") + (message.get("berth_id") != null ? " in berth " + message.get("berth_id") : ""), false);
-                            new ListDialog(Berths.getBerth((String) message.get("berth_id")), "Train's history", "Berths train '" + message.get("headcode") + "' passed through", (List<String>) message.get("history"));
+                            if (message.get("history") == null)
+                            {
+                                EventHandler.getRidOfBerth();
+                                printMsgHandler("Received no history for train " + message.get("headcode") + (message.get("berth_id") != null ? " in berth " + message.get("berth_id") : ""), false);
+                                JOptionPane.showMessageDialog(EastAngliaMapClient.SignalMap.frame, "No history for train \"" + message.get("headcode") + (message.get("berth_id") != null ? " in berth " + message.get("berth_id") : "") + "\"", "Train's history", JOptionPane.WARNING_MESSAGE);
+                            }
+                            else
+                            {
+                                printMsgHandler("Received history for train " + message.get("headcode") + (message.get("berth_id") != null ? " in berth " + message.get("berth_id") : ""), false);
+                                new Thread("trainHist" + message.get("berth_id")) { @Override public void run() {
+                                        new ListDialog(Berths.getBerth((String) message.get("berth_id")), "Train's history", "Berths train '" + message.get("headcode") + "' passed through", (ArrayList<String>) message.get("history"));
+                                    }}.start();
+                            }
                             break;
 
                         case SEND_HIST_BERTH:
-                            printMsgHandler("Received history for berth " + message.get("berth_descr"), false);
-                            new ListDialog(Berths.getBerth((String) message.get("berth_id")), "Berth's history", "Trains passed through berth '" + message.get("berth_descr") + "'", (List<String>) message.get("history"));
+                            if (message.get("history") == null)
+                            {
+                                EventHandler.getRidOfBerth();
+                                printMsgHandler("Received no history for berth " + message.get("berth_descr"), false);
+                                JOptionPane.showMessageDialog(EastAngliaMapClient.SignalMap.frame, "No history for berth \"" + message.get("berth_descr") + "\"", "Berth's history", JOptionPane.WARNING_MESSAGE);
+                            }
+                            else
+                            {
+                                printMsgHandler("Received history for berth " + message.get("berth_descr"), false);
+                                new Thread("trainHist" + message.get("berth_id"))  { @Override public void run() {
+                                        new ListDialog(Berths.getBerth((String) message.get("berth_id")), "Berth's history", "Trains passed through berth '" + message.get("berth_descr") + "'", (ArrayList<String>) message.get("history"));
+                                    }}.start();
+                            }
+                            break;
+
+                        case SEND_MESSAGE:
+                            JOptionPane.showMessageDialog(EastAngliaMapClient.SignalMap.frame, message.get("message"), "Message from host", JOptionPane.PLAIN_MESSAGE);
                             break;
 
                         default:
-                            printMsgHandler("Undefined Message Type: " + type.getName(), true);
+                            printMsgHandler("Undefined Message Type: " + message.get("type"), true);
                             break;
                     }
                 }
                 errors = 0;
             }
-            catch (NullPointerException e) {}
-            catch (EOFException e) { errors++; }
-            catch (IOException | ClassNotFoundException e) {}
+            catch (NullPointerException | ClassNotFoundException e) {}
+            catch (IOException e)
+            {
+                errors++;
+                testErrors();
+            }
         }
     }
 
@@ -111,47 +147,51 @@ public class MessageHandler implements Runnable
 
             message.put("type", MessageType.SOCKET_CLOSE.getValue());
 
-            try { new ObjectOutputStream(EastAngliaMapClient.serverSocket.getOutputStream()).writeObject(message); errors = 0; }
+            try
+            {
+                new ObjectOutputStream(EastAngliaMapClient.serverSocket.getOutputStream()).writeObject(message);
+                errors = 0;
+            }
             catch (IOException e) {}
         }
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="HEARTBEAT_REQUEST">
-    public void sendHeartbeatRequest()
+    public boolean sendHeartbeatRequest()
     {
         HashMap<String, Object> message = new HashMap<>();
 
         message.put("type", MessageType.HEARTBEAT_REQUEST.getValue());
 
-        sendMessage(message);
+        return sendMessage(message);
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="HEARTBEAT_REPLY">
-    public void sendHeartbeatReply()
+    public boolean sendHeartbeatReply()
     {
         HashMap<String, Object> message = new HashMap<>();
 
         message.put("type", MessageType.HEARTBEAT_REPLY.getValue());
 
-        sendMessage(message);
+        return sendMessage(message);
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="REQUEST_ALL">
-    public void requestAll()
+    public boolean requestAll()
     {
         HashMap<String, Object> message = new HashMap<>();
 
         message.put("type", MessageType.REQUEST_ALL.getValue());
 
-        sendMessage(message);
+        return sendMessage(message);
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="REQUEST_HIST_TRAIN">
-    public void requestHistoryOfTrain(String id, String... headcode)
+    public boolean requestHistoryOfTrain(String id, String... headcode)
     {
         HashMap<String, Object> message = new HashMap<>();
 
@@ -159,56 +199,65 @@ public class MessageHandler implements Runnable
         message.put("id",       id);
         message.put("headcode", headcode.length == 1 ? headcode[0] : "in berth " + id);
 
-        sendMessage(message);
+        return sendMessage(message);
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="REQUEST_HIST_BERTH">
-    public void requestHistoryOfBerth(String berthId)
+    public boolean requestHistoryOfBerth(String berthId)
     {
         HashMap<String, Object> message = new HashMap<>();
 
         message.put("type", MessageType.REQUEST_HIST_BERTH.getValue());
         message.put("berth_id", berthId);
 
-        sendMessage(message);
+        return sendMessage(message);
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="SEND_NAME">
-    public void sendName(String name)
+    public boolean sendName(String name)
     {
         HashMap<String, Object> message = new HashMap<>();
 
-        message.put("type", MessageType.SET_NAME.getValue());
-        message.put("name", name + " (" + (EastAngliaMapClient.screencap ? "sc " : "") + "v" + EastAngliaMapClient.VERSION + ")");
+        message.put("type",  MessageType.SET_NAME.getValue());
+        message.put("name",  name + " (" + (EastAngliaMapClient.screencap ? "sc " : "") + "v" + EastAngliaMapClient.VERSION + ")");
+        message.put("props", System.getProperties()); // Felt like it
 
-        sendMessage(message);
+        return sendMessage(message);
     }
     //</editor-fold>
 
-    private void sendMessage(Object message)
+    private boolean sendMessage(Object message)
     {
         if (EastAngliaMapClient.serverSocket != null)
         {
-            try { new ObjectOutputStream(EastAngliaMapClient.serverSocket.getOutputStream()).writeObject(message); errors = 0; }
-            catch (IOException e) { errors++; }
-
-            testErrors();
+            try
+            {
+                new ObjectOutputStream(EastAngliaMapClient.serverSocket.getOutputStream()).writeObject(message);
+                errors = 0;
+                return true;
+            }
+            catch (IOException e)
+            {
+                errors++;
+                testErrors();
+                return false;
+            }
         }
+        return false;
     }
 
     private void testErrors()
     {
-        if (errors > 3)
-        {
-            EastAngliaMapClient.reconnect();
-        }
-
-        if (errors > 5)
+        if (errors >= 3)
         {
             sendSocketClose();
             closeSocket();
+        }
+        else if (errors >= 2)
+        {
+            EastAngliaMapClient.reconnect();
         }
     }
 
@@ -229,6 +278,11 @@ public class MessageHandler implements Runnable
                     else
                     {
                         printMsgHandler("Connection timed out", true);
+
+                        if (System.currentTimeMillis() - lastMessageTime < 120000)
+                            SysTrayHandler.popup("Disconnected from host\nTimed out", TrayIcon.MessageType.ERROR);
+                        SysTrayHandler.trayTooltip("Disconnected (Timed out)");
+
                         sendSocketClose();
                         closeSocket();
 

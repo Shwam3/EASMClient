@@ -4,7 +4,6 @@ import eastangliamapclient.*;
 import java.awt.Component;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -19,7 +18,7 @@ public class BerthContextMenu extends JPopupMenu
         public void actionPerformed(ActionEvent evt)
         {
             actionInProgress = true;
-            EventHandler.berthMenuItemClick(evt, berth);
+            EventHandler.berthMenuClick(evt, berth);
         }
     };
 
@@ -37,7 +36,7 @@ public class BerthContextMenu extends JPopupMenu
             if (!actionInProgress)
             {
                 EastAngliaMapClient.blockKeyInput = false;
-                EventHandler.tempOpaqueBerth = null;
+                EventHandler.getRidOfBerth();
             }
             else
             {
@@ -54,7 +53,7 @@ public class BerthContextMenu extends JPopupMenu
 
         JMenuItem problemHere  = new JMenuItem("Problem Here");
         JMenuItem search       = new JMenuItem("Search Headcode");
-        List<JMenuItem> berthHistories = new ArrayList<>();
+        ArrayList<JMenuItem> berthHistories = new ArrayList<>();
 
         if (berth.getIds().length == 1)
         {

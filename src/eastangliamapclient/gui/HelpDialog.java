@@ -2,6 +2,8 @@ package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.*;
 
 public class HelpDialog extends JDialog
@@ -19,24 +21,24 @@ public class HelpDialog extends JDialog
         JLabel mainText = new JLabel(
                 "<html>"
                     + "<p><b>Navigation:</b></p>"
-                    + "<p>Use the <i>number</i> keys or the <i>function</i> keys (F1, F2 ...) to change the tabs as well as the arrow keys.</p>"
+                    + "<p>Use the <i>number</i> keys or the <i>function</i> keys (F1, F2 ...) (CTRL 13-24 SHIFT 25-36 CTRL+SHIFT 36-48) to change the tabs as well as the arrow keys.</p>"
                     + "<br>"
                     + "<p><b>Train headcodes:</b></p>"
                     + "<p>Left clicking on a green headcode will bring up an RTT search for the train.</p>"
                     //+ "<p>Right clicking a berth/train offers a context menu.</p>"
                     + "<br>"
                     + "<p><b>Key Bindings:</b></p>"
-                    + "<p>'O' - Toggle berth opacity</p>"
-                    + "<p>'H' - Opens this dialog</p>"
-                    + "<p>'R' - Refreshes all components (try pressing this if the program is stuck)</p>"
+                    + "<p>'O'&nbsp;- Toggle berth opacity</p>"
+                    + "<p>'D'&nbsp;- Toggle berth id's</p>"
+                    + "<p>'H'&nbsp;- Opens this dialog</p>"
                     + "<br>"
-                    + "<p>Source code available at http://www.github.com/Shwam3/EastAngliaSignalMapClient"
-                    +    "and http://www.github.com/Shwam3/EastAngliaSignalMapServer</p>"
+                    + "<p>The source code is available at http://www.github.com/Shwam3/EastAngliaSignalMapClient"
+                    +    " and http://www.github.com/Shwam3/EastAngliaSignalMapServer</p>"
                     + "<br>"
                     + "<p>Note: This program may regularly disconnect/be unavailable as the server program is run on my local PC which may not always "
                     +    "be on/active. In such cases I highly recommend using opentraintimes.com and/or railcam.org.uk as alternatives.</p>"
                     + "<br>"
-                    + "<p>© Cameron Bird 2014</p>"
+                    + "<p>&copy; Cameron Bird 2014</p>"
                 + "</html>");
 
         mainText.setOpaque(false);
@@ -44,10 +46,10 @@ public class HelpDialog extends JDialog
         mainText.setVerticalAlignment(SwingConstants.CENTER);
         mainText.setBounds(10, 10, 524, 280);
 
-        addWindowListener(new java.awt.event.WindowAdapter()
+        addWindowListener(new WindowAdapter()
         {
             @Override
-            public void windowClosing(java.awt.event.WindowEvent evt)
+            public void windowClosing(WindowEvent evt)
             {
                 EastAngliaMapClient.blockKeyInput = false;
             }
@@ -58,7 +60,9 @@ public class HelpDialog extends JDialog
         pack();
         setLocationRelativeTo(EastAngliaMapClient.SignalMap.frame);
 
-        EastAngliaMapClient.blockKeyInput = true;
         setVisible(true);
+
+        if (isVisible())
+            EastAngliaMapClient.blockKeyInput = true;
     }
 }
