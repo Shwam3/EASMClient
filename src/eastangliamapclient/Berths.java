@@ -1,27 +1,31 @@
 package eastangliamapclient;
 
+import eastangliamapclient.gui.SignalMap;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.swing.JLabel;
 
 public class Berths
 {
     private static HashMap<String, Berth> berthMap = new HashMap<>();
-    private static HashMap<JLabel, Berth> labelMap = new HashMap<>();
+
+    public static Berth getOrCreateBerth(SignalMap.BackgroundPanel pnl, int x, int y, String... berthIds)
+    {
+        if (berthMap.containsKey(berthIds[0]))
+            return berthMap.get(berthIds[0]);
+        else
+            return new Berth(pnl, x, y, berthIds);
+    }
 
     public static boolean containsBerth(String berthId)
     {
         return berthMap.containsKey(berthId);
     }
 
-    public static void putBerth(String berthId, Berth berth, JLabel label)
+    public static void putBerth(String berthId, Berth berth)
     {
         if (!containsBerth(berthId))
-        {
             berthMap.put(berthId, berth);
-            labelMap.put(label, berth);
-        }
     }
 
     public static boolean isProperHeadcode(String headcode)
@@ -44,28 +48,6 @@ public class Berths
         return null;
     }
 
-    public static Berth getBerth(JLabel berthLabel)
-    {
-        if (labelMap.containsKey(berthLabel))
-            return labelMap.get(berthLabel);
-
-        return null;
-    }
-
-    public static Object[] getAsArray()
-    {
-        ArrayList<String> list = new ArrayList<>();
-
-        for (Map.Entry pairs : berthMap.entrySet())
-        {
-            Berth berth = (Berth) pairs.getValue();
-
-            list.addAll(Arrays.asList(berth.getIds()));
-        }
-
-        return list.toArray();
-    }
-
     public static Set<Map.Entry<String, Berth>> getEntrySet()
     {
         return berthMap.entrySet();
@@ -82,8 +64,8 @@ public class Berths
 
         ArrayList<String> berthIds = new ArrayList<>();
 
-        for (Map.Entry pairs : berthMap.entrySet())
-            berthIds.add(pairs.getKey().toString());
+        for (String id : berthMap.keySet())
+            berthIds.add(id);
 
         Collections.sort(berthIds);
 
@@ -95,34 +77,26 @@ public class Berths
     {
         EastAngliaMapClient.opaque = !EastAngliaMapClient.opaque;
 
-        for (Map.Entry pairs : Berths.getEntrySet())
-            ((Berth) pairs.getValue()).setOpaque(EastAngliaMapClient.opaque);
+        for (Map.Entry<String, Berth> pairs : Berths.getEntrySet())
+            pairs.getValue().setOpaque(EastAngliaMapClient.opaque);
 
-        EastAngliaMapClient.SignalMap.frame.repaint();
+        EastAngliaMapClient.frameSignalMap.frame.repaint();
     }
 
     public static void toggleBerthDescriptions()
     {
         EastAngliaMapClient.showDescriptions = !EastAngliaMapClient.showDescriptions;
 
-        ArrayList<String> sortedKeys = new ArrayList<>(Berths.getKeySet());
-        for (String key : sortedKeys)
-            Berths.getBerth(key).showDescription(EastAngliaMapClient.showDescriptions); // Is safe (no null pointing)
+        for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
+            bp.repaint(0, 0, bp.getWidth(), bp.getHeight());
     }
 
     public static void toggleBerthVisibilities()
     {
         EastAngliaMapClient.visible = !EastAngliaMapClient.visible;
 
-        ArrayList<String> sortedKeys = new ArrayList<>(Berths.getKeySet());
-        for (String key : sortedKeys)
-            Berths.getBerth(key).setVisible(EastAngliaMapClient.visible); // Is safe (no null pointing)
-    }
-
-    public static void clearMaps() // Why?
-    {
-        berthMap = new HashMap<>();
-        labelMap = new HashMap<>();
+        for (SignalMap.BackgroundPanel bg : EastAngliaMapClient.frameSignalMap.getPanels())
+            bg.repaint(0, 0, bg.getWidth(), bg.getHeight());
     }
 
     private static void printBerths(String message, boolean toErr)

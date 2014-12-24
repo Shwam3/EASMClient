@@ -6,9 +6,9 @@ import java.awt.event.MouseWheelEvent;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
-public class CustomScrollPane extends JScrollPane
+public class SideScrollPane extends JScrollPane
 {
-    public CustomScrollPane()
+    public SideScrollPane()
     {
         super();
 
@@ -26,16 +26,16 @@ public class CustomScrollPane extends JScrollPane
             {
                 if (evt.isControlDown())
                 {
-                    int newValue = EastAngliaMapClient.SignalMap.TabBar.getSelectedIndex() + evt.getWheelRotation();
+                    int newValue = EastAngliaMapClient.frameSignalMap.TabBar.getSelectedIndex() + evt.getWheelRotation();
 
                     if (newValue < 0)
-                        EastAngliaMapClient.SignalMap.TabBar.setSelectedIndex(EastAngliaMapClient.SignalMap.TabBar.getTabCount() - 1);
-                    else if (newValue > EastAngliaMapClient.SignalMap.TabBar.getTabCount() - 1)
-                        EastAngliaMapClient.SignalMap.TabBar.setSelectedIndex(0);
+                        EastAngliaMapClient.frameSignalMap.TabBar.setSelectedIndex(EastAngliaMapClient.frameSignalMap.TabBar.getTabCount() - 1);
+                    else if (newValue > EastAngliaMapClient.frameSignalMap.TabBar.getTabCount() - 1)
+                        EastAngliaMapClient.frameSignalMap.TabBar.setSelectedIndex(0);
                     else
-                        EastAngliaMapClient.SignalMap.TabBar.setSelectedIndex(newValue);
+                        EastAngliaMapClient.frameSignalMap.TabBar.setSelectedIndex(newValue);
 
-                    EastAngliaMapClient.SignalMap.TabBar.requestFocusInWindow();
+                    EastAngliaMapClient.frameSignalMap.TabBar.requestFocusInWindow();
                     evt.consume();
                     return;
                 }

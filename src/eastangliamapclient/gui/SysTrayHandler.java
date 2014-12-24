@@ -3,10 +3,10 @@ package eastangliamapclient.gui;
 import eastangliamapclient.EastAngliaMapClient;
 import static eastangliamapclient.EastAngliaMapClient.minimiseToSysTray;
 import static eastangliamapclient.EastAngliaMapClient.trayIcon;
-import eastangliamapclient.EventHandler;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Arrays;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public class SysTrayHandler
 {
@@ -19,7 +19,7 @@ public class SysTrayHandler
                 @Override
                 public void actionPerformed(ActionEvent evt)
                 {
-                    EastAngliaMapClient.SignalMap.setVisible(true);
+                    EastAngliaMapClient.frameSignalMap.setVisible(true);
                 }
             };
             MouseListener mouseListener = new MouseAdapter()
@@ -33,7 +33,7 @@ public class SysTrayHandler
 
             try
             {
-                trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(SysTrayHandler.class.getResource("/eastangliamapclient/resources/TrayIcon.png")));
+                trayIcon = new TrayIcon(ImageIO.read(SysTrayHandler.class.getResource("/eastangliamapclient/resources/TrayIcon.png")));
                 trayIcon.setToolTip("East Anglia Signal Map - v" + EastAngliaMapClient.VERSION);
                 trayIcon.setImageAutoSize(true);
                 trayIcon.setPopupMenu(getPopupMenu());
@@ -41,7 +41,7 @@ public class SysTrayHandler
                 trayIcon.addMouseListener(mouseListener);
                 SystemTray.getSystemTray().add(trayIcon);
             }
-            catch (AWTException e) {}
+            catch (IOException | AWTException e) {}
         }
     }
 
@@ -51,7 +51,7 @@ public class SysTrayHandler
         final MenuItem exit = new MenuItem("Exit");
         final MenuItem showWindow = new MenuItem("Show window");
         final MenuItem reconnect = new MenuItem("Reconnect");
-        final CheckboxMenuItem screenshot = new CheckboxMenuItem("Auto Screenshots", EastAngliaMapClient.screencap);
+        //final CheckboxMenuItem screenshot = new CheckboxMenuItem("Auto Screenshot", EastAngliaMapClient.screencap);
 
         ActionListener menuListener = new ActionListener()
         {
@@ -62,28 +62,28 @@ public class SysTrayHandler
                 if (src == exit)
                     System.exit(0);
                 else if (src == showWindow)
-                    EastAngliaMapClient.SignalMap.setVisible(true);
+                    EastAngliaMapClient.frameSignalMap.setVisible(true);
                 else if (src == reconnect)
-                    EastAngliaMapClient.reconnect();
+                    EastAngliaMapClient.reconnect(true);
             }
         };
 
         showWindow.addActionListener(menuListener);
         reconnect.addActionListener(menuListener);
-        screenshot.addItemListener(new ItemListener()
+        /*screenshot.addItemListener(new ItemListener()
         {
             @Override
             public void itemStateChanged(ItemEvent evt)
             {
                 EventHandler.screencap();
             }
-        });
+        });*/
         exit.addActionListener(menuListener);
 
         pm.add(showWindow);
         pm.add(reconnect);
-        if (Arrays.deepToString(EastAngliaMapClient.args).contains("-screencap"))
-            pm.add(screenshot);
+        /*if (EastAngliaMapClient.screencappingActive)
+            pm.add(screenshot);*/
         pm.addSeparator();
         pm.add(exit);
 

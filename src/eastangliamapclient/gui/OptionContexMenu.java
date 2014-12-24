@@ -4,7 +4,6 @@ import eastangliamapclient.*;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 import javax.swing.*;
 
 public class OptionContexMenu extends JPopupMenu
@@ -15,7 +14,6 @@ public class OptionContexMenu extends JPopupMenu
 
     JMenuItem refresh;
     JMenuItem reconnect;
-  //JMenuItem reset;
     JMenuItem trainHistory;
 
     JMenuItem changeName;
@@ -38,20 +36,18 @@ public class OptionContexMenu extends JPopupMenu
             else if (src == toggleDescriptions)
                 Berths.toggleBerthDescriptions();
             else if (src == refresh)
-                EastAngliaMapClient.handler.requestAll();
+                MessageHandler.requestAll();
             else if (src == reconnect)
-                EastAngliaMapClient.reconnect();
-            /*else if (src == reset)
-                EastAngliaMapClient.refresh();*/
+                EastAngliaMapClient.reconnect(true);
             else if (src == trainHistory)
             {
-                String UUID = JOptionPane.showInputDialog(EastAngliaMapClient.SignalMap.frame, "Enter Train UUID:", "Train History", JOptionPane.QUESTION_MESSAGE);
+                String UUID = JOptionPane.showInputDialog(EastAngliaMapClient.frameSignalMap.frame, "Enter Train UUID:", "Train History", JOptionPane.QUESTION_MESSAGE);
 
                 if (UUID != null)
                     if (UUID.length() >= 5 && UUID.matches("[0-9]+"))
-                        EastAngliaMapClient.handler.requestHistoryOfTrain(UUID);
+                        MessageHandler.requestHistoryOfTrain(UUID);
                     else
-                        JOptionPane.showMessageDialog(EastAngliaMapClient.SignalMap.frame, "'" + UUID + "' is not a valid train UUID", "Error", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "'" + UUID + "' is not a valid train UUID", "Error", JOptionPane.WARNING_MESSAGE);
             }
             else if (src == changeName)
             {
@@ -61,7 +57,7 @@ public class OptionContexMenu extends JPopupMenu
                 {
                     EastAngliaMapClient.writeSetting("clientName", newName);
                     EastAngliaMapClient.clientName = newName;
-                    EastAngliaMapClient.handler.sendName(EastAngliaMapClient.clientName);
+                    MessageHandler.sendName(EastAngliaMapClient.clientName);
                 }
                 EastAngliaMapClient.blockKeyInput = false;
             }
@@ -76,7 +72,7 @@ public class OptionContexMenu extends JPopupMenu
             }
             else if (src == exit)
             {
-                EastAngliaMapClient.writeSetting("windowSize", ((int) EastAngliaMapClient.SignalMap.frame.getSize().getWidth()) + "," + ((int) EastAngliaMapClient.SignalMap.frame.getSize().getHeight()));
+                EastAngliaMapClient.writeSetting("windowSize", ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getWidth()) + "," + ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getHeight()));
                 System.exit(0);
             }
         }
@@ -89,7 +85,6 @@ public class OptionContexMenu extends JPopupMenu
         toggleOpacity      = new JCheckBoxMenuItem("Toggle Opacity",      EastAngliaMapClient.opaque);
         toggleDescriptions = new JCheckBoxMenuItem("Toggle Descriptions", EastAngliaMapClient.showDescriptions);
         toggleVisibility   = new JCheckBoxMenuItem("Toggle Visibility",   EastAngliaMapClient.visible);
-      //reset              = new JMenuItem("Reset Window");
         trainHistory       = new JMenuItem("Train History");
         refresh            = new JMenuItem("Refresh Data");
         reconnect          = new JMenuItem("Reconnect");
@@ -105,13 +100,12 @@ public class OptionContexMenu extends JPopupMenu
         addSeparator();
         add(refresh).addActionListener(clickEvent);
         add(reconnect).addActionListener(clickEvent);
-        //add(reset).addActionListener(clickEvent);
         addSeparator();
         add(trainHistory).addActionListener(clickEvent);
         addSeparator();
         add(changeName).addActionListener(clickEvent);
 
-        if (Arrays.deepToString(EastAngliaMapClient.args).contains("-screencap"))
+        if (EastAngliaMapClient.screencappingActive)
         {
             addSeparator();
             add(screencap).addActionListener(clickEvent);

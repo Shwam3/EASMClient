@@ -3,7 +3,6 @@ package eastangliamapclient.gui;
 import eastangliamapclient.*;
 import java.awt.Component;
 import java.awt.event.*;
-import java.util.ArrayList;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -51,53 +50,35 @@ public class BerthContextMenu extends JPopupMenu
     {
         this.berth = berth;
 
-        JMenuItem problemHere  = new JMenuItem("Problem Here");
-        JMenuItem search       = new JMenuItem("Search Headcode");
-        ArrayList<JMenuItem> berthHistories = new ArrayList<>();
-
-        if (berth.getIds().length == 1)
-        {
-            JMenuItem berthHistory = new JMenuItem("Berth\'s History");
-            berthHistory.addActionListener(clickEvent);
-            berthHistory.addFocusListener(menuFocus);
-            berthHistories.add(berthHistory);
-        }
-        else if (berth.getIds().length > 1)
-        {
-            for (String id : berth.getIds())
-            {
-                JMenuItem berthHistory = new JMenuItem("Berth\'s History (" + id + ")");
-                berthHistory.addActionListener(clickEvent);
-                berthHistory.addFocusListener(menuFocus);
-                berthHistories.add(berthHistory);
-            }
-        }
-
-        JMenuItem trainHistory = new JMenuItem("Train\'s History");
-
-        problemHere .addActionListener(clickEvent);
-        search      .addActionListener(clickEvent);
-        trainHistory.addActionListener(clickEvent);
-
-        problemHere .addFocusListener(menuFocus);
-        search      .addFocusListener(menuFocus);
-        trainHistory.addFocusListener(menuFocus);
-
-        add(problemHere);
+      //JMenuItem problemHere = new JMenuItem("Problem Here");
+      //problemHere.addActionListener(clickEvent);
+      //problemHere.addFocusListener(menuFocus);
+      //add(problemHere);
 
         if (berth.isProperHeadcode())
         {
-            addSeparator();
+            JMenuItem search = new JMenuItem("Search Headcode");
+            search.addActionListener(clickEvent);
+            search.addFocusListener(menuFocus);
             add(search);
+            addSeparator();
         }
 
-        addSeparator();
-
-        for (JMenuItem jmi : berthHistories)
-            add(jmi);
+        for (String id : berth.getIds())
+        {
+            JMenuItem berthHistory = new JMenuItem("Berth\'s History (" + id + ")");
+            berthHistory.addActionListener(clickEvent);
+            berthHistory.addFocusListener(menuFocus);
+            add(berthHistory);
+        }
 
         if (berth.hasTrain())
+        {
+            JMenuItem trainHistory = new JMenuItem("Train\'s History (" + berth.getHeadcode() + ")");
+            trainHistory.addActionListener(clickEvent);
+            trainHistory.addFocusListener(menuFocus);
             add(trainHistory);
+        }
 
         addFocusListener(menuFocus);
         show(component, x, y);

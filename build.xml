@@ -72,10 +72,6 @@
     -->
 	<target name="-post-jar">   
 		<exec dir="." executable="cmd">
-			  <arg line="/c zipup.bat"/>
-		</exec>
-        
-        <exec dir="." executable="cmd">
 			  <arg line="/c ToExe.bat"/>
 		</exec>
 	</target>

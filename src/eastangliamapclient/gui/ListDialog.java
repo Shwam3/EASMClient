@@ -15,10 +15,7 @@ public class ListDialog
     public ListDialog(final Berth berth, String title, String message, ArrayList<String> list)
     {
         if (list == null)
-        {
             list = new ArrayList<>();
-            list.add("Error in list (null)");
-        }
 
         dialog = new JDialog();
 
@@ -87,7 +84,7 @@ public class ListDialog
         dialog.add(pnl);
         dialog.setResizable(false);
         dialog.pack();
-        dialog.setLocationRelativeTo(EastAngliaMapClient.SignalMap.frame);
+        dialog.setLocationRelativeTo(EastAngliaMapClient.frameSignalMap.frame);
         dialog.setVisible(true);
 
         SwingUtilities.getRootPane(okButton).setDefaultButton(okButton);

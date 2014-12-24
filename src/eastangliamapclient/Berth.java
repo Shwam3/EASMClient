@@ -1,36 +1,38 @@
 package eastangliamapclient;
 
+import eastangliamapclient.gui.SignalMap;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 
-public class Berth
+public class Berth extends JComponent
 {
-    private final JLabel   label = new JLabel();
-
     private final String[] BERTH_IDs;
     private final String   BERTH_DESCRIPTION;
     private       String   currentHeadcode = "";
     private       String   currentBerthId  = "";
-    private       boolean  isProblematic   = false;
+    private       boolean  mouseIn = false;
     private       boolean  showDescription = false;
 
-    public Berth(JPanel pnl, int x, int y, String... berthIds)
+    private       boolean  hasBorder  = false;
+    private       boolean  isOpaque   = false;
+
+    public Berth(SignalMap.BackgroundPanel pnl, int x, int y, String... berthIds)
     {
         this.BERTH_IDs = berthIds;
 
-        initLabel(pnl, x, y);
+        initComponent(pnl, x, y);
 
-        BERTH_DESCRIPTION = label.getToolTipText();
+        BERTH_DESCRIPTION = getToolTipText();
 
         showDescription = EastAngliaMapClient.showDescriptions;
 
-        label.setText(showDescription ? BERTH_DESCRIPTION.substring(2, 6) : "");
-        label.setVisible(EastAngliaMapClient.visible);
         setOpaque(false);
-
-        colourise();
     }
+
+    public void hasBorder() { hasBorder = true; }
 
     public void cancel(String berthId)
     {
@@ -38,9 +40,6 @@ public class Berth
         {
             currentHeadcode = "";
             currentBerthId  = "";
-
-            if (!EastAngliaMapClient.showDescriptions)
-                label.setText("");
         }
 
         setOpaque(false);
@@ -55,33 +54,34 @@ public class Berth
             return;
 
         headcode = headcode.substring(0, Math.min(headcode.length(), 4));
-        currentHeadcode = headcode;
+        currentHeadcode = headcode == null ? "" : headcode;
         currentBerthId = berthId;
-
-        if (!EastAngliaMapClient.showDescriptions)
-            label.setText(currentHeadcode);
 
         setOpaque(false);
     }
 
+    @Override
     public void setOpaque(boolean opaque)
     {
-        label.setOpaque(EventHandler.tempOpaqueBerth == this || opaque || (label.getText() != null && !label.getText().isEmpty()) || EastAngliaMapClient.opaque || isProblematic || EastAngliaMapClient.showDescriptions);
-        colourise();
-    }
+        isOpaque = opaque ||
+                mouseIn ||
+                /*isProblematic ||*/
+                EventHandler.tempOpaqueBerth == this ||
+                (currentHeadcode != null && !currentHeadcode.isEmpty()) ||
+                EastAngliaMapClient.opaque ||
+                EastAngliaMapClient.showDescriptions;
 
-    public void setVisible(boolean visible)
-    {
-        label.setVisible(visible);
-        colourise();
+        super.setOpaque(false);
+
+        repaint();
     }
 
     public boolean isProperHeadcode()
     {
-        if (label.getText() != null && label.getText().equals(""))
+        if (currentHeadcode != null && currentHeadcode.length() < 4)
             return false;
 
-        return Berths.isProperHeadcode(label.getText());
+        return Berths.isProperHeadcode(currentHeadcode);
     }
 
     public String[] getIds()
@@ -99,18 +99,14 @@ public class Berth
         return BERTH_DESCRIPTION;
     }
 
-    //<editor-fold defaultstate="collapsed" desc="Init Label">
-    private void initLabel(JPanel pnl, int x, int y)
+    private void initComponent(SignalMap.BackgroundPanel pnl, int x, int y)
     {
-        label.setBackground(EastAngliaMapClient.GREY);
-        label.setFont(EastAngliaMapClient.TD_FONT);
-        label.setForeground(EastAngliaMapClient.GREEN);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setVerticalAlignment(SwingConstants.CENTER);
-        label.setFocusable(false);
-        label.setBounds(x, y, 48, 16);
+        setFocusable(false);
+        setBounds(x, y, 48, 16);
+        setBackground(EastAngliaMapClient.GREY);
+        setFont(EastAngliaMapClient.TD_FONT);
 
-        label.addMouseListener(new MouseAdapter()
+        addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent evt)
@@ -121,25 +117,21 @@ public class Berth
             @Override
             public void mouseEntered(MouseEvent evt)
             {
-                Berth berth = Berths.getBerth((JLabel) evt.getComponent());
+                mouseIn = true;
 
-                if (berth != null)
-                    if (evt.isControlDown())
-                        berth.showDescription(true);
-                    else
-                        berth.setOpaque(true);
+                if (evt.isControlDown())
+                    showDescription(true);
+                else
+                    setOpaque(false);
             }
 
             @Override
             public void mouseExited(MouseEvent evt)
             {
-                Berth berth = Berths.getBerth((JLabel) evt.getComponent());
+                mouseIn = false;
 
-                if (berth != null)
-                {
-                    berth.showDescription(false);
-                    berth.setOpaque(false);
-                }
+                showDescription(false);
+                setOpaque(false);
             }
         });
 
@@ -150,20 +142,19 @@ public class Berth
             if (i == 0)
                 tooltip.append(BERTH_IDs[i]);
             else if (i == BERTH_IDs.length - 1)
-                tooltip.append(" & " + BERTH_IDs[i]);
+                tooltip.append(" & ").append(BERTH_IDs[i]);
             else
-                tooltip.append(", " + BERTH_IDs[i]);
+                tooltip.append(", ").append(BERTH_IDs[i]);
 
-            Berths.putBerth(BERTH_IDs[i], this, label);
+            Berths.putBerth(BERTH_IDs[i], this);
         }
 
-        label.setToolTipText(tooltip.toString());
+        setToolTipText(tooltip.toString());
 
-        pnl.add(label);
+        pnl.add(this);
     }
-    //</editor-fold>
 
-    public boolean setProblematicBerth(boolean isProblematic)
+    /*public boolean setProblematicBerth(boolean isProblematic)
     {
         this.isProblematic = isProblematic;
 
@@ -175,16 +166,11 @@ public class Berth
     public boolean isProblematic()
     {
         return isProblematic;
-    }
+    }*/
 
     public void showDescription(boolean show)
     {
-        showDescription = EastAngliaMapClient.showDescriptions || show;
-
-        if (showDescription)
-            label.setText(BERTH_DESCRIPTION.substring(2, 6));
-        else
-            label.setText(currentHeadcode);
+        showDescription = show;
 
         setOpaque(false);
     }
@@ -197,29 +183,65 @@ public class Berth
 
     public boolean hasTrain()
     {
-        return label.getText() != null && !label.getText().isEmpty();
+        return currentHeadcode != null && !currentHeadcode.isEmpty();
     }
 
     public String getHeadcode()
     {
-        return label.getText();
+        return currentHeadcode;
     }
 
-    private void colourise()
+    @Override
+    protected void paintComponent(Graphics g)
     {
-        if (isProblematic)
-            label.setBackground(EastAngliaMapClient.RED);
-        else
-            label.setBackground(EastAngliaMapClient.GREY);
+        Graphics2D g2d = (Graphics2D) g.create();
 
-        if (showDescription)
-            label.setForeground(EastAngliaMapClient.BLACK);
-        else if (isProperHeadcode())
-            label.setForeground(EastAngliaMapClient.GREEN);
-        else
-            label.setForeground(EastAngliaMapClient.WHITE);
+        if (EventHandler.isScreencapping)
+        {
+            g2d.setColor(EastAngliaMapClient.GREY);
+            if (hasBorder)
+                g2d.drawRect(0, 0, 47, 15);
 
-        try { EastAngliaMapClient.SignalMap.frame.repaint(); }
-        catch (NullPointerException e) {}
+            if (currentHeadcode != null && !currentHeadcode.isEmpty())
+            {
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+
+                if (isProperHeadcode())
+                    g2d.setColor(EastAngliaMapClient.GREEN);
+                else
+                    g2d.setColor(EastAngliaMapClient.WHITE);
+
+                g2d.drawString(currentHeadcode, 1, 15);
+            }
+        }
+        else
+        {
+            if (EastAngliaMapClient.visible)
+            {
+                g2d.setColor(EastAngliaMapClient.GREY);
+                if (hasBorder)
+                    g2d.drawRect(0, 0, 47, 15);
+
+                if (EastAngliaMapClient.showDescriptions || isOpaque || currentHeadcode.length() > 0)
+                    g2d.fillRect(0, 0, 48, 16);
+
+                if (EastAngliaMapClient.showDescriptions || showDescription)
+                {
+                    g2d.setColor(EastAngliaMapClient.BLACK);
+                    g2d.drawString(BERTH_DESCRIPTION.substring(2, 6), 1, 15);
+                }
+                else if (currentHeadcode != null && !currentHeadcode.isEmpty())
+                {
+                    if (isProperHeadcode())
+                        g2d.setColor(EastAngliaMapClient.GREEN);
+                    else
+                        g2d.setColor(EastAngliaMapClient.WHITE);
+
+                    g2d.drawString(currentHeadcode, 1, 15);
+                }
+            }
+        }
+
+        g2d.dispose();
     }
 }

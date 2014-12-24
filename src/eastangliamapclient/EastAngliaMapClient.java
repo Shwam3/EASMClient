@@ -7,14 +7,17 @@ import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class EastAngliaMapClient
 {
-    public static String VERSION = "11";
-    //<editor-fold defaultstate="collapsed" desc="Program variables">
+    public static String VERSION = "12";
     private static final String host = "shwam3.ddns.net";
     private static final int    port = 6321;
+
+    public  static final File storageDir = new File(System.getProperty("user.home", "C:") + File.separator + ".easigmap");
 
     public  static Socket       serverSocket;
     public  static InputStream  in;
@@ -28,107 +31,122 @@ public class EastAngliaMapClient
     public  static boolean showDescriptions = false; // not headcodes
     public  static boolean visible          = true;
 
-    public  static SignalMap      SignalMap;
+    public  static SignalMap      frameSignalMap;
     public  static TrayIcon       trayIcon;
-    public  static MessageHandler handler;
     public  static String         clientName;
     public  static boolean        connected = false; // Not used properly yet
+    public  static boolean        kicked = false;
     public  static boolean        minimiseToSysTray = true;
     public  static Dimension      windowSize = new Dimension();
+    public  static String         ftpBaseUrl = "";
 
-    public  static SimpleDateFormat sdf     = new SimpleDateFormat("HH:mm:ss");
-    public  static SimpleDateFormat sdfLog  = new SimpleDateFormat("dd-MM-YY HH.mm.ss");
-    private static final Object     logLock = new Object();
+    public  static SimpleDateFormat sdf      = new SimpleDateFormat("dd/MM/YY HH:mm:ss");
+    public  static SimpleDateFormat clockSDF = new SimpleDateFormat("HH:mm:ss");
 
-    public  static       Font  TD_FONT = new Font("TDBerth DM", 0, 16);
-    public  static final Color GREEN   = new Color(0,  153, 0);
-    public  static final Color GREY    = new Color(64, 64,  64);
-    public  static final Color BLACK   = Color.BLACK;
-    public  static final Color WHITE   = Color.WHITE;
-    public  static final Color RED     = new Color(190, 20, 20);
-    public  static final Color BLUE    = new Color(0, 255, 255);
+    public  static       Font  TD_FONT  = new Font("TDBerth DM", 0, 16);
+    public  static final Color GREEN    = new Color(0,   153, 0);   // proper headcode berth colour
+    public  static final Color GREY     = new Color(64,  64,  64);  // background coplour of berth
+    public  static final Color BLACK    = new Color(0,   0,   0);   // background colour
+    public  static final Color BERTH_ID = new Color(0,   0,   0);   // colour of berth while displaying berth id
+    public  static final Color WHITE    = new Color(255, 255, 255); // improper headcode berth colour
+    public  static final Color RED      = new Color(190, 20,  20);  // not used
+    public  static final Color BLUE     = new Color(0,   255, 255); // not used
 
-    public  static String[] args;
-
-    private static long    lastReconnectAttempt;
-    public  static boolean blockKeyInput = false;
-    //</editor-fold>
+    public  static boolean isPreRelease         = false;
+    public  static boolean screencappingActive  = false;
+    private static long    lastReconnectAttempt = System.currentTimeMillis();
+    public  static boolean blockKeyInput        = false;
 
     public static void main(String[] args)
     {
-        EastAngliaMapClient.args = args;
-
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {}
 
         try
         {
-            URL url = new URL("https://raw.githubusercontent.com/Shwam3/EastAngliaSignalMapClient/master/version.txt");
-            Scanner s = new Scanner(url.openStream());
-            int remoteVersion = s.nextInt();
+            int localVersion = Integer.parseInt(VERSION);
 
-            if (remoteVersion > Integer.parseInt(VERSION))
+            int remoteVersion = -1;
+            String downloadLocation = "";
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(new URL("https://raw.githubusercontent.com/Shwam3/EastAngliaSignalMapClient/master/version.txt").openStream())))
+            {
+                remoteVersion = Integer.parseInt(br.readLine());
+                downloadLocation = br.readLine();
+            }
+            catch (NumberFormatException e) {}
+
+            downloadLocation = (downloadLocation == null ? "http://easignalmap.altervista.org/downloads/" : downloadLocation);
+
+            if (remoteVersion > localVersion)
             {
                 printStartup("New version available", false);
                 if (JOptionPane.showConfirmDialog(null, "A new version is available, download now?", "Updater", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
                 {
-                    Desktop.getDesktop().browse(new URI("http://easignalmap.altervista.org/downloads/EastAngliaSignalMapClient.exe"));
-                    printStartup("Downloading new version", false);
+                    Desktop.getDesktop().browse(new URI(downloadLocation));
+                    printStartup("Downloading new version from " + downloadLocation, false);
                     System.exit(0);
                 }
             }
+            else if (remoteVersion < Integer.parseInt(VERSION))
+                isPreRelease = true;
         }
         catch (FileNotFoundException e) { printStartup("Cant find remote version file", true); }
         catch (URISyntaxException e) {}
         catch (IOException e) { printStartup("Error reading remote version file", true); }
 
+        System.setProperty("args", Arrays.deepToString(args));
+
         // User preferences
         try
         {
-            File preferencesFile = new File(System.getProperty("user.home") + File.separator + ".easigmap" + File.separator + "preferences.txt");
-
-            if (!preferencesFile.exists())
-            {
-                preferencesFile.getParentFile().mkdirs();
-                preferencesFile.createNewFile();
-            }
+            File preferencesFile = newFile(new File(storageDir, "preferences.txt"));
 
             Properties preferences = new Properties();
-            FileInputStream fis = new FileInputStream(preferencesFile);
-            preferences.load(fis);
-            fis.close();
+            try (FileInputStream fis = new FileInputStream(preferencesFile))
+            {
+                preferences.load(fis);
+            }
 
             clientName        = preferences.getProperty("clientName",        System.getProperty("user.name"));
             minimiseToSysTray = preferences.getProperty("minimiseToSysTray", SystemTray.isSupported() ? "true" : "false").equals("true");
-            String[] sizeStr  = preferences.getProperty("windowSize",        "1874,922").split(",");
+            String[] sizeStr  = preferences.getProperty("windowSize",        "1877,928").split(",");
 
             try
             {
-              //windowSize = new Dimension(                          Integer.parseInt(sizeStr[0].trim()),                                        Integer.parseInt(sizeStr[1].trim()));
-                windowSize = new Dimension(Math.min(Math.max((int) Double.parseDouble(sizeStr[0].trim()), 800), 1874), Math.min(Math.max((int) Double.parseDouble(sizeStr[1].trim()), 600), 922));
+                windowSize = new Dimension(Math.min(Math.max((int) Double.parseDouble(sizeStr[0].trim()), 800), SignalMap.DEFAULT_WIDTH), Math.min(Math.max((int) Double.parseDouble(sizeStr[1].trim()), 600), SignalMap.DEFAULT_HEIGHT));
             }
             catch (IndexOutOfBoundsException e)
             {
-                windowSize = new Dimension(1874, 922);
+                windowSize = new Dimension(SignalMap.DEFAULT_WIDTH, SignalMap.DEFAULT_HEIGHT);
             }
 
             preferences.setProperty("clientName",        clientName);
             preferences.setProperty("minimiseToSysTray", String.valueOf(minimiseToSysTray));
             preferences.setProperty("windowSize",        ((int) windowSize.getWidth()) + "," + ((int) windowSize.getHeight()));
 
-            FileOutputStream fos = new FileOutputStream(preferencesFile);
-            preferences.store(fos, "EA Signal Map Preferences");
-            fos.close();
-
+            try (FileOutputStream fos = new FileOutputStream(preferencesFile))
+            {
+                preferences.store(fos, "EA Signal Map Preferences");
+            }
         }
-        catch (FileNotFoundException e) { e.printStackTrace(); }
-        catch (IOException e) { e.printStackTrace(); }
+        catch (FileNotFoundException e) { printThrowable(e, "Preferences"); }
+        catch (IOException e) { printThrowable(e, "Preferences"); }
 
-      //EventHandler.startScreenCapture(60000 * 5, "C:\\Users\\Shwam\\Dropbox\\EASignalMapMobile");
-      //EventHandler.startScreenCapture(60000 * 5, "C:\\Users\\Shwam\\Copy cambird@f2s.com\\EASigMapMobile");
-        EventHandler.startScreenCapture(60000 * 5, "C:\\Users\\Shwam\\Documents\\GitHub\\EastAngliaSignalMapWebsite\\images"); // Remove from release
+        try
+        {
+            Properties ftpLogin = new Properties();
+            ftpLogin.load(new FileInputStream(newFile(new File(storageDir, "Website_FTP_Login.properties"))));
 
-        handler = new MessageHandler();
+            ftpBaseUrl = "ftp://" + ftpLogin.getProperty("Username", "") + ":" + ftpLogin.getProperty("Password", "") + "@ftp.easignalmap.altervista.org/";
+        }
+        catch (FileNotFoundException e) {}
+        catch (IOException e) { printThrowable(e, "FTP Login"); }
+
+        if (Arrays.deepToString(args).contains("-screencap"))
+        {
+            screencappingActive = true;
+            EventHandler.startScreenCapture(60000 * 5); // Remove from release
+        }
 
         EventQueue.invokeLater(new Runnable()
         {
@@ -142,11 +160,12 @@ public class EastAngliaMapClient
                 catch (FontFormatException | IOException e)
                 {
                     TD_FONT = new Font("Monospaced", 0, 19);
+
                     printStartup("Couldn\'t create font, stuff will look strange", true);
-                    e.printStackTrace();
+                    printThrowable(e, "Startup - Font");
                 }
 
-                SignalMap = new SignalMap(windowSize);
+                frameSignalMap = new SignalMap(windowSize);
 
                 SysTrayHandler.initSysTray();
 
@@ -155,10 +174,7 @@ public class EastAngliaMapClient
                     @Override
                     public void run()
                     {
-                        try
-                        {
-                            handler.stop();
-                        }
+                        try { MessageHandler.stop(); }
                         catch (NullPointerException e) {}
                     }
                 });
@@ -167,33 +183,41 @@ public class EastAngliaMapClient
                 {
                     lastReconnectAttempt = System.currentTimeMillis();
 
-                    serverSocket = new Socket(host, port); // Throws the errors
+                    serverSocket = new Socket(getHostIp(), port); // Throws the errors
 
-                    handler.sendName(clientName);
-
-                    if (serverSocket.isConnected())
+                    if (serverSocket.isConnected() && MessageHandler.sendName(clientName))
                     {
+                        connected = true;
                         printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
-                        //SysTrayHandler.popup("Connected", TrayIcon.MessageType.INFO);
                         SysTrayHandler.trayTooltip("Connected");
+                    }
+                    else
+                    {
+                        connected = false;
+                        printStartup("Not connected to server: " + InetAddress.getByName(host).toString() + ":" + port, true);
+                        SysTrayHandler.trayTooltip("Not conected");
                     }
                 }
                 catch (ConnectException e)
                 {
-                    printStartup("Couldnt connect, server probably down:\n" + String.valueOf(e), true);
+                    printStartup("Couldnt connect, server probably down", true);
+                    printThrowable(e, "Startup");
                     //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error (ConnEx)", JOptionPane.ERROR_MESSAGE);
                     SysTrayHandler.popup("Unable to connect", TrayIcon.MessageType.ERROR);
                     SysTrayHandler.trayTooltip("Not Connected");
                 }
                 catch (IOException e)
                 {
-                    printStartup("Unable to connect to server:\n" + String.valueOf(e), true);
+                    printStartup("Unable to connect to server", true);
+                    printThrowable(e, "Startup");
                     //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error (IOEx)", JOptionPane.ERROR_MESSAGE);
                     SysTrayHandler.popup("Unable to connect", TrayIcon.MessageType.ERROR);
                     SysTrayHandler.trayTooltip("Not Connected");
                 }
 
-                SignalMap.setVisible(true);
+                MessageHandler.start(); // Should be already but make sure
+
+                frameSignalMap.setVisible(true);
             }
         });
 
@@ -204,51 +228,62 @@ public class EastAngliaMapClient
             EventHandler.screencap();
     }
 
-    public static synchronized void reconnect()
+    public static synchronized boolean reconnect(boolean force)
     {
-        if (System.currentTimeMillis() - lastReconnectAttempt > 5000)
-        {
-            lastReconnectAttempt = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
 
-            handler.sendSocketClose();
-            handler.closeSocket();
+        if (time - lastReconnectAttempt > 5000 && (time - MessageHandler.getLastMessageTime() > 30000 && !kicked || force))
+        {
+            lastReconnectAttempt = time;
+            kicked = false;
+
+            MessageHandler.sendSocketClose();
+            MessageHandler.closeSocket();
 
             try
             {
-                serverSocket = new Socket(InetAddress.getByName(host), port);
+                serverSocket = new Socket(getHostIp(), port);
 
-                if (serverSocket.isConnected() && !handler.sendName(EastAngliaMapClient.clientName))
+                if (serverSocket.isConnected() && MessageHandler.sendName(clientName))
                 {
                     printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
                     SysTrayHandler.popup("Reconnected", TrayIcon.MessageType.INFO);
                     SysTrayHandler.trayTooltip("Connected");
+
+                    connected = true;
+
+                    return true;
                 }
             }
             catch (ConnectException e)
             {
-                printStartup("Unable connect, server probably down.\n" + e, true);
+                printStartup("Unable connect, server probably down", true);
                 //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error", JOptionPane.ERROR_MESSAGE);
                 SysTrayHandler.popup("Unable to reconnect", TrayIcon.MessageType.ERROR);
                 SysTrayHandler.trayTooltip("Not Connected");
+
+                connected = false;
             }
             catch (IOException e)
             {
-                printStartup("Unable to connect to server\n" + e, true);
+                printStartup("Unable to connect to server", true);
+                printThrowable(e, "Startup");
                 //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error", JOptionPane.ERROR_MESSAGE);
                 SysTrayHandler.popup("Unable to reconnect", TrayIcon.MessageType.ERROR);
                 SysTrayHandler.trayTooltip("Not Connected");
-            }
-        }
-        else
-            try { Thread.sleep(1000); }
-            catch (InterruptedException e) {}
 
-        System.gc();
+                connected = false;
+            }
+
+            return false;
+        }
+
+        return false;
     }
 
     public static String getTime()
     {
-        return sdf.format(new Date());
+        return clockSDF.format(new Date());
     }
 
     private static void printStartup(String message, boolean toErr)
@@ -259,6 +294,7 @@ public class EastAngliaMapClient
             printOut("[Startup] " + message);
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Print methods">
     public static void printOut(String message)
     {
         print("[" + sdf.format(new Date()) + "] " + message, System.out);
@@ -269,35 +305,100 @@ public class EastAngliaMapClient
         print("!!!> [" + sdf.format(new Date()) + "] " + message + " <!!!", System.err);
     }
 
+    public static void printThrowable(Throwable t, String name)
+    {
+        printErr((name != null && !name.isEmpty() ? "[" + name + "] " : "") + t.toString());
+
+        for (StackTraceElement element : t.getStackTrace())
+            printErr((name != null && !name.isEmpty() ? "[" + name + "] -> " : "-> ") + element.toString());
+
+        for (Throwable sup : t.getSuppressed())
+            printThrowable0(sup, name);
+
+        printThrowable0(t.getCause(), name);
+    }
+
+    private static void printThrowable0(Throwable t, String name)
+    {
+        if (t != null)
+        {
+            printErr((name != null && !name.isEmpty() ? "[" + name + "] " : "") + t.toString());
+
+            for (StackTraceElement element : t.getStackTrace())
+                printErr((name != null && !name.isEmpty() ? "[" + name + "] -> " : " -> ") + element.toString());
+        }
+    }
+
     private static synchronized void print(String message, PrintStream stream)
     {
         stream.println(message);
     }
+//</editor-fold>
 
     public static void writeSetting(String preferenceName, String preferenceValue)
     {
         try
         {
-            File preferencesFile = new File(System.getProperty("user.home") + File.separator + ".easigmap" + File.separator + "preferences.txt");
-
-            if (!preferencesFile.exists())
-            {
-                preferencesFile.getParentFile().mkdirs();
-                preferencesFile.createNewFile();
-            }
+            File preferencesFile = newFile(new File(storageDir, "preferences.txt"));
 
             Properties preferences = new Properties();
-            FileInputStream fis = new FileInputStream(preferencesFile);
-            preferences.load(fis);
-            fis.close();
+            try (FileInputStream fis = new FileInputStream(preferencesFile))
+            {
+                preferences.load(fis);
+            }
+            catch (FileNotFoundException e) {}
+            catch (IOException e) {}
 
             preferences.setProperty(preferenceName, preferenceValue);
 
-            FileOutputStream fos = new FileOutputStream(preferencesFile);
-            preferences.store(fos, "EA Signal Map Preferences");
-            fos.close();
+            try (FileOutputStream fos = new FileOutputStream(preferencesFile))
+            {
+                preferences.store(fos, "EA Signal Map Preferences");
+            }
+            catch (FileNotFoundException e) {}
+            catch (IOException e) {}
         }
-        catch (FileNotFoundException e) {}
         catch (IOException e) {}
+    }
+
+    public static String getHostIp()
+    {
+        try
+        {
+            URLConnection con = new URL("http://easignalmap.altervista.org/server.ip").openConnection();
+            con.setConnectTimeout(10000);
+            con.setReadTimeout(5000);
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream())))
+            {
+                return br.readLine();
+            }
+        }
+        catch (MalformedURLException e) {}
+        catch (IOException e)
+        {
+            try
+            {
+                return InetAddress.getByName(host).getHostAddress();
+            }
+            catch (UnknownHostException e2) {}
+        }
+        return "error";
+    }
+
+    public static File newFile(File file) throws IOException
+    {
+        if (!file.exists())
+        {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+
+        return file;
+    }
+
+    public static synchronized void clean()
+    {
+        CClassMap = new HashMap<>(CClassMap);
+        System.gc();
     }
 }
