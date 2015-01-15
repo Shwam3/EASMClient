@@ -7,12 +7,19 @@ import java.util.regex.PatternSyntaxException;
 
 public class Berths
 {
-    private static HashMap<String, Berth> berthMap = new HashMap<>();
+    private static Map<String, Berth> berthMap = new HashMap<>();
 
     public static Berth getOrCreateBerth(SignalMap.BackgroundPanel pnl, int x, int y, String... berthIds)
     {
-        if (berthMap.containsKey(berthIds[0]))
-            return berthMap.get(berthIds[0]);
+        Berth berth = berthMap.get(berthIds[0]);
+        if (berth != null)
+        {
+            if (berth.getParent() != pnl)
+                pnl.add(berth);
+
+            berth.setLocation(x, y);
+            return berth;
+        }
         else
             return new Berth(pnl, x, y, berthIds);
     }
@@ -42,8 +49,8 @@ public class Berths
 
     public static Berth getBerth(String berthId)
     {
-        if (berthMap.containsKey(berthId))
-            return berthMap.get(berthId);
+        if (berthMap.containsKey(berthId.toUpperCase()))
+            return berthMap.get(berthId.toUpperCase());
 
         return null;
     }
@@ -62,7 +69,7 @@ public class Berths
     {
         printBerths("Berth Ids:", false);
 
-        ArrayList<String> berthIds = new ArrayList<>();
+        List<String> berthIds = new ArrayList<>();
 
         for (String id : berthMap.keySet())
             berthIds.add(id);
@@ -95,8 +102,8 @@ public class Berths
     {
         EastAngliaMapClient.visible = !EastAngliaMapClient.visible;
 
-        for (SignalMap.BackgroundPanel bg : EastAngliaMapClient.frameSignalMap.getPanels())
-            bg.repaint(0, 0, bg.getWidth(), bg.getHeight());
+        for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
+            bp.repaint(0, 0, bp.getWidth(), bp.getHeight());
     }
 
     private static void printBerths(String message, boolean toErr)

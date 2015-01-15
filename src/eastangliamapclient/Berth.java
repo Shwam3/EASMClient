@@ -27,7 +27,7 @@ public class Berth extends JComponent
 
         BERTH_DESCRIPTION = getToolTipText();
 
-        showDescription = EastAngliaMapClient.showDescriptions;
+        super.setOpaque(false);
 
         setOpaque(false);
     }
@@ -47,15 +47,25 @@ public class Berth extends JComponent
 
     public void interpose(String headcode, String berthId)
     {
+        String oldHeadcode = currentHeadcode;
+        String oldBerthId = currentBerthId;
+
+        if (headcode == null)
+            headcode = "";
+
         if (headcode.equals(currentHeadcode) && berthId.equals(currentBerthId))
             return;
 
-        if (headcode.equals("") && !berthId.equals(currentBerthId))
+        if (headcode.trim().equals("") && !berthId.equals(currentBerthId))
             return;
 
-        headcode = headcode.substring(0, Math.min(headcode.length(), 4));
-        currentHeadcode = headcode == null ? "" : headcode;
+        currentHeadcode = headcode;
         currentBerthId = berthId;
+
+        if (headcode.equals(""))
+            EastAngliaMapClient.printOut(Arrays.deepToString(BERTH_IDs) + " Cancel " + oldHeadcode + " (" + oldBerthId + ")");
+        else
+            EastAngliaMapClient.printOut(Arrays.deepToString(BERTH_IDs) + " Interpose " + currentHeadcode + " (" + currentBerthId + ")");
 
         setOpaque(false);
     }
@@ -67,11 +77,9 @@ public class Berth extends JComponent
                 mouseIn ||
                 /*isProblematic ||*/
                 EventHandler.tempOpaqueBerth == this ||
-                (currentHeadcode != null && !currentHeadcode.isEmpty()) ||
-                EastAngliaMapClient.opaque ||
-                EastAngliaMapClient.showDescriptions;
-
-        super.setOpaque(false);
+                (currentHeadcode != null && !currentHeadcode.isEmpty()); //||
+                //EastAngliaMapClient.opaque ||
+                //EastAngliaMapClient.showDescriptions;
 
         repaint();
     }
@@ -222,7 +230,7 @@ public class Berth extends JComponent
                 if (hasBorder)
                     g2d.drawRect(0, 0, 47, 15);
 
-                if (EastAngliaMapClient.showDescriptions || isOpaque || currentHeadcode.length() > 0)
+                if (EastAngliaMapClient.showDescriptions || EastAngliaMapClient.opaque || isOpaque || currentHeadcode.length() > 0)
                     g2d.fillRect(0, 0, 48, 16);
 
                 if (EastAngliaMapClient.showDescriptions || showDescription)

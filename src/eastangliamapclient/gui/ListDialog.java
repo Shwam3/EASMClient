@@ -1,28 +1,30 @@
 package eastangliamapclient.gui;
 
 import eastangliamapclient.*;
+import java.awt.*;
 import java.awt.Dialog.ModalityType;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 public class ListDialog
 {
     private JDialog dialog;
 
-    public ListDialog(final Berth berth, String title, String message, ArrayList<String> list)
+    public ListDialog(final Berth berth, String title, String message, List<String> list)
     {
         if (list == null)
             list = new ArrayList<>();
 
         dialog = new JDialog();
+        dialog.setIconImage(EastAngliaMapClient.frameSignalMap.frame.getIconImage());
 
         dialog.setTitle(title);
         dialog.setPreferredSize(new Dimension(305, 319));
         dialog.setResizable(true);
-        dialog.setLayout(null);
+        dialog.setLayout(new BorderLayout());
         dialog.setLocationByPlatform(true);
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dialog.setModalityType(ModalityType.APPLICATION_MODAL);
@@ -41,27 +43,29 @@ public class ListDialog
             });
 
         JPanel pnl = new JPanel(null);
-        pnl.setBounds(10, 10, 269, 261);
+        pnl.setLayout(new BorderLayout(10, 10));
+        pnl.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JLabel lblMessage = new JLabel(message);
-        lblMessage.setVerticalAlignment(SwingConstants.CENTER);
-        lblMessage.setHorizontalAlignment(SwingConstants.LEFT);
-        lblMessage.setBounds(0, 0, pnl.getWidth(), 15);
-        lblMessage.setToolTipText(message);
-        pnl.add(lblMessage);
+        if (message != null && !message.equals(""))
+        {
+            JLabel lblMessage = new JLabel(message);
+            lblMessage.setVerticalAlignment(SwingConstants.CENTER);
+            lblMessage.setHorizontalAlignment(SwingConstants.LEFT);
+            lblMessage.setToolTipText(message);
+            pnl.add(lblMessage, BorderLayout.NORTH);
+        }
 
-        JList jList = new JList(list.toArray());
+        JList<String> jList = new JList<>(list.toArray(new String[0]));
         jList.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         jList.setVisibleRowCount(5);
         jList.setLayoutOrientation(JList.VERTICAL);
         JScrollPane jListSP = new JScrollPane(jList);
         jListSP.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         jListSP.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        jListSP.setBounds(0, 25, pnl.getWidth(), pnl.getHeight() - 58);
-        pnl.add(jListSP);
+        pnl.add(jListSP, BorderLayout.CENTER);
 
-        final JButton okButton = new JButton("OK");
-        okButton.setBounds(102, pnl.getHeight() - 23, 73, 23);
+        JButton okButton = new JButton("OK");
+        okButton.setPreferredSize(new Dimension(73, 23));
         okButton.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -70,7 +74,9 @@ public class ListDialog
                 dialog.dispose();
             }
         });
-        pnl.add(okButton);
+        JPanel buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        buttonPnl.add(okButton);
+        pnl.add(buttonPnl, BorderLayout.SOUTH);
 
         dialog.getRootPane().registerKeyboardAction(new ActionListener()
         {
@@ -81,13 +87,20 @@ public class ListDialog
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
 
+        dialog.getRootPane().registerKeyboardAction(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                dialog.dispose();
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
+
         dialog.add(pnl);
-        dialog.setResizable(false);
         dialog.pack();
         dialog.setLocationRelativeTo(EastAngliaMapClient.frameSignalMap.frame);
-        dialog.setVisible(true);
 
-        SwingUtilities.getRootPane(okButton).setDefaultButton(okButton);
-        dialog.getRootPane().setDefaultButton(okButton);
+        okButton.requestFocusInWindow();
+        dialog.setVisible(true);
     }
 }

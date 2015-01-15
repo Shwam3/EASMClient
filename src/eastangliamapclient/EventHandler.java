@@ -218,11 +218,14 @@ public class EventHandler
                 {
                     EastAngliaMapClient.clean();
 
-                    Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
-                    Robot rob = new Robot();
-                    rob.mouseMove(mouseLoc.x, mouseLoc.y);
+                    if (EastAngliaMapClient.preventSleep)
+                    {
+
+                        Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
+                        new Robot().mouseMove(mouseLoc.x, mouseLoc.y);
+                    }
                 }
-                catch (AWTException e) {}
+                catch (AWTException | NullPointerException e) {}
             }
         }, 30000, 30000);
 
@@ -301,14 +304,14 @@ public class EventHandler
             return;
         }
 
-        EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
+        EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
 
         printScreencap("Updating images (" + EastAngliaMapClient.getTime() + ")", false);
 
         MessageHandler.requestAll();
 
-        final ArrayList<BufferedImage> images = new ArrayList<>();
-        final ArrayList<String> names = new ArrayList<>();
+        final java.util.List<BufferedImage> images = new ArrayList<>();
+        final java.util.List<String> names = new ArrayList<>();
 
         EastAngliaMapClient.frameSignalMap.prepForScreencap();
         isScreencapping = true;

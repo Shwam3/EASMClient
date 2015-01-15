@@ -2,17 +2,25 @@ package eastangliamapclient;
 
 import eastangliamapclient.gui.SignalMap;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Signals
 {
-    private static HashMap<String, Signal> signalMap = new HashMap<>();
+    private static Map<String, Signal> signalMap = new HashMap<>();
 
-    public static Signal getOrCreateSignal(SignalMap.BackgroundPanel pnl, int x, int y, String signalId, SignalDirection direction)
+    public static Signal getOrCreateSignal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalDirection direction)
     {
-        if (signalMap.containsKey(signalId))
-            return signalMap.get(signalId);
+        Signal signal = signalMap.get(dataId);
+        if (signal != null)
+        {
+            if (signal.getParent() != pnl)
+                pnl.add(signal);
+
+            signal.setLocation(x, y);
+            return signal;
+        }
         else
-            return new Signal(pnl, x, y, signalId, direction);
+            return new Signal(pnl, x, y, description, dataId, direction == null ? SignalDirection.NONE : direction);
     }
 
     public static boolean containsSignal(String signalId)
@@ -20,10 +28,21 @@ public class Signals
         return signalMap.containsKey(signalId);
     }
 
-    public static void putSignal(String signalId, Signal berth)
+    public static void putSignal(String signalId, Signal signal)
     {
         if (!containsSignal(signalId))
-            signalMap.put(signalId, berth);
+            signalMap.put(signalId, signal);
+
+        if (!EastAngliaMapClient.DataMap.containsKey(signalId))
+            EastAngliaMapClient.DataMap.put(signalId, Integer.toString(3));
+    }
+
+    public static Signal getSignal(String signalId)
+    {
+        if (signalMap.containsKey(signalId.toUpperCase()))
+            return signalMap.get(signalId.toUpperCase());
+
+        return null;
     }
 
     public static enum SignalDirection

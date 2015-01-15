@@ -20,6 +20,7 @@ public class OptionContexMenu extends JPopupMenu
     JCheckBoxMenuItem screencap;
     JMenuItem takeScreencaps;
 
+    JCheckBoxMenuItem preventSleep;
     JCheckBoxMenuItem minToSys;
     JMenuItem exit;
 
@@ -65,6 +66,11 @@ public class OptionContexMenu extends JPopupMenu
                 EventHandler.screencap();
             else if (src == takeScreencaps)
                 EventHandler.takeScreencaps();
+            else if (src == preventSleep)
+            {
+               EastAngliaMapClient.preventSleep = preventSleep.isSelected();
+               EastAngliaMapClient.writeSetting("preventSleep", String.valueOf(preventSleep.isSelected()));
+            }
             else if (src == minToSys)
             {
                 EastAngliaMapClient.minimiseToSysTray = minToSys.isSelected();
@@ -91,6 +97,7 @@ public class OptionContexMenu extends JPopupMenu
         changeName         = new JMenuItem("Change Name");
         screencap          = new JCheckBoxMenuItem("Auto Screencap", EastAngliaMapClient.screencap);
         takeScreencaps     = new JMenuItem("Take Screencaps");
+        preventSleep       = new JCheckBoxMenuItem("Keep your PC Awake",      EastAngliaMapClient.preventSleep);
         minToSys           = new JCheckBoxMenuItem("Minimise to System Tray", EastAngliaMapClient.minimiseToSysTray);
         exit               = new JMenuItem("Exit");
 
@@ -113,6 +120,7 @@ public class OptionContexMenu extends JPopupMenu
         }
 
         addSeparator();
+        add(preventSleep).addActionListener(clickEvent);
         add(minToSys).addActionListener(clickEvent);
         add(exit).addActionListener(clickEvent);
 

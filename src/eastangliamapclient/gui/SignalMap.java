@@ -1,6 +1,7 @@
 package eastangliamapclient.gui;
 
 import eastangliamapclient.*;
+import eastangliamapclient.Signals.SignalDirection;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -15,9 +16,9 @@ public class SignalMap
 {
     public JFrame frame;
 
-    private final ArrayList<JButton>         buttons   = new ArrayList<>();
-    private final ArrayList<JScrollPane>     motdPanes = new ArrayList<>();
-    private final ArrayList<BackgroundPanel> panels    = new ArrayList<>();
+    private final java.util.List<JButton>         buttons   = new ArrayList<>();
+    private final java.util.List<JScrollPane>     motdPanes = new ArrayList<>();
+    private final java.util.List<BackgroundPanel> panels    = new ArrayList<>();
 
     public static final int DEFAULT_WIDTH  = 1877; //1874;
     public static final int DEFAULT_HEIGHT = 928; //922;
@@ -75,7 +76,12 @@ public class SignalMap
                     if (EastAngliaMapClient.minimiseToSysTray)
                     {
                         frame.setVisible(false);
-                        SysTrayHandler.popup("App now in System Tray", TrayIcon.MessageType.INFO);
+
+                        if (!EastAngliaMapClient.shownSystemTrayWarn)
+                        {
+                            EastAngliaMapClient.shownSystemTrayWarn = true;
+                            SysTrayHandler.popup("App now in System Tray", TrayIcon.MessageType.INFO);
+                        }
                     }
                     else
                     {
@@ -274,16 +280,18 @@ public class SignalMap
         Berths.getOrCreateBerth(bpNorwich, 1114, 506, "CCTB13");
         Berths.getOrCreateBerth(bpNorwich, 970,  474, "CCTB14");
         Berths.getOrCreateBerth(bpNorwich, 1050, 506, "CCTB17");
-        Berths.getOrCreateBerth(bpNorwich, 842,  442, "CCTB18");
+        Berths.getOrCreateBerth(bpNorwich, 858,  442, "CCTB18");
         Berths.getOrCreateBerth(bpNorwich, 906,  474, "CCTB21");
-        Berths.getOrCreateBerth(bpNorwich, 810,  506, "CCTB25");
+        Berths.getOrCreateBerth(bpNorwich, 810,  506, "CCTB24");
+        Berths.getOrCreateBerth(bpNorwich, 762,  506, "CCTB25");
         Berths.getOrCreateBerth(bpNorwich, 810,  474, "CCTB26");
-        Berths.getOrCreateBerth(bpNorwich, 730,  474, "CCTB28");
-        Berths.getOrCreateBerth(bpNorwich, 554,  570, "CCTB31");
-        Berths.getOrCreateBerth(bpNorwich, 570,  474, "CCTB32");
-        Berths.getOrCreateBerth(bpNorwich, 666,  474, "CCTB33");
-        Berths.getOrCreateBerth(bpNorwich, 570,  506, "CCTB34");
-        Berths.getOrCreateBerth(bpNorwich, 474,  570, "CCX034", "CCX032").hasBorder();
+        Berths.getOrCreateBerth(bpNorwich, 682,  474, "CCTB28");
+        Berths.getOrCreateBerth(bpNorwich, 506,  570, "CCTB31");
+        Berths.getOrCreateBerth(bpNorwich, 522,  474, "CCTB32");
+        Berths.getOrCreateBerth(bpNorwich, 618,  474, "CCTB33");
+        Berths.getOrCreateBerth(bpNorwich, 522,  506, "CCTB34");
+        Berths.getOrCreateBerth(bpNorwich, 874,  498, "CCTB59")/*.hasBorder()*/;
+        Berths.getOrCreateBerth(bpNorwich, 426,  570, "CCX034", "CCX032").hasBorder();
         Berths.getOrCreateBerth(bpNorwich, 1658, 154, "CCYARD").hasBorder();
         //</editor-fold>
 
@@ -308,16 +316,16 @@ public class SignalMap
         largeStation(bpNorwich, 1660, 442, "NORWICH", "NRW");
 
         smallStation(bpNorwich, 630,  226, "DISS",        "DIS");
-        smallStation(bpNorwich, 573,  458, "CROMER",      "CMR");
+        smallStation(bpNorwich, 525,  458, "CROMER",      "CMR");
         smallStation(bpNorwich, 426,  130, "ELMSWELL",    "ESW");
-        smallStation(bpNorwich, 744,  450, "GUNTON",      "GNT");
+        smallStation(bpNorwich, 696,  450, "GUNTON",      "GNT");
         smallStation(bpNorwich, 1047, 538, "HOVETON &",   "HXM");
-        smallStation(bpNorwich, 807,  538, "N WALSHAM",   "NWA");
-        smallStation(bpNorwich, 666,  506, "ROUGHTON RD", "RNR");
+        smallStation(bpNorwich, 783,  538, "N WALSHAM",   "NWA");
+        smallStation(bpNorwich, 618,  506, "ROUGHTON RD", "RNR");
         smallStation(bpNorwich, 1122, 538, "SALHOUSE",    "SAH");
-        smallStation(bpNorwich, 548,  546, "SHERINGHAM",  "SHM");
+        smallStation(bpNorwich, 500,  546, "SHERINGHAM",  "SHM");
         smallStation(bpNorwich, 554,  130, "THURSTON",    "TRS");
-        smallStation(bpNorwich, 616,  602, "W RUNTON",    "WRN");
+        smallStation(bpNorwich, 562,  602, "W RUNTON",    "WRN");
         smallStation(bpNorwich, 938,  450, "WORSTEAD",    "WRT");
         smallStation(bpNorwich, 1053, 546, "WROXHAM",     "HXM");
         //</editor-fold>
@@ -328,7 +336,7 @@ public class SignalMap
     private void initCambridgeEN()
     {
         //<editor-fold defaultstate="collapsed" desc="TD Berths">
-        //NRW - ELY
+        //<editor-fold defaultstate="collapsed" desc="NRW - ELY">
         Berths.getOrCreateBerth(bpCambridgeEN, 186,  138, "ENA808");
         Berths.getOrCreateBerth(bpCambridgeEN, 1658, 106, "ENC877").hasBorder();
         Berths.getOrCreateBerth(bpCambridgeEN, 186,  106, "EN8019");
@@ -371,8 +379,9 @@ public class SignalMap
         Berths.getOrCreateBerth(bpCambridgeEN, 1498, 106, "EN8236");
         Berths.getOrCreateBerth(bpCambridgeEN, 1562, 106, "EN8237");
         Berths.getOrCreateBerth(bpCambridgeEN, 1562, 138, "EN8246");
+        //</editor-fold>
 
-        //KLN - ELY
+        //<editor-fold defaultstate="collapsed" desc="KLN - ELY">
         Berths.getOrCreateBerth(bpCambridgeEN, 1738, 330, "CAK22R").hasBorder();
         Berths.getOrCreateBerth(bpCambridgeEN, 1738, 298, "CAK23R").hasBorder();
         Berths.getOrCreateBerth(bpCambridgeEN, 1530, 346, "CAKL7A");
@@ -405,8 +414,9 @@ public class SignalMap
         Berths.getOrCreateBerth(bpCambridgeEN, 1130, 298, "CAMR05");
         Berths.getOrCreateBerth(bpCambridgeEN, 1194, 298, "CAMR06");
         Berths.getOrCreateBerth(bpCambridgeEN, 1194, 330, "CAMUAP").hasBorder();
+        //</editor-fold>
 
-        //MNE - ELY
+        //<editor-fold defaultstate="collapsed" desc="MNE - ELY">
         Berths.getOrCreateBerth(bpCambridgeEN, 314,  362, "CA0301");
         Berths.getOrCreateBerth(bpCambridgeEN, 346,  426, "CA0908");
         Berths.getOrCreateBerth(bpCambridgeEN, 346,  394, "CA0911");
@@ -424,8 +434,9 @@ public class SignalMap
         Berths.getOrCreateBerth(bpCambridgeEN, 810,  394, "CAM002");
         Berths.getOrCreateBerth(bpCambridgeEN, 810,  426, "CAM021");
         Berths.getOrCreateBerth(bpCambridgeEN, 874,  394, "CAM003");
+        //</editor-fold>
 
-        //Ely North Jnc
+        //<editor-fold defaultstate="collapsed" desc="Ely Notrh Jnc">
         Berths.getOrCreateBerth(bpCambridgeEN, 186,  474, "CA0296");
         Berths.getOrCreateBerth(bpCambridgeEN, 186,  442, "CA0298");
         Berths.getOrCreateBerth(bpCambridgeEN, 234,  442, "CA0303");
@@ -445,9 +456,10 @@ public class SignalMap
         Berths.getOrCreateBerth(bpCambridgeEN, 570,  506, "CALAPP").hasBorder();
         Berths.getOrCreateBerth(bpCambridgeEN, 666,  554, "CALSCM").hasBorder();
         Berths.getOrCreateBerth(bpCambridgeEN, 666,  586, "CASAPP").hasBorder();
-      //Berths.getOrCreateBerth(pnlCambridgeEN, 378,  330, "CAR4AB");
+        //Berths.getOrCreateBerth(pnlCambridgeEN, 378,  330, "CAR4AB");
+        //</editor-fold>
 
-        //BSE - CBG & ELY
+        //<editor-fold defaultstate="collapsed" desc="BSE - CBG & ELY">
         Berths.getOrCreateBerth(bpCambridgeEN, 1066, 682, "CA0402");
         Berths.getOrCreateBerth(bpCambridgeEN, 794,  778, "CA0483");
         Berths.getOrCreateBerth(bpCambridgeEN, 858,  810, "CA0486");
@@ -483,6 +495,46 @@ public class SignalMap
         Berths.getOrCreateBerth(bpCambridgeEN, 858,  682, "CAD004");
         Berths.getOrCreateBerth(bpCambridgeEN, 922,  714, "CAD005");
         Berths.getOrCreateBerth(bpCambridgeEN, 1130, 682, "CAX200");
+        //</editor-fold>
+        //</editor-fold>
+
+        //SignalPos
+        //  UL - -3,  -3
+        //  UR - +51, -3
+        //  LL - -3,  +19
+        //  LR - +51, +19
+
+        //<editor-fold defaultstate="collapsed" desc="Signals">
+        Signals.getOrCreateSignal(bpCambridgeEN, 237,  125, "EN8019", "EN05:4", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 263,  135, "EN8024", "EN05:5", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 327,  157, "EN8034", "EN05:8", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 381,  125, "EN8041", "EN06:3", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 407,  135, "EN8044", "EN06:4", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 461,  103, "EN8061", "EN06:7", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 473,  134, "EN8066", "EN07:1", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 605,  125, "EN8083", "EN07:3", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 567,  135, "EN8086", "EN07:4", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 701,  103, "EN8109", "EN08:4", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 695,  135, "EN8110", "EN08:5", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 759,  157, "EN8118", "EN08:7", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 813,  125, "EN8129", "EN09:4", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 839,  135, "EN8134", "EN09:5", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 903,  157, "EN8148", "EN14:1", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 957,  103, "EN8149", "EN14:2", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1047, 157, "EN8164", "EN14:3", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1101, 103, "EN8167", "EN14:7", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1309, 103, "EN8179", "EN15:1", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1165, 103, "EN8173", "EN15:2", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1111, 157, "EN8176", "EN15:3", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1229, 125, "EN8177", "EN15:4", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1255, 135, "EN8178", "EN15:5", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1373, 125, "EN8195", "EN15:6", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1399, 135, "EN8198", "EN15:7", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1451, 126, "EN8219", "EN15:8", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1495, 135, "EN8234", "EN16:3", SignalDirection.RIGHT);
+      //Signals.getOrCreateSignal(bpCambridgeEN, 1613, 125, "EN8236", "EN16:4", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1613, 103, "EN8237", "EN16:5", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1559, 157, "EN8246", "EN16:6", SignalDirection.RIGHT);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
@@ -835,28 +887,31 @@ public class SignalMap
         Berths.getOrCreateBerth(bpIpswich, 1770, 522, "CCSDG2");
         Berths.getOrCreateBerth(bpIpswich, 1114, 410, "CCULAP");
 
-        Berths.getOrCreateBerth(bpIpswich, 586,  634, "SX2003");
-        Berths.getOrCreateBerth(bpIpswich, 650,  666, "SX2004");
-        Berths.getOrCreateBerth(bpIpswich, 650,  634, "SX2011", "SX2006");
-        Berths.getOrCreateBerth(bpIpswich, 714,  634, "SX2012");
-        Berths.getOrCreateBerth(bpIpswich, 858,  666, "SX2028");
-        Berths.getOrCreateBerth(bpIpswich, 794,  634, "SX2029");
-        Berths.getOrCreateBerth(bpIpswich, 858,  634, "SX2033", "SX2032");
-        Berths.getOrCreateBerth(bpIpswich, 922,  666, "SX2035");
-        Berths.getOrCreateBerth(bpIpswich, 986,  666, "SX2042");
-        Berths.getOrCreateBerth(bpIpswich, 1082, 634, "SX2045");
-        Berths.getOrCreateBerth(bpIpswich, 1082, 666, "SX2046");
-        Berths.getOrCreateBerth(bpIpswich, 1146, 666, "SX2052");
-        Berths.getOrCreateBerth(bpIpswich, 1226, 666, "SX2055");
-        Berths.getOrCreateBerth(bpIpswich, 1290, 698, "SX2056");
-        Berths.getOrCreateBerth(bpIpswich, 1290, 666, "SX2057", "SX2058"); //2058 for possible bi-di
+        Berths.getOrCreateBerth(bpIpswich, 442,  634, "SX2003");
+        Berths.getOrCreateBerth(bpIpswich, 506,  666, "SX2004");
+        Berths.getOrCreateBerth(bpIpswich, 506,  634, "SX2006");
+        Berths.getOrCreateBerth(bpIpswich, 554,  634, "SX2011");
+        Berths.getOrCreateBerth(bpIpswich, 618,  634, "SX2012");
+        Berths.getOrCreateBerth(bpIpswich, 762,  666, "SX2028");
+        Berths.getOrCreateBerth(bpIpswich, 698,  634, "SX2029");
+        Berths.getOrCreateBerth(bpIpswich, 762,  634, "SX2032");
+        Berths.getOrCreateBerth(bpIpswich, 810,  634, "SX2033");
+        Berths.getOrCreateBerth(bpIpswich, 874,  666, "SX2035");
+        Berths.getOrCreateBerth(bpIpswich, 938,  666, "SX2042");
+        Berths.getOrCreateBerth(bpIpswich, 1034, 634, "SX2045");
+        Berths.getOrCreateBerth(bpIpswich, 1034, 666, "SX2046");
+        Berths.getOrCreateBerth(bpIpswich, 1098, 666, "SX2052");
+        Berths.getOrCreateBerth(bpIpswich, 1178, 666, "SX2055");
+        Berths.getOrCreateBerth(bpIpswich, 1242, 698, "SX2056");
+        Berths.getOrCreateBerth(bpIpswich, 1290, 666, "SX2057");
+        Berths.getOrCreateBerth(bpIpswich, 1242, 666, "SX2058");
         Berths.getOrCreateBerth(bpIpswich, 1354, 666, "SX2060");
         Berths.getOrCreateBerth(bpIpswich, 1482, 666, "SX2066");
         Berths.getOrCreateBerth(bpIpswich, 1658, 666, "SXB21R");
-        Berths.getOrCreateBerth(bpIpswich, 378,  634, "SXC405");
-        Berths.getOrCreateBerth(bpIpswich, 442,  634, "SXC611");
-        Berths.getOrCreateBerth(bpIpswich, 506,  666, "SXC612");
-        Berths.getOrCreateBerth(bpIpswich, 586,  666, "SXC614");
+        Berths.getOrCreateBerth(bpIpswich, 234,  634, "SXC405");
+        Berths.getOrCreateBerth(bpIpswich, 298,  634, "SXC611");
+        Berths.getOrCreateBerth(bpIpswich, 362,  666, "SXC612");
+        Berths.getOrCreateBerth(bpIpswich, 442,  666, "SXC614");
         Berths.getOrCreateBerth(bpIpswich, 1754, 666, "SXLSOB").hasBorder();
         Berths.getOrCreateBerth(bpIpswich, 1418, 666, "SXOB18");
         Berths.getOrCreateBerth(bpIpswich, 1530, 666, "SXOB19");
@@ -873,22 +928,22 @@ public class SignalMap
         //<editor-fold defaultstate="collapsed" desc="Stations">
         largeStation(bpIpswich, 216, 370, "IPSWICH", "IPS");
 
-        smallStation(bpIpswich, 1293, 642, "BECCLES",        "BCC");
-        smallStation(bpIpswich, 1186, 698, "BRAMPTON",       "BRP");
-        smallStation(bpIpswich, 1024, 610, "DARSHAM",        "DSM");
+        smallStation(bpIpswich, 1269, 642, "BECCLES",        "BCC");
+        smallStation(bpIpswich, 1139, 698, "BRAMPTON",       "BRP");
+        smallStation(bpIpswich, 977,  610, "DARSHAM",        "DSM");
         smallStation(bpIpswich, 1140, 450, "DERBY ROAD",     "DBR");
         smallStation(bpIpswich, 1604, 450, "FELIXSTOWE",     "FLX");
-        smallStation(bpIpswich, 1082, 610, "HALESWORTH",     "HAS");
-        smallStation(bpIpswich, 728,  610, "MELTON",         "MES");
+        smallStation(bpIpswich, 1034, 610, "HALESWORTH",     "HAS");
+        smallStation(bpIpswich, 632,  610, "MELTON",         "MES");
         smallStation(bpIpswich, 1137, 314, "NEEDHAM MKT",    "NMT");
         smallStation(bpIpswich, 1488, 698, "OULTON BROAD S", "OUS");
-        smallStation(bpIpswich, 852,  610, "SAXMUNDHAM",     "SAX");
+        smallStation(bpIpswich, 780,  610, "SAXMUNDHAM",     "SAX");
         smallStation(bpIpswich, 1428, 314, "STOWMARKET",     "SMK");
         smallStation(bpIpswich, 1453, 450, "TRIMLEY",        "TRM");
-        smallStation(bpIpswich, 777,  610, "WICKHAM MKT",    "WCM");
-        smallStation(bpIpswich, 961,  354, "WESTERFIELD",    "WFI"); // COL
-        smallStation(bpIpswich, 497,  610, "WESTERFIELD",    "WFI"); // SAX
-        smallStation(bpIpswich, 644,  610, "WOODBRIDGE",     "WDB");
+        smallStation(bpIpswich, 681,  610, "WICKHAM MKT",    "WCM");
+        smallStation(bpIpswich, 961,  354, "WESTERFIELD",    "WFI"); // CC
+        smallStation(bpIpswich, 353,  610, "WESTERFIELD",    "WFI"); // SX
+        smallStation(bpIpswich, 524,  610, "WOODBRIDGE",     "WDB");
         //</editor-fold>
     }
     //</editor-fold>
@@ -926,6 +981,7 @@ public class SignalMap
         Berths.getOrCreateBerth(bpClacton, 1034, 330, "CC1136");
         Berths.getOrCreateBerth(bpClacton, 1098, 298, "CC1137");
         Berths.getOrCreateBerth(bpClacton, 1098, 330, "CC1138");
+        Berths.getOrCreateBerth(bpClacton, 1162, 282, "CC1143");
         Berths.getOrCreateBerth(bpClacton, 1194, 330, "CC1144");
         Berths.getOrCreateBerth(bpClacton, 1258, 298, "CC1145");
         Berths.getOrCreateBerth(bpClacton, 1194, 298, "CC1146");
@@ -941,12 +997,12 @@ public class SignalMap
         Berths.getOrCreateBerth(bpClacton, 1658, 330, "CCAPP2").hasBorder();
         Berths.getOrCreateBerth(bpClacton, 90,   378, "CCR096").hasBorder();
 
-        Berths.getOrCreateBerth(bpClacton, 250, 538, "CC1157");
-        Berths.getOrCreateBerth(bpClacton, 186, 538, "CC1158");
-        Berths.getOrCreateBerth(bpClacton, 314, 538, "CC1159");
-        Berths.getOrCreateBerth(bpClacton, 314, 570, "CC1160");
-        Berths.getOrCreateBerth(bpClacton, 378, 538, "CC1164");
-        Berths.getOrCreateBerth(bpClacton, 442, 538, "CC1165");
+        Berths.getOrCreateBerth(bpClacton, 186, 538, "CC1157");
+        Berths.getOrCreateBerth(bpClacton, 250, 570, "CC1158");
+        Berths.getOrCreateBerth(bpClacton, 250, 538, "CC1159");
+        Berths.getOrCreateBerth(bpClacton, 314, 538, "CC1160");
+        Berths.getOrCreateBerth(bpClacton, 442, 538, "CC1164");
+        Berths.getOrCreateBerth(bpClacton, 378, 538, "CC1165");
         Berths.getOrCreateBerth(bpClacton, 506, 538, "CC1168");
         Berths.getOrCreateBerth(bpClacton, 570, 538, "CCWARR").hasBorder();
 
@@ -960,23 +1016,23 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
-        makeNavButton(bpClacton, 26, 242, "COLCHESTER", 7);
+        makeNavButton(bpClacton, 74, 242, "COLCHESTER", 7);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Stations">
         smallStation(bpClacton, 727,  266, "ALRESFORD",       "ALR"); // (ESSEX)
         smallStation(bpClacton, 1034, 570, "CLACTON",         "CLT"); // ON-SEA
         smallStation(bpClacton, 144,  354, "COLCH TOWN",      "CET");
-        smallStation(bpClacton, 446,  506, "FRINTON",         "FRI"); // ON-SEA
+        smallStation(bpClacton, 382,  570, "FRINTON",         "FRI"); // ON-SEA
+        smallStation(bpClacton, 384,  578, "ON-SEA",          "FRI"); // FRINTON
         smallStation(bpClacton, 1037, 578, "ON-SEA",          "CLT"); // CLACTON
-        smallStation(bpClacton, 448,  514, "ON-SEA",          "FRI"); // FRINTON
         smallStation(bpClacton, 828,  274, "GT BENTLEY",      "GRB");
         smallStation(bpClacton, 733,  274, "(ESSEX)",         "ALR"); // ALRESFORD
         smallStation(bpClacton, 419,  274, "HYTHE",           "HYH");
-        smallStation(bpClacton, 305,  514, "KIRBY CROSS",     "KBX");
-        smallStation(bpClacton, 1205, 282, "THORPE-LE-SOKEN", "TLS");
+        smallStation(bpClacton, 241,  514, "KIRBY CROSS",     "KBX");
+        smallStation(bpClacton, 1205, 354, "THORPE-LE-SOKEN", "TLS");
         smallStation(bpClacton, 507,  570, "WALTON-ON",       "WON");
-        smallStation(bpClacton, 510,  578, "THE-NAZE",        "WON");
+        smallStation(bpClacton, 507,  578, "-THE-NAZE",        "WON");
         smallStation(bpClacton, 984,  274, "WEELEY",          "WEE");
         smallStation(bpClacton, 530,  274, "WIVENHOE",        "WIV");
         //</editor-fold>
@@ -1027,7 +1083,8 @@ public class SignalMap
         Berths.getOrCreateBerth(bpColchester, 1110, 282, "CC0286");
         Berths.getOrCreateBerth(bpColchester, 374,  218, "CC0753");
         Berths.getOrCreateBerth(bpColchester, 614,  314, "CC0762", "CC0763");
-        Berths.getOrCreateBerth(bpColchester, 1206, 282, "CCAPIP").hasBorder();
+      //Berths.getOrCreateBerth(bpColchester, 1206, 282, "CCAPIP").hasBorder();
+        Berths.getOrCreateBerth(bpColchester, 982,  306, "CCAPIP").hasBorder();
         Berths.getOrCreateBerth(bpColchester, 806,  410, "CCAPPA").hasBorder();
         Berths.getOrCreateBerth(bpColchester, 806,  346, "CCP001");
         Berths.getOrCreateBerth(bpColchester, 870,  378, "CCP002");
@@ -1053,6 +1110,8 @@ public class SignalMap
         Berths.getOrCreateBerth(bpColchester, 1622, 378, "CCP058");
         Berths.getOrCreateBerth(bpColchester, 1670, 378, "CCP065");
         Berths.getOrCreateBerth(bpColchester, 1734, 378, "CCP074");
+        Berths.getOrCreateBerth(bpColchester, 1398, 434, "CCP128");
+        Berths.getOrCreateBerth(bpColchester, 1734, 426, "CCPI74");
         Berths.getOrCreateBerth(bpColchester, 1254, 330, "CCPKSD").hasBorder();
         Berths.getOrCreateBerth(bpColchester, 1206, 410, "CCPKTP");
         Berths.getOrCreateBerth(bpColchester, 254,  314, "CCR201").hasBorder();
@@ -1114,6 +1173,7 @@ public class SignalMap
         Berths.getOrCreateBerth(bpColchester, 614,  602, "CC4010");
         Berths.getOrCreateBerth(bpColchester, 230,  602, "CCAPDM").hasBorder();
         Berths.getOrCreateBerth(bpColchester, 230,  634, "CCAPUM").hasBorder();
+        Berths.getOrCreateBerth(bpColchester, 518,  570, "CCDMAP").hasBorder();
         Berths.getOrCreateBerth(bpColchester, 870,  722, "CCP5AR").hasBorder();
         Berths.getOrCreateBerth(bpColchester, 806,  690, "CCP6AR").hasBorder();
         //</editor-fold>
@@ -1133,8 +1193,8 @@ public class SignalMap
         smallStation(bpColchester, 1616, 410, "DOVERCOURT",   "DVC");
         smallStation(bpColchester, 1414, 322, "HARWICH INT",  "HPQ");
         smallStation(bpColchester, 1722, 410, "HARWICH TOWN", "HWC");
-        smallStation(bpColchester, 681,  322, "MISTLEY",      "MIS");
-        smallStation(bpColchester, 950,  322, "WRABNESS",     "WRB");
+        smallStation(bpColchester, 681,  410, "MISTLEY",      "MIS");
+        smallStation(bpColchester, 950,  410, "WRABNESS",     "WRB");
         //</editor-fold>
     }
     //</editor-fold>
@@ -1155,7 +1215,7 @@ public class SignalMap
         Berths.getOrCreateBerth(bpHarlow, 378,  218, "WG1070");
         Berths.getOrCreateBerth(bpHarlow, 442,  186, "WG1071");
         Berths.getOrCreateBerth(bpHarlow, 442,  218, "WG1072", "WG5315");
-        Berths.getOrCreateBerth(bpHarlow, 554,  186, "WG1073");
+        Berths.getOrCreateBerth(bpHarlow, 554,  186, "WG1073", "WG5318");
         Berths.getOrCreateBerth(bpHarlow, 554,  218, "WG1074", "WG5319");
         Berths.getOrCreateBerth(bpHarlow, 618,  186, "WG1077");
         Berths.getOrCreateBerth(bpHarlow, 618,  218, "WG1080");
@@ -1556,8 +1616,9 @@ public class SignalMap
         Berths.getOrCreateBerth(bpHackney, 1402, 506, "WG1391");
         Berths.getOrCreateBerth(bpHackney, 1530, 538, "WG1392");
         Berths.getOrCreateBerth(bpHackney, 1466, 506, "WG1393");
-        Berths.getOrCreateBerth(bpHackney, 1594, 538, "WG1394");
+        Berths.getOrCreateBerth(bpHackney, 1594, 538, "WG1394", "WG5309");
         Berths.getOrCreateBerth(bpHackney, 1594, 506, "WG1395");
+        Berths.getOrCreateBerth(bpHackney, 426,  634, "WG5305");
         Berths.getOrCreateBerth(bpHackney, 1762, 570, "WGR144").hasBorder();
         //</editor-fold>
 
@@ -1999,6 +2060,13 @@ public class SignalMap
         Berths.getOrCreateBerth(bpIlford, 234,  122, "SI0383");
         Berths.getOrCreateBerth(bpIlford, 298,  122, "SI0385");
         Berths.getOrCreateBerth(bpIlford, 362,  122, "SI0387");
+
+        /**
+         * For new Chadwell Heath turnback sidings (OOU until April 2015)
+         */
+        Berths.getOrCreateBerth(bpIlford, 426,  138, "XXCTS1");
+        Berths.getOrCreateBerth(bpIlford, 482,  138, "XXCTS2").hasBorder();
+
         Berths.getOrCreateBerth(bpIlford, 362,  186, "SI0389");
         Berths.getOrCreateBerth(bpIlford, 426,  122, "SI0391");
         Berths.getOrCreateBerth(bpIlford, 490,  122, "SI0393");
@@ -2670,25 +2738,33 @@ public class SignalMap
 
     public void readFromMap(Map<String, String> map)
     {
+        EastAngliaMapClient.DataMap.putAll(map);
+
         for (Map.Entry<String, String> pairs : map.entrySet())
         {
-            if (pairs.getKey().equals("XXMOTD"))
-                setMOTD(pairs.getValue());
-
-            Berth berth = Berths.getBerth(pairs.getKey());
-
-            if (berth != null)
+            try
             {
-                if (map.containsKey(pairs.getKey()))
-                    if (!pairs.getValue().equals("") || pairs.getKey().equals(berth.getCurrentId(false)))
-                        berth.interpose(map.get(pairs.getKey()), pairs.getKey());
+                if (pairs.getKey().equals("XXMOTD"))
+                {
+                    setMOTD(pairs.getValue());
+                    continue;
+                }
 
-                berth.setOpaque(false);
+                Berth berth = Berths.getBerth(pairs.getKey().toUpperCase());
+                Signal signal = Signals.getSignal(pairs.getKey().toUpperCase());
+
+                if (berth != null)
+                    if (!pairs.getValue().equals("") || pairs.getKey().toUpperCase().equals(berth.getCurrentId(false)))
+                        berth.interpose(pairs.getValue(), pairs.getKey().toUpperCase());
+
+                if (signal != null)
+                    signal.setState(String.valueOf(pairs.getValue()).equals("0") ? 0 : (String.valueOf(pairs.getValue()).equals("1") ? 1 : 2));
             }
+            catch (Throwable t) { EastAngliaMapClient.printThrowable(t, "Handler"); }
         }
     }
 
-    public ArrayList<BackgroundPanel> getPanels()
+    public java.util.List<BackgroundPanel> getPanels()
     {
         return panels;
     }
@@ -2793,8 +2869,8 @@ public class SignalMap
             g2d.clearRect(0, 0, BP_DEFAULT_WIDTH, BP_DEFAULT_HEIGHT);
             if (isOpaque())
             {
-                g2d.setColor(EastAngliaMapClient.WHITE);
-                g2d.fillRect(0, 0, BP_DEFAULT_WIDTH, BP_DEFAULT_HEIGHT);
+                g2d.setColor(EastAngliaMapClient.BLACK);
+                g2d.fillRect(0, 0, Math.max(g.getClipBounds().width, BP_DEFAULT_WIDTH), Math.max(g.getClipBounds().height, BP_DEFAULT_HEIGHT));
             }
 
             g2d.drawImage(image, 0, 0, BP_DEFAULT_WIDTH, BP_DEFAULT_HEIGHT, null);

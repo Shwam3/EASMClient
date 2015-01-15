@@ -1,0 +1,20 @@
+v13 - Signals (15/01/15)
+  + Signals on EN panel (Not all correct)
+  + "Program to an interface not an implementation" - Tinterweb
+  * Keep PC awake now optional
+
+  * North Walsham layout
+  * SX Panel layout
+  * Walton branch layout
+  + Chadwell Heath turnback siding (opens April 2015)
+
+V12 - Updates (24/25/14)
+  * Reconnection bug
+  + Side & Tab scrolling with mouse wheel
+  + System tray (optional)
+
+Key
+  + New
+  * Fix/Change
+  - Removal
+  

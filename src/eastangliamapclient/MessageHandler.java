@@ -4,6 +4,7 @@ import eastangliamapclient.gui.ListDialog;
 import eastangliamapclient.gui.SysTrayHandler;
 import java.awt.TrayIcon;
 import java.io.*;
+import java.net.SocketException;
 import java.util.*;
 import javax.swing.JOptionPane;
 
@@ -27,11 +28,11 @@ public class MessageHandler //implements Runnable
             {
                 Object obj = new ObjectInputStream(EastAngliaMapClient.serverSocket.getInputStream()).readObject();
 
-                if (obj instanceof HashMap)
+                if (obj instanceof Map)
                 {
                     lastMessageTime = System.currentTimeMillis();
 
-                    final HashMap<String, Object> message = new HashMap<>((HashMap<String, Object>) obj);
+                    final Map<String, Object> message = new HashMap<>((Map<String, Object>) obj);
 
                     switch (MessageType.getType((int) message.get("type")))
                     {
@@ -62,18 +63,18 @@ public class MessageHandler //implements Runnable
                             break;
 
                         case SEND_ALL:
-                            HashMap<String, String> fullMap = (HashMap<String, String>) message.get("message");
-                            EastAngliaMapClient.CClassMap.putAll(fullMap);
+                            Map<String, String> fullMap = (Map<String, String>) message.get("message");
+                            EastAngliaMapClient.DataMap.putAll(fullMap);
                             printMsgHandler("Received full map (" + fullMap.size() + ")", false);
 
                             if (EastAngliaMapClient.frameSignalMap != null)
-                                EastAngliaMapClient.frameSignalMap.readFromMap(fullMap);
+                                EastAngliaMapClient.frameSignalMap.readFromMap(EastAngliaMapClient.DataMap);
                             break;
 
                         case SEND_UPDATE:
-                            HashMap<String, String> updateMap = (HashMap<String, String>) message.get("message");
+                            Map<String, String> updateMap = (Map<String, String>) message.get("message");
                             printMsgHandler("Received update map (" + updateMap.size() + ")", false);
-                            EastAngliaMapClient.CClassMap.putAll(updateMap);
+                            EastAngliaMapClient.DataMap.putAll(updateMap);
 
                             if (EastAngliaMapClient.frameSignalMap != null)
                                 EastAngliaMapClient.frameSignalMap.readFromMap(updateMap);
@@ -90,7 +91,7 @@ public class MessageHandler //implements Runnable
                             {
                                 printMsgHandler("Received history for train " + message.get("headcode") + (message.get("berth_id") != null ? " in berth " + message.get("berth_id") : ""), false);
                                 new Thread("trainHist" + message.get("berth_id")) { @Override public void run() {
-                                        new ListDialog(Berths.getBerth((String) message.get("berth_id")), "Train's history", "Berths train '" + message.get("headcode") + "' passed through", (ArrayList<String>) message.get("history"));
+                                        new ListDialog(Berths.getBerth((String) message.get("berth_id")), "Train's history", "Berths train '" + message.get("headcode") + "' passed through", (List<String>) message.get("history"));
                                     }}.start();
                             }
                             break;
@@ -106,7 +107,7 @@ public class MessageHandler //implements Runnable
                             {
                                 printMsgHandler("Received history for berth " + message.get("berth_descr"), false);
                                 new Thread("trainHist" + message.get("berth_id"))  { @Override public void run() {
-                                        new ListDialog(Berths.getBerth((String) message.get("berth_id")), "Berth's history", "Trains passed through berth '" + message.get("berth_descr") + "'", (ArrayList<String>) message.get("history"));
+                                        new ListDialog(Berths.getBerth((String) message.get("berth_id")), "Berth's history", "Trains passed through berth '" + message.get("berth_descr") + "'", (List<String>) message.get("history"));
                                     }}.start();
                             }
                             break;
@@ -125,14 +126,25 @@ public class MessageHandler //implements Runnable
 
                 errors = 0;
             }
-            catch (ClassCastException e) {}
-            catch (NullPointerException | ClassNotFoundException e) {}
-            catch (EOFException e) { errors++; }
+            catch (NullPointerException | ClassNotFoundException | ClassCastException e) {}
+            catch (EOFException | StreamCorruptedException e) { errors++; }
+            catch (SocketException e)
+            {
+                if (!EastAngliaMapClient.serverSocket.isClosed() && !messageHandler.isInterrupted())
+                {
+                    errors++;
+                    EastAngliaMapClient.printThrowable(e, "Handler");
+                    testErrors();
+                }
+            }
             catch (IOException e)
             {
-                errors++;
-                EastAngliaMapClient.printThrowable(e, "Handler");
-                testErrors();
+                if (!messageHandler.isInterrupted())
+                {
+                    errors++;
+                    EastAngliaMapClient.printThrowable(e, "Handler");
+                    testErrors();
+                }
             }
         }
     }
@@ -157,6 +169,7 @@ public class MessageHandler //implements Runnable
 
             sendSocketClose();
             closeSocket();
+            messageHandler.interrupt();
 
             printMsgHandler("Handler stopped & Socket closed", false);
         }
@@ -167,7 +180,7 @@ public class MessageHandler //implements Runnable
     {
         if (EastAngliaMapClient.serverSocket != null && EastAngliaMapClient.connected)
         {
-            HashMap<String, Object> message = new HashMap<>();
+            Map<String, Object> message = new HashMap<>();
 
             message.put("type", MessageType.SOCKET_CLOSE.getValue());
 
@@ -184,7 +197,7 @@ public class MessageHandler //implements Runnable
     //<editor-fold defaultstate="collapsed" desc="HEARTBEAT_REQUEST">
     public static boolean sendHeartbeatRequest()
     {
-        HashMap<String, Object> message = new HashMap<>();
+        Map<String, Object> message = new HashMap<>();
 
         message.put("type", MessageType.HEARTBEAT_REQUEST.getValue());
 
@@ -195,7 +208,7 @@ public class MessageHandler //implements Runnable
     //<editor-fold defaultstate="collapsed" desc="HEARTBEAT_REPLY">
     public static boolean sendHeartbeatReply()
     {
-        HashMap<String, Object> message = new HashMap<>();
+        Map<String, Object> message = new HashMap<>();
 
         message.put("type", MessageType.HEARTBEAT_REPLY.getValue());
 
@@ -206,7 +219,7 @@ public class MessageHandler //implements Runnable
     //<editor-fold defaultstate="collapsed" desc="REQUEST_ALL">
     public static boolean requestAll()
     {
-        HashMap<String, Object> message = new HashMap<>();
+        Map<String, Object> message = new HashMap<>();
 
         message.put("type", MessageType.REQUEST_ALL.getValue());
 
@@ -217,7 +230,7 @@ public class MessageHandler //implements Runnable
     //<editor-fold defaultstate="collapsed" desc="REQUEST_HIST_TRAIN">
     public static boolean requestHistoryOfTrain(String id, String... headcode)
     {
-        HashMap<String, Object> message = new HashMap<>();
+        Map<String, Object> message = new HashMap<>();
 
         message.put("type",     MessageType.REQUEST_HIST_TRAIN.getValue());
         message.put("id",       id);
@@ -230,7 +243,7 @@ public class MessageHandler //implements Runnable
     //<editor-fold defaultstate="collapsed" desc="REQUEST_HIST_BERTH">
     public static boolean requestHistoryOfBerth(String berthId)
     {
-        HashMap<String, Object> message = new HashMap<>();
+        Map<String, Object> message = new HashMap<>();
 
         message.put("type", MessageType.REQUEST_HIST_BERTH.getValue());
         message.put("berth_id", berthId);
@@ -242,7 +255,7 @@ public class MessageHandler //implements Runnable
     //<editor-fold defaultstate="collapsed" desc="SEND_NAME">
     public static boolean sendName(String name)
     {
-        HashMap<String, Object> message = new HashMap<>();
+        Map<String, Object> message = new HashMap<>();
 
         message.put("type",  MessageType.SET_NAME.getValue());
         message.put("name",  name + " (" /*+ (EastAngliaMapClient.screencap ? "sc " : "")*/ + "v" + EastAngliaMapClient.VERSION + ")");

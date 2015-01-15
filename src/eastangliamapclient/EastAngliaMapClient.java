@@ -13,49 +13,49 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class EastAngliaMapClient
 {
-    public static String VERSION = "12";
-    private static final String host = "shwam3.ddns.net";
-    private static final int    port = 6321;
+    public static final String VERSION = "13";
+    public static final String host = "shwam3.ddns.net";
+    public static final int    port = 6321;
 
-    public  static final File storageDir = new File(System.getProperty("user.home", "C:") + File.separator + ".easigmap");
+    public static final File storageDir = new File(System.getProperty("user.home", "C:") + File.separator + ".easigmap");
 
-    public  static Socket       serverSocket;
-    public  static InputStream  in;
-    public  static OutputStream out;
+    public static Socket serverSocket;
 
-    public  static HashMap<String, String> CClassMap = new HashMap<>();
+    public static Map<String, String> DataMap = new HashMap<>();
 
-    public  static boolean logToFile        = true;
-    public  static boolean screencap        = false;
-    public  static boolean opaque           = false;
-    public  static boolean showDescriptions = false; // not headcodes
-    public  static boolean visible          = true;
+    public static boolean logToFile        = true;
+    public static boolean screencap        = false;
+    public static boolean opaque           = false;
+    public static boolean showDescriptions = false; // not headcodes
+    public static boolean visible          = true;
 
-    public  static SignalMap      frameSignalMap;
-    public  static TrayIcon       trayIcon;
-    public  static String         clientName;
-    public  static boolean        connected = false; // Not used properly yet
-    public  static boolean        kicked = false;
-    public  static boolean        minimiseToSysTray = true;
-    public  static Dimension      windowSize = new Dimension();
-    public  static String         ftpBaseUrl = "";
+    public static SignalMap frameSignalMap;
+    public static TrayIcon  trayIcon;
+    public static String    clientName;
+    public static boolean   connected = false;
+    public static boolean   kicked = false;
+    public static boolean   minimiseToSysTray = true;
+    public static Dimension windowSize = new Dimension();
+    public static String    ftpBaseUrl = "";
 
-    public  static SimpleDateFormat sdf      = new SimpleDateFormat("dd/MM/YY HH:mm:ss");
-    public  static SimpleDateFormat clockSDF = new SimpleDateFormat("HH:mm:ss");
+    public static SimpleDateFormat sdf      = new SimpleDateFormat("dd/MM/YY HH:mm:ss");
+    public static SimpleDateFormat clockSDF = new SimpleDateFormat("HH:mm:ss");
 
-    public  static       Font  TD_FONT  = new Font("TDBerth DM", 0, 16);
-    public  static final Color GREEN    = new Color(0,   153, 0);   // proper headcode berth colour
-    public  static final Color GREY     = new Color(64,  64,  64);  // background coplour of berth
-    public  static final Color BLACK    = new Color(0,   0,   0);   // background colour
-    public  static final Color BERTH_ID = new Color(0,   0,   0);   // colour of berth while displaying berth id
-    public  static final Color WHITE    = new Color(255, 255, 255); // improper headcode berth colour
-    public  static final Color RED      = new Color(190, 20,  20);  // not used
-    public  static final Color BLUE     = new Color(0,   255, 255); // not used
+    public static       Font  TD_FONT  = new Font("TDBerth DM", 0, 16);
+    public static final Color GREEN    = new Color(0,   153, 0);   // proper headcode berth colour
+    public static final Color GREY     = new Color(64,  64,  64);  // background coplour of berth
+    public static final Color BLACK    = new Color(0,   0,   0);   // background colour
+    public static final Color BERTH_ID = new Color(0,   0,   0);   // colour of berth while displaying berth id
+    public static final Color WHITE    = new Color(255, 255, 255); // improper headcode berth colour
+    public static final Color RED      = new Color(190, 20,  20);  // not used
+    public static final Color BLUE     = new Color(0,   255, 255); // not used
 
-    public  static boolean isPreRelease         = false;
-    public  static boolean screencappingActive  = false;
-    private static long    lastReconnectAttempt = System.currentTimeMillis();
-    public  static boolean blockKeyInput        = false;
+    public static long    lastReconnectAttempt = System.currentTimeMillis();
+    public static boolean isPreRelease         = false;
+    public static boolean screencappingActive  = false;
+    public static boolean blockKeyInput        = false;
+    public static boolean shownSystemTrayWarn  = false;
+    public static boolean preventSleep         = true;
 
     public static void main(String[] args)
     {
@@ -110,6 +110,7 @@ public class EastAngliaMapClient
             clientName        = preferences.getProperty("clientName",        System.getProperty("user.name"));
             minimiseToSysTray = preferences.getProperty("minimiseToSysTray", SystemTray.isSupported() ? "true" : "false").equals("true");
             String[] sizeStr  = preferences.getProperty("windowSize",        "1877,928").split(",");
+            preventSleep      = preferences.getProperty("preventSleep",      "true").equals("true");
 
             try
             {
@@ -123,6 +124,7 @@ public class EastAngliaMapClient
             preferences.setProperty("clientName",        clientName);
             preferences.setProperty("minimiseToSysTray", String.valueOf(minimiseToSysTray));
             preferences.setProperty("windowSize",        ((int) windowSize.getWidth()) + "," + ((int) windowSize.getHeight()));
+            preferences.setProperty("preventSleep",      String.valueOf(preventSleep));
 
             try (FileOutputStream fos = new FileOutputStream(preferencesFile))
             {
@@ -398,7 +400,7 @@ public class EastAngliaMapClient
 
     public static synchronized void clean()
     {
-        CClassMap = new HashMap<>(CClassMap);
+        DataMap = new HashMap<>(DataMap);
         System.gc();
     }
 }
