@@ -17,8 +17,8 @@ public class OptionContexMenu extends JPopupMenu
     JMenuItem trainHistory;
 
     JMenuItem changeName;
-    JCheckBoxMenuItem screencap;
-    JMenuItem takeScreencaps;
+    JCheckBoxMenuItem screencap; //TODO: Remove for release
+    JMenuItem takeScreencaps; //TODO: Remove for release
 
     JCheckBoxMenuItem preventSleep;
     JCheckBoxMenuItem minToSys;
@@ -79,6 +79,8 @@ public class OptionContexMenu extends JPopupMenu
             else if (src == exit)
             {
                 EastAngliaMapClient.writeSetting("windowSize", ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getWidth()) + "," + ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getHeight()));
+                EastAngliaMapClient.writeSetting("lastTab", Integer.toString(EastAngliaMapClient.frameSignalMap.TabBar.getSelectedIndex()));
+
                 System.exit(0);
             }
         }
@@ -109,7 +111,6 @@ public class OptionContexMenu extends JPopupMenu
         add(reconnect).addActionListener(clickEvent);
         addSeparator();
         add(trainHistory).addActionListener(clickEvent);
-        addSeparator();
         add(changeName).addActionListener(clickEvent);
 
         if (EastAngliaMapClient.screencappingActive)

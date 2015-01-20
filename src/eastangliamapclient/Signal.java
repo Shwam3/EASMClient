@@ -13,7 +13,7 @@ public class Signal extends JComponent
     private static final Color STATE_COLOUR_OFF = new Color(0,  153, 0); // off - green
     private static final Color STATE_COLOUR_UNKNOWN = new Color(64, 64, 64); // unknown - grey
 
-    private static final Color SIGNAL_POST_COLOUR = new Color(0xBBBBBB);
+    private static final Color SIGNAL_POST_COLOUR = new Color(0xFFFFFF);
 
     private static final int STATE_OFF     = 1;
     private static final int STATE_ON      = 0;
@@ -61,10 +61,16 @@ public class Signal extends JComponent
                 break;
         }
 
-        pnl.add(this);
+        if (pnl != null)
+            pnl.add(this);
+
         Signals.putSignal(dataId, this);
 
+        if (description == null || description.trim().equals(""))
+            description = "Unnamed";
+
         setToolTipText(description + " (" + DATA_ID + ")");
+
         setVisible(true);
     }
 
@@ -72,7 +78,10 @@ public class Signal extends JComponent
     {
         if (currentState != state)
         {
-            EastAngliaMapClient.printOut("[" + SIGNAL_ID + " (" + DATA_ID + ")] Change state from " + currentState + " to " + state);
+            if (SIGNAL_ID.isEmpty())
+                EastAngliaMapClient.printOut("[" + DATA_ID + "] Change state from " + currentState + " to " + state);
+            else
+                EastAngliaMapClient.printOut("[" + SIGNAL_ID + " (" + DATA_ID + ")] Change state from " + currentState + " to " + state);
 
             currentState = state;
 
@@ -88,15 +97,18 @@ public class Signal extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
+        if (EventHandler.isScreencapping && SIGNAL_DIRECTION == SignalDirection.NONE)
+            return;
+
         if (EastAngliaMapClient.visible || EventHandler.isScreencapping)
         {
             Graphics2D g2d = (Graphics2D) g.create();
 
-            //Color c = g2d.getColor();
-            //g2d.setColor(new Color(0x333300));
-            //g2d.fillRect(0, 0, getWidth(), getHeight());
+            Color c = g2d.getColor();
+            g2d.setColor(new Color(1073741824, true));
+            g2d.fillRect(0, 0, getWidth(), getHeight());
 
-            //g2d.setColor(c);
+            g2d.setColor(c);
 
             switch (SIGNAL_DIRECTION)
             {

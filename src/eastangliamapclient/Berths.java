@@ -49,7 +49,7 @@ public class Berths
 
     public static Berth getBerth(String berthId)
     {
-        if (berthMap.containsKey(berthId.toUpperCase()))
+        if (berthId != null && berthMap.containsKey(berthId.toUpperCase()))
             return berthMap.get(berthId.toUpperCase());
 
         return null;

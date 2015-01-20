@@ -13,7 +13,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class EastAngliaMapClient
 {
-    public static final String VERSION = "13";
+    public static final String VERSION = "14";
     public static final String host = "shwam3.ddns.net";
     public static final int    port = 6321;
 
@@ -147,7 +147,7 @@ public class EastAngliaMapClient
         if (Arrays.deepToString(args).contains("-screencap"))
         {
             screencappingActive = true;
-            EventHandler.startScreenCapture(60000 * 5); // Remove from release
+            EventHandler.startScreenCapture(60000 * 5);
         }
 
         EventQueue.invokeLater(new Runnable()

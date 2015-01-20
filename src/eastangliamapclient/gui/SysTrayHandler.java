@@ -3,6 +3,7 @@ package eastangliamapclient.gui;
 import eastangliamapclient.EastAngliaMapClient;
 import static eastangliamapclient.EastAngliaMapClient.minimiseToSysTray;
 import static eastangliamapclient.EastAngliaMapClient.trayIcon;
+import eastangliamapclient.EventHandler;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -12,7 +13,7 @@ public class SysTrayHandler
 {
     public static void initSysTray()
     {
-        if (SystemTray.isSupported() && minimiseToSysTray)
+        if (SystemTray.isSupported())
         {
             ActionListener actionListener = new ActionListener()
             {
@@ -20,6 +21,7 @@ public class SysTrayHandler
                 public void actionPerformed(ActionEvent evt)
                 {
                     EastAngliaMapClient.frameSignalMap.setVisible(true);
+                    EastAngliaMapClient.frameSignalMap.frame.requestFocus();
                 }
             };
             MouseListener mouseListener = new MouseAdapter()
@@ -51,7 +53,7 @@ public class SysTrayHandler
         final MenuItem exit = new MenuItem("Exit");
         final MenuItem showWindow = new MenuItem("Show window");
         final MenuItem reconnect = new MenuItem("Reconnect");
-        //final CheckboxMenuItem screenshot = new CheckboxMenuItem("Auto Screenshot", EastAngliaMapClient.screencap);
+        final CheckboxMenuItem screenshot = new CheckboxMenuItem("Auto Screenshot", EastAngliaMapClient.screencap);
 
         ActionListener menuListener = new ActionListener()
         {
@@ -70,20 +72,20 @@ public class SysTrayHandler
 
         showWindow.addActionListener(menuListener);
         reconnect.addActionListener(menuListener);
-        /*screenshot.addItemListener(new ItemListener()
+        screenshot.addItemListener(new ItemListener()
         {
             @Override
             public void itemStateChanged(ItemEvent evt)
             {
                 EventHandler.screencap();
             }
-        });*/
+        });
         exit.addActionListener(menuListener);
 
         pm.add(showWindow);
         pm.add(reconnect);
-        /*if (EastAngliaMapClient.screencappingActive)
-            pm.add(screenshot);*/
+        if (EastAngliaMapClient.screencappingActive)
+            pm.add(screenshot);
         pm.addSeparator();
         pm.add(exit);
 

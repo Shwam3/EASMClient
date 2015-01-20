@@ -2,8 +2,7 @@ package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class HelpDialog extends JDialog
@@ -53,6 +52,15 @@ public class HelpDialog extends JDialog
                 EastAngliaMapClient.blockKeyInput = false;
             }
         });
+
+        getRootPane().registerKeyboardAction(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                dispose();
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
 
         add(mainText);
         getContentPane().setBackground(EastAngliaMapClient.BLACK);

@@ -19,7 +19,7 @@ public class EventHandler
 {
     public static Berth tempOpaqueBerth = null;
     public static BerthContextMenu berthContextMenu = null;
-    public static boolean isScreencapping = false;
+    public static boolean isScreencapping = false; // TODO: Remove for release
 
     private static BufferedImage logo = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
 
@@ -241,6 +241,7 @@ public class EventHandler
         clockTimer.start();
     }
 
+    //TODO: Remove next 5 methods
     public static void startScreenCapture(int interval)
     {
         try

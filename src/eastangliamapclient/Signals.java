@@ -20,7 +20,7 @@ public class Signals
             return signal;
         }
         else
-            return new Signal(pnl, x, y, description, dataId, direction == null ? SignalDirection.NONE : direction);
+            return new Signal(pnl, x, y, description == null ? "" : description, dataId, direction == null ? SignalDirection.NONE : direction);
     }
 
     public static boolean containsSignal(String signalId)
@@ -47,14 +47,6 @@ public class Signals
 
     public static enum SignalDirection
     {
-        //LEFT_DOWN,
-        //LEFT_UP,
-        //RIGHT_DOWN,
-        //RIGHT_UP,
-        //UP_LEFT,
-        //UP_RIGHT,
-        //DOWN_LEFT,
-        //DOWN_RIGHT,
         LEFT,
         RIGHT,
         UP,
