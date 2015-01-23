@@ -20,17 +20,17 @@ public class Signals
             return signal;
         }
         else
-            return new Signal(pnl, x, y, description == null ? "" : description, dataId, direction == null ? SignalDirection.NONE : direction);
+            return new Signal(pnl, x, y, description == null ? "" : description, dataId, direction == null ? SignalDirection.TEST : direction);
     }
 
-    public static boolean containsSignal(String signalId)
+    public static boolean signalExists(String signalId)
     {
         return signalMap.containsKey(signalId);
     }
 
     public static void putSignal(String signalId, Signal signal)
     {
-        if (!containsSignal(signalId))
+        if (!signalExists(signalId))
             signalMap.put(signalId, signal);
 
         if (!EastAngliaMapClient.DataMap.containsKey(signalId))
@@ -55,6 +55,7 @@ public class Signals
         GANTRY_RIGHT,
         GANTRY_UP,
         GANTRY_DOWN,
-        NONE;
+        NO_POST,
+        TEST;
     }
 }

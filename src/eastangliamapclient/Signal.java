@@ -5,23 +5,27 @@ import eastangliamapclient.gui.SignalMap;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import javax.swing.JComponent;
 
 public class Signal extends JComponent
 {
-    private static final Color STATE_COLOUR_ON = new Color(153,  0, 0); // on - red
-    private static final Color STATE_COLOUR_OFF = new Color(0,  153, 0); // off - green
+    private static final Color STATE_COLOUR_BLANK   = new Color(64, 64, 65); // blank - grey
+    private static final Color STATE_COLOUR_ON      = new Color(153,  0, 0); // on - red
+    private static final Color STATE_COLOUR_OFF     = new Color(0,  153, 0); // off - green
     private static final Color STATE_COLOUR_UNKNOWN = new Color(64, 64, 64); // unknown - grey
 
-    private static final Color SIGNAL_POST_COLOUR = new Color(0xFFFFFF);
+    private static final Color SIGNAL_POST_COLOUR = Color.WHITE;
 
-    private static final int STATE_OFF     = 1;
+    private static final int STATE_BLANK   = -1;
     private static final int STATE_ON      = 0;
+    private static final int STATE_OFF     = 1;
     private static final int STATE_UNKNOWN = 2;
 
     private final String          SIGNAL_ID;
     private final String          DATA_ID;
-    private final SignalDirection SIGNAL_DIRECTION;
+    private       SignalDirection SIGNAL_DIRECTION;
+    private       Point           LOCATION;
 
     private int currentState = STATE_UNKNOWN;
 
@@ -29,14 +33,44 @@ public class Signal extends JComponent
     {
         SIGNAL_ID = description;
         DATA_ID = dataId;
-        SIGNAL_DIRECTION = direction;
+        LOCATION = new Point(x, y);
+
+        setDirection(direction);
 
         setOpaque(false);
-        setForeground(STATE_COLOUR_UNKNOWN);
+
+        if (pnl != null)
+            pnl.add(this);
+
+        if (dataId.trim().length() == 6)
+        {
+            Signals.putSignal(dataId, this);
+            currentState = STATE_UNKNOWN;
+            setForeground(STATE_COLOUR_UNKNOWN);
+        }
+        else
+        {
+            currentState = STATE_BLANK;
+            setForeground(STATE_COLOUR_BLANK);
+        }
+
+        if (description == null || description.trim().equals(""))
+            description = "Unnamed";
+
+        setToolTipText(description + " (" + DATA_ID + ")");
+
+        setVisible(true);
+    }
+
+    public void setDirection(SignalDirection direction)
+    {
+        SIGNAL_DIRECTION = direction;
+        int x = LOCATION == null ? getX() : LOCATION.x;
+        int y = LOCATION == null ? getY() : LOCATION.y;
 
         switch (direction)
         {
-            case NONE:
+            case TEST:
                 setBounds(x - 4, y - 4, 8, 8);
                 break;
 
@@ -60,32 +94,37 @@ public class Signal extends JComponent
                 setBounds(x, y, 8, 8);
                 break;
         }
+    }
 
-        if (pnl != null)
-            pnl.add(this);
+    @Override
+    public void setLocation(int x, int y)
+    {
+        super.setLocation(x, y);
+        LOCATION = new Point(x, y);
+    }
 
-        Signals.putSignal(dataId, this);
-
-        if (description == null || description.trim().equals(""))
-            description = "Unnamed";
-
-        setToolTipText(description + " (" + DATA_ID + ")");
-
-        setVisible(true);
+    @Override
+    public void setLocation(Point p)
+    {
+        super.setLocation(p);
+        LOCATION = p;
     }
 
     public void setState(int state)
     {
         if (currentState != state)
         {
-            if (SIGNAL_ID.isEmpty())
-                EastAngliaMapClient.printOut("[" + DATA_ID + "] Change state from " + currentState + " to " + state);
-            else
-                EastAngliaMapClient.printOut("[" + SIGNAL_ID + " (" + DATA_ID + ")] Change state from " + currentState + " to " + state);
+            if (currentState != 2)
+            {
+                if (SIGNAL_ID.isEmpty())
+                    EastAngliaMapClient.printOut("[" + DATA_ID + "] Change state from " + currentState + " to " + state);
+                else
+                    EastAngliaMapClient.printOut("[" + SIGNAL_ID + " (" + DATA_ID + ")] Change state from " + currentState + " to " + state);
+            }
 
             currentState = state;
 
-            setForeground(currentState == STATE_ON ? STATE_COLOUR_ON : currentState == STATE_OFF ? STATE_COLOUR_OFF : STATE_COLOUR_UNKNOWN);
+            setForeground(currentState == STATE_ON ? STATE_COLOUR_ON : (currentState == STATE_OFF ? STATE_COLOUR_OFF : (currentState == STATE_UNKNOWN ? STATE_COLOUR_UNKNOWN : STATE_COLOUR_BLANK)));
         }
 
         repaint();
@@ -97,7 +136,7 @@ public class Signal extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
-        if (EventHandler.isScreencapping && SIGNAL_DIRECTION == SignalDirection.NONE)
+        if (EventHandler.isScreencapping && SIGNAL_DIRECTION == SignalDirection.TEST)
             return;
 
         if (EastAngliaMapClient.visible || EventHandler.isScreencapping)
@@ -127,7 +166,7 @@ public class Signal extends JComponent
                     break;
 
                 case UP:
-                    drawSignal(0, 8, g2d);
+                    drawSignal(0, 6, g2d);
 
                     g2d.setColor(SIGNAL_POST_COLOUR);
                     g2d.fillRect(3, 0, 2, 6);
@@ -151,13 +190,28 @@ public class Signal extends JComponent
 
     private static void drawSignal(int x, int y, Graphics2D g2d)
     {
-        g2d.drawLine(x+2, y,   x+5, y);
-        g2d.drawLine(x+1, y+1, x+6, y+1);
+        if (g2d.getColor().equals(STATE_COLOUR_BLANK))
+        {
+            g2d.drawLine(x+2, y,   x+5, y);
+            g2d.drawLine(x,   y+2, x,   y+5);
+            g2d.drawLine(x+2, y+7, x+5, y+7);
+            g2d.drawLine(x+7, y+2, x+7, y+5);
 
-        g2d.fillRect(x, y+2, x+8, y+4);
+            g2d.fillRect(x+1, y+1, 1, 1);
+            g2d.fillRect(x+6, y+1, 1, 1);
+            g2d.fillRect(x+1, y+6, 1, 1);
+            g2d.fillRect(x+6, y+6, 1, 1);
+        }
+        else
+        {
+            g2d.drawLine(x+2, y,   x+5, y);
+            g2d.drawLine(x+1, y+1, x+6, y+1);
 
-        g2d.drawLine(x+1, y+6, x+6, y+6);
-        g2d.drawLine(x+2, y+7, x+5, y+7);
+            g2d.fillRect(x, y+2, 8, 4);
+
+            g2d.drawLine(x+1, y+6, x+6, y+6);
+            g2d.drawLine(x+2, y+7, x+5, y+7);
+        }
     }
 
     @Override
