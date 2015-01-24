@@ -128,11 +128,6 @@ public class SignalMap
         initCambridgeEN();
         initNorwich();
 
-        placeTestSignals(bpColchester,  "CC", 400,  780, 6,  0x27, 0x2A);
-        placeTestSignals(bpColchester,  "CC", 400,  807, 2,  0x37, 0x39);
-        placeTestSignals(bpColchester,  "CC", 800,  780, 5,  0x44, 0x47);
-        placeTestSignals(bpColchester,  "CC", 250,  180, 10, 0xB0, 0xBA);
-        placeTestSignals(bpColchester,  "CC", 1220, 575, 10, 0x55, 0x57);
         placeTestSignals(bpCambridgeEN, "EN", 1100, 10,  7,  0x00, 0x1C);
       //placeTestSignals(bpCambridgeEN, "CA", 970,  367, 8,  0x00, 0xC7);
         placeTestSignals(bpWitham,      "SE", 250,  490, 12, 0x00, 0x41);
@@ -367,13 +362,18 @@ public class SignalMap
         Signals.getOrCreateSignal(bpNorwich, 1134, 246, "CC0543", "CC90:3", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpNorwich, 1080, 302, "CC0546", "CC90:6", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpNorwich, 1198, 246, "CC0549", "CC90:8", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpNorwich, 1208, 270, "CC0550", "CC91:3", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpNorwich, 1208, 302, "CC0552", "CC91:6", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpNorwich, 1208, 334, "CC0554", "CC91:8", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpNorwich, 1310, 246, "CC0557", "CC92:2", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpNorwich, 1310, 278, "CC0559", "CC92:5", SignalDirection.LEFT);
-        Signals.getOrCreateSignal(bpNorwich, 1208, 302, "CC0552", "CC91:6", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpNorwich, 1310, 310, "CC0561", "CC92:8", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpNorwich, 1384, 270, "CC0564", "CC93:3", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpNorwich, 1486, 246, "CC0565", "CC9B:1", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpNorwich, 1384, 302, "CC0566", "CC93:5", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpNorwich, 1486, 278, "CC0567", "CC9B:2", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpNorwich, 1574, 214, "CC0570", "CC9B:3", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpNorwich, 1574, 174, "CC0572", "CC9B:4", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpNorwich, 1638, 214, "CC0574", "CC9B:5", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpNorwich, 1638, 270, "CC0576", "CC9B:6", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpNorwich, 1638, 302, "CC0578", "CC9B:7", SignalDirection.RIGHT);
@@ -597,7 +597,7 @@ public class SignalMap
         Signals.getOrCreateSignal(bpCambridgeEN, 408,  134, "EN8044", "EN06:4", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpCambridgeEN, 462,  102, "EN8061", "EN06:7", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpCambridgeEN, 470,  158, "EN8066", "EN07:1", SignalDirection.RIGHT);
-        Signals.getOrCreateSignal(bpCambridgeEN, 606,  126, "EN8083", "EN07:3", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 606,  102, "EN8083", "EN07:3", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpCambridgeEN, 568,  158, "EN8086", "EN07:4", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpCambridgeEN, 702,  102, "EN8109", "EN08:4", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpCambridgeEN, 696,  158, "EN8110", "EN08:5", SignalDirection.RIGHT);
@@ -890,7 +890,7 @@ public class SignalMap
     private void initIpswich()
     {
         //<editor-fold defaultstate="collapsed" desc="TD Berths">
-        Berths.getOrCreateBerth(bpIpswich, 90,   298, "CC0290");
+        Berths.getOrCreateBerth(bpIpswich, 90,   306, "CC0290");
         Berths.getOrCreateBerth(bpIpswich, 122,  250, "CC0295", "CC0292");
         Berths.getOrCreateBerth(bpIpswich, 122,  282, "CC0294", "CC0297");
         Berths.getOrCreateBerth(bpIpswich, 202,  218, "CC0302");
@@ -901,7 +901,7 @@ public class SignalMap
         Berths.getOrCreateBerth(bpIpswich, 266,  250, "CC0313");
         Berths.getOrCreateBerth(bpIpswich, 266,  282, "CC0315");
         Berths.getOrCreateBerth(bpIpswich, 266,  314, "CC0317");
-        Berths.getOrCreateBerth(bpIpswich, 282,  346, "CC0319");
+        Berths.getOrCreateBerth(bpIpswich, 266,  346, "CC0319");
         Berths.getOrCreateBerth(bpIpswich, 394,  346, "CC0322");
         Berths.getOrCreateBerth(bpIpswich, 426,  282, "CC0326");
         Berths.getOrCreateBerth(bpIpswich, 410,  314, "CC0328");
@@ -971,10 +971,10 @@ public class SignalMap
         Berths.getOrCreateBerth(bpIpswich, 474,  410, "CC0835");
         Berths.getOrCreateBerth(bpIpswich, 474,  426, "CC0837");
         Berths.getOrCreateBerth(bpIpswich, 1706, 506, "CC0841");
-        Berths.getOrCreateBerth(bpIpswich, 218,  346, "CC1319");
+        Berths.getOrCreateBerth(bpIpswich, 210,  346, "CC1319");
         Berths.getOrCreateBerth(bpIpswich, 1050, 378, "CC2003");
         Berths.getOrCreateBerth(bpIpswich, 1178, 378, "CC2012");
-        Berths.getOrCreateBerth(bpIpswich, 986,  298, "CCBARS");
+        Berths.getOrCreateBerth(bpIpswich, 1044, 306, "CCBARS").hasBorder();
         Berths.getOrCreateBerth(bpIpswich, 1498, 554, "CCFDAP");
         Berths.getOrCreateBerth(bpIpswich, 1578, 554, "CCFDLS").hasBorder();
         Berths.getOrCreateBerth(bpIpswich, 1610, 474, "CCFTSN");
@@ -1022,6 +1022,24 @@ public class SignalMap
 
         //<editor-fold defaultstate="collapsed" desc="Signals">
         //<editor-fold defaultstate="collapsed" desc="CC">
+        Signals.getOrCreateSignal(bpIpswich, 198,  238, "CC0302", "CC70:7", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 198,  246, "CC0304", "CC71:1", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 200,  302, "CC0306", "CC71:3", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 198,  334, "CC0308", "CC71:5", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 320,  238, "CC0311", "CC71:7", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 320,  246, "CC0313", "CC71:8", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 318,  278, "CC0315", "CC72:5", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 320,  334, "CC0317", "CC72:8", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 318,  366, "CC0319", "CC73:3", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 392,  342, "CC0322", "CC73:6", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 424,  302, "CC0326", "CC74:1", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 408,  334, "CC0328", "CC74:4", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 526,  246, "CC0331", "CC81:5", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 526,  278, "CC0333", "CC81:6", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 510,  310, "CC0335", "CC81:7", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 510,  342, "CC0337", "CC81:8", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 542,  358, "CC0341", "CC82:1", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 606,  374, "CC0343", "CC85:5", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 680,  302, "CC0346", "CC82:3", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 680,  430, "CC0348", "CC82:5", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 726,  304, "CC0351", "CC84:3", SignalDirection.DOWN);
@@ -1033,18 +1051,20 @@ public class SignalMap
         Signals.getOrCreateSignal(bpIpswich, 894,  246, "CC0371", "CC4D:2", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 920,  302, "CC0374", "CC4D:5", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 974,  246, "CC0375", "CC4D:7", SignalDirection.LEFT);
-        Signals.getOrCreateSignal(bpIpswich, 1016, 278, "CC0378", "CC4E:4", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 1016, 302, "CC0378", "CC4E:4", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 1070, 246, "CC0379", "CC4F:1", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 1080, 302, "CC0380", "CC",     SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 1134, 246, "CC0381", "CCC4:3", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 1200, 246, "CC0383", "CCC4:6", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 1208, 302, "CC0384", "CCC5:1", SignalDirection.RIGHT);
-        Signals.getOrCreateSignal(bpIpswich, 1262, 246, "CC0385", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 1262, 246, "CC0385", "CCC5:3", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 1304, 214, "CC0386", "CCC5:6", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 1304, 302, "CC0388", "CCC5:8", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 1422, 214, "CC0389", "CCC6:2", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 1488, 246, "CC0391", "CCC6:7", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 776,  430, "CC0400", "CC83:6", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 734,  374, "CC0401", "CC83:8", SignalDirection.LEFT);
-        Signals.getOrCreateSignal(bpIpswich, 830,  374, "CC0403", "CC8D:3", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpIpswich, 830,  374, "CC0403", "CC",     SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 840,  430, "CC0404", "CC69:7", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 894,  374, "CC0405", "CC",     SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 958,  374, "CC0611", "CC66:6", SignalDirection.LEFT);
@@ -1052,7 +1072,7 @@ public class SignalMap
         Signals.getOrCreateSignal(bpIpswich, 1134, 470, "CC0613", "CC66:3", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 1048, 430, "CC0614", "CC66:2", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 1200, 470, "CC0615", "CC65:8", SignalDirection.LEFT);
-        Signals.getOrCreateSignal(bpIpswich, 1032, 494, "CC0616", "CC67:7", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 1032, 494, "CC0616", "CC67:6", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 1310, 470, "CC0617", "CC67:4", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 1142, 526, "CC0618", "CC67:2", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 1422, 470, "CC0619", "CC66:8", SignalDirection.LEFT);
@@ -1066,7 +1086,9 @@ public class SignalMap
         Signals.getOrCreateSignal(bpIpswich, 1646, 502, "CC0641", "CC69:4", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpIpswich, 1544, 526, "CC0642", "CC69:2", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpIpswich, 1656, 526, "CC0644", "CC69:1", SignalDirection.RIGHT);
-        Signals.getOrCreateSignal(bpIpswich, 616,  430, "CC0834", "CC82:7", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpIpswich, 334,  150, "CC0797", "CC75:7", SignalDirection.LEFT).isShunt();
+        Signals.getOrCreateSignal(bpIpswich, 334,  182, "CC0799", "CC76:1", SignalDirection.LEFT).isShunt();
+        Signals.getOrCreateSignal(bpIpswich, 616,  430, "CC0834", "CC82:7", SignalDirection.RIGHT).isShunt();
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="SX">
@@ -1264,17 +1286,17 @@ public class SignalMap
     private void initColchester()
     {
         //<editor-fold defaultstate="collapsed" desc="TD Berths">
-        Berths.getOrCreateBerth(bpColchester, 214,  282, "CC0190");
-        Berths.getOrCreateBerth(bpColchester, 214,  250, "CC0191");
-        Berths.getOrCreateBerth(bpColchester, 294,  282, "CC0194");
-        Berths.getOrCreateBerth(bpColchester, 374,  346, "CC0196");
-        Berths.getOrCreateBerth(bpColchester, 342,  250, "CC0197");
-        Berths.getOrCreateBerth(bpColchester, 438,  282, "CC0198");
-        Berths.getOrCreateBerth(bpColchester, 342,  282, "CC0199");
-        Berths.getOrCreateBerth(bpColchester, 326,  314, "CC0201");
-        Berths.getOrCreateBerth(bpColchester, 438,  250, "CC0203");
-        Berths.getOrCreateBerth(bpColchester, 470,  306, "CC0205");
-        Berths.getOrCreateBerth(bpColchester, 470,  322, "CC0207");
+        Berths.getOrCreateBerth(bpColchester, 214,  266, "CC0190");
+        Berths.getOrCreateBerth(bpColchester, 214,  234, "CC0191");
+        Berths.getOrCreateBerth(bpColchester, 294,  266, "CC0194");
+        Berths.getOrCreateBerth(bpColchester, 374,  330, "CC0196");
+        Berths.getOrCreateBerth(bpColchester, 342,  234, "CC0197");
+        Berths.getOrCreateBerth(bpColchester, 438,  266, "CC0198");
+        Berths.getOrCreateBerth(bpColchester, 342,  266, "CC0199");
+        Berths.getOrCreateBerth(bpColchester, 326,  298, "CC0201");
+        Berths.getOrCreateBerth(bpColchester, 438,  234, "CC0203");
+        Berths.getOrCreateBerth(bpColchester, 470,  298, "CC0205");
+        Berths.getOrCreateBerth(bpColchester, 470,  314, "CC0207");
         Berths.getOrCreateBerth(bpColchester, 438,  346, "CC0209");
         Berths.getOrCreateBerth(bpColchester, 438,  378, "CC0211");
         Berths.getOrCreateBerth(bpColchester, 534,  378, "CC0228");
@@ -1284,29 +1306,28 @@ public class SignalMap
         Berths.getOrCreateBerth(bpColchester, 742,  378, "CC0232");
         Berths.getOrCreateBerth(bpColchester, 742,  346, "CC0233");
         Berths.getOrCreateBerth(bpColchester, 806,  378, "CC0234");
-        Berths.getOrCreateBerth(bpColchester, 534,  282, "CC0268");
-        Berths.getOrCreateBerth(bpColchester, 598,  250, "CC0269");
-        Berths.getOrCreateBerth(bpColchester, 598,  282, "CC0270");
-        Berths.getOrCreateBerth(bpColchester, 662,  250, "CC0271");
-        Berths.getOrCreateBerth(bpColchester, 662,  282, "CC0272");
-        Berths.getOrCreateBerth(bpColchester, 726,  250, "CC0273");
-        Berths.getOrCreateBerth(bpColchester, 726,  282, "CC0274");
-        Berths.getOrCreateBerth(bpColchester, 790,  250, "CC0275");
-        Berths.getOrCreateBerth(bpColchester, 790,  282, "CC0276");
-        Berths.getOrCreateBerth(bpColchester, 854,  250, "CC0277");
-        Berths.getOrCreateBerth(bpColchester, 854,  282, "CC0278");
-        Berths.getOrCreateBerth(bpColchester, 918,  250, "CC0279");
-        Berths.getOrCreateBerth(bpColchester, 918,  282, "CC0280");
-        Berths.getOrCreateBerth(bpColchester, 982,  250, "CC0281");
-        Berths.getOrCreateBerth(bpColchester, 982,  282, "CC0282");
-        Berths.getOrCreateBerth(bpColchester, 1046, 250, "CC0283");
-        Berths.getOrCreateBerth(bpColchester, 1046, 282, "CC0284");
-        Berths.getOrCreateBerth(bpColchester, 1110, 250, "CC0285");
-        Berths.getOrCreateBerth(bpColchester, 1110, 282, "CC0286");
-        Berths.getOrCreateBerth(bpColchester, 374,  218, "CC0753");
+        Berths.getOrCreateBerth(bpColchester, 534,  266, "CC0268");
+        Berths.getOrCreateBerth(bpColchester, 598,  234, "CC0269");
+        Berths.getOrCreateBerth(bpColchester, 598,  266, "CC0270");
+        Berths.getOrCreateBerth(bpColchester, 662,  234, "CC0271");
+        Berths.getOrCreateBerth(bpColchester, 662,  266, "CC0272");
+        Berths.getOrCreateBerth(bpColchester, 726,  234, "CC0273");
+        Berths.getOrCreateBerth(bpColchester, 726,  266, "CC0274");
+        Berths.getOrCreateBerth(bpColchester, 790,  234, "CC0275");
+        Berths.getOrCreateBerth(bpColchester, 790,  266, "CC0276");
+        Berths.getOrCreateBerth(bpColchester, 854,  234, "CC0277");
+        Berths.getOrCreateBerth(bpColchester, 854,  266, "CC0278");
+        Berths.getOrCreateBerth(bpColchester, 918,  234, "CC0279");
+        Berths.getOrCreateBerth(bpColchester, 918,  266, "CC0280");
+        Berths.getOrCreateBerth(bpColchester, 982,  234, "CC0281");
+        Berths.getOrCreateBerth(bpColchester, 982,  266, "CC0282");
+        Berths.getOrCreateBerth(bpColchester, 1046, 234, "CC0283");
+        Berths.getOrCreateBerth(bpColchester, 1046, 266, "CC0284");
+        Berths.getOrCreateBerth(bpColchester, 1110, 234, "CC0285");
+        Berths.getOrCreateBerth(bpColchester, 1110, 266, "CC0286");
+        Berths.getOrCreateBerth(bpColchester, 374,  202, "CC0753");
         Berths.getOrCreateBerth(bpColchester, 614,  314, "CC0762", "CC0763");
-      //Berths.getOrCreateBerth(bpColchester, 1206, 282, "CCAPIP").hasBorder();
-        Berths.getOrCreateBerth(bpColchester, 982,  306, "CCAPIP").hasBorder();
+        Berths.getOrCreateBerth(bpColchester, 982,  290, "CCAPIP").hasBorder();
         Berths.getOrCreateBerth(bpColchester, 806,  410, "CCAPPA").hasBorder();
         Berths.getOrCreateBerth(bpColchester, 806,  346, "CCP001");
         Berths.getOrCreateBerth(bpColchester, 870,  378, "CCP002");
@@ -1336,7 +1357,7 @@ public class SignalMap
         Berths.getOrCreateBerth(bpColchester, 1734, 426, "CCPI74");
         Berths.getOrCreateBerth(bpColchester, 1254, 330, "CCPKSD").hasBorder();
         Berths.getOrCreateBerth(bpColchester, 1206, 410, "CCPKTP");
-        Berths.getOrCreateBerth(bpColchester, 254,  314, "CCR201").hasBorder();
+        Berths.getOrCreateBerth(bpColchester, 254,  298, "CCR201").hasBorder();
 
         Berths.getOrCreateBerth(bpColchester, 1062, 602, "CC0177");
         Berths.getOrCreateBerth(bpColchester, 1126, 634, "CC0178");
@@ -1360,26 +1381,26 @@ public class SignalMap
         Berths.getOrCreateBerth(bpColchester, 486,  634, "CC1010", "CC4013");
         Berths.getOrCreateBerth(bpColchester, 486,  602, "CC1011");
         Berths.getOrCreateBerth(bpColchester, 598,  666, "CC1020");
-        Berths.getOrCreateBerth(bpColchester, 630,  490, "CC1021");
+        Berths.getOrCreateBerth(bpColchester, 630,  482, "CC1021");
         Berths.getOrCreateBerth(bpColchester, 598,  634, "CC1022");
-        Berths.getOrCreateBerth(bpColchester, 630,  522, "CC1023");
+        Berths.getOrCreateBerth(bpColchester, 630,  514, "CC1023");
         Berths.getOrCreateBerth(bpColchester, 662,  602, "CC1027");
-        Berths.getOrCreateBerth(bpColchester, 566,  522, "CC1028");
+        Berths.getOrCreateBerth(bpColchester, 566,  514, "CC1028");
         Berths.getOrCreateBerth(bpColchester, 566,  554, "CC1030");
         Berths.getOrCreateBerth(bpColchester, 662,  634, "CC1033");
         Berths.getOrCreateBerth(bpColchester, 710,  458, "CC1034");
         Berths.getOrCreateBerth(bpColchester, 662,  666, "CC1035");
-        Berths.getOrCreateBerth(bpColchester, 694,  522, "CC1036");
+        Berths.getOrCreateBerth(bpColchester, 694,  514, "CC1036");
         Berths.getOrCreateBerth(bpColchester, 662,  578, "CC1039");
         Berths.getOrCreateBerth(bpColchester, 774,  634, "CC1040");
         Berths.getOrCreateBerth(bpColchester, 806,  714, "CC1046");
         Berths.getOrCreateBerth(bpColchester, 758,  458, "CC1047");
         Berths.getOrCreateBerth(bpColchester, 806,  666, "CC1048");
-        Berths.getOrCreateBerth(bpColchester, 758,  490, "CC1051");
-        Berths.getOrCreateBerth(bpColchester, 806,  570, "CC1054");
-        Berths.getOrCreateBerth(bpColchester, 758,  522, "CC1055");
+        Berths.getOrCreateBerth(bpColchester, 758,  482, "CC1051");
+        Berths.getOrCreateBerth(bpColchester, 822,  570, "CC1054");
+        Berths.getOrCreateBerth(bpColchester, 758,  514, "CC1055");
         Berths.getOrCreateBerth(bpColchester, 806,  602, "CC1056");
-        Berths.getOrCreateBerth(bpColchester, 726,  546, "CC1057");
+        Berths.getOrCreateBerth(bpColchester, 726,  538, "CC1057");
         Berths.getOrCreateBerth(bpColchester, 726,  562, "CC1059");
         Berths.getOrCreateBerth(bpColchester, 822,  634, "CC1063");
         Berths.getOrCreateBerth(bpColchester, 870,  570, "CC1065");
@@ -1401,6 +1422,59 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Signals">
+        Signals.getOrCreateSignal(bpColchester, 210,  286, "CC0190", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 266,  230, "CC0191", "CCB4:1", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 290,  286, "CC0194", "CCB4:3", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 386,  320, "CC0196", "CCB4:5", SignalDirection.DOWN);
+        Signals.getOrCreateSignal(bpColchester, 396,  230, "CC0197", "CCB4:8", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 436,  286, "CC0198", "CCB5:2", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 394,  262, "CC0199", "CCB5:4", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 394,  294, "CC0201", "CCB5:6", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 490,  230, "CC0203", "CCB5:8", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 482,  288, "CC0205", "CCB6:3", SignalDirection.DOWN);
+        Signals.getOrCreateSignal(bpColchester, 506,  342, "CC0207", "CCB6:6", SignalDirection.UP);
+        Signals.getOrCreateSignal(bpColchester, 490,  342, "CC0209", "CCB6:7", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 490,  374, "CC0211", "CCB7:1", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 532,  398, "CC0228", "CCB7:3", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 586,  342, "CC0229", "CCB7:5", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 674,  398, "CC0230", "CCB7:8", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 732,  342, "CC0231", "CCB8:2", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 740,  398, "CC0232", "CCB8:4", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 794,  342, "CC0233", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 804,  398, "CC0234", "CCB8:7", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 532,  286, "CC0268", "CCB9:1", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 650,  230, "CC0269", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 596,  286, "CC0270", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 714,  230, "CC0271", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 660,  286, "CC0272", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 778,  230, "CC0273", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 724,  286, "CC0274", "CCB9:8", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 842,  230, "CC0275", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 788,  286, "CC0276", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 906,  230, "CC0277", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 852,  286, "CC0278", "CCBA:5", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 970,  230, "CC0279", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 916,  286, "CC0280", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 1034, 230, "CC0281", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 980,  286, "CC0282", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 1098, 230, "CC0283", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 1044, 286, "CC0284", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 1162, 230, "CC0285", "CC6F:1", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 1108, 286, "CC0286", "CC",     SignalDirection.RIGHT);
+
+        Signals.getOrCreateSignal(bpColchester, 1114, 598, "CC0177", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 1124, 654, "CC0178", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 1178, 598, "CC0179", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 1188, 654, "CC0180", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 1242, 598, "CC0181", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 1252, 654, "CC0182", "CC55:2", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 1306, 598, "CC0183", "CC55:5", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 1332, 654, "CC0184", "CC55:6", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 1386, 598, "CC0185", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 1396, 654, "CC0186", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 1450, 598, "CC0187", "CC",     SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 1460, 654, "CC0188", "CC",     SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 1514, 598, "CC0189", "CC",     SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 292,  654, "CC1004", "CC27:3", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpColchester, 346,  598, "CC1005", "CC27:4", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 356,  654, "CC1006", "CC27:5", SignalDirection.RIGHT);
@@ -1410,29 +1484,43 @@ public class SignalMap
         Signals.getOrCreateSignal(bpColchester, 484,  654, "CC1010", "CC28:1", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpColchester, 538,  598, "CC1011", "CC28:2", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 596,  686, "CC1020", "CC28:3", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 682,  478, "CC1021", "CC28:4", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 682,  510, "CC1023", "CC28:6", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 596,  654, "CC1022", "CC28:5", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpColchester, 714,  598, "CC1027", "CC36:8", SignalDirection.LEFT);
-        Signals.getOrCreateSignal(bpColchester, 564,  574, "CC1030", "CC2:88", SignalDirection.RIGHT);
-        Signals.getOrCreateSignal(bpColchester, 716,  576, "CC1039", "CC1:39", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 564,  534, "CC1028", "CC28:7", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 564,  574, "CC1030", "CC28:8", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 708,  478, "CC1034", "CC29:2", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 692,  534, "CC1036", "CC29:3", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 716,  576, "CC1039", "CC",     SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 772,  654, "CC1040", "CC37:4", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpColchester, 796,  686, "CC1046", "CC37:5", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 810,  454, "CC1047", "CC",     SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 796,  734, "CC1048", "CC37:6", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 810,  478, "CC1051", "CC43:7", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 820,  590, "CC1054", "CC37:7", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 810,  510, "CC1055", "CC43:8", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 802,  598, "CC1056", "CC37:8", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 778,  534, "CC1057", "CC38:1", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 882,  686, "CC1058", "CC38:2", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 778,  558, "CC1059", "CC38:3", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 874,  654, "CC1063", "CC38:4", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 924,  590, "CC1065", "CC44:2", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 924,  598, "CC1067", "CC44:3", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 940,  686, "CC1069", "CC44:4", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 940,  694, "CC1071", "CC44:6", SignalDirection.LEFT);
+        Signals.getOrCreateSignal(bpColchester, 996,  686, "CC1072", "CC44:7", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpColchester, 986,  718, "CC1073", "CC44:8", SignalDirection.TEST);
         Signals.getOrCreateSignal(bpColchester, 996,  654, "CC1074", "CC45:1", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpColchester, 1050, 598, "CC1075", "CC45:2", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 1060, 654, "CC1076", "CC45:3", SignalDirection.RIGHT);
         Signals.getOrCreateSignal(bpColchester, 996,  590, "CC1080", "CC45:4", SignalDirection.RIGHT);
+        Signals.getOrCreateSignal(bpColchester, 1050, 662, "CC1085", "CC45:7", SignalDirection.LEFT);
         Signals.getOrCreateSignal(bpColchester, 1050, 566, "CC1083", "CC45:6", SignalDirection.LEFT);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
-        makeNavButton(bpColchester, 1262, 266, "IPSWICH", 9);
+        makeNavButton(bpColchester, 1198, 250, "IPSWICH", 9);
 
         makeNavButton(bpColchester, 110,  618, "WITHAM",  4);
         makeNavButton(bpColchester, 1094, 570, "CLACTON", 8);
@@ -1440,8 +1528,8 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Stations">
-        largeStation(bpColchester, 802, 746, "COLCHESTER", "COL");
-        largeStation(bpColchester, 276, 194, "MANNINGTREE", "MNG");
+        largeStation(bpColchester, 802, 746, "COLCHESTER",  "COL");
+        largeStation(bpColchester, 276, 178, "MANNINGTREE", "MNG");
 
         smallStation(bpColchester, 1616, 410, "DOVERCOURT",   "DVC");
         smallStation(bpColchester, 1414, 322, "HARWICH INT",  "HPQ");
@@ -2040,6 +2128,8 @@ public class SignalMap
         Berths.getOrCreateBerth(bpWitham, 1578, 426, "SE0790");
         Berths.getOrCreateBerth(bpWitham, 1098, 362, "SE5185");
         Berths.getOrCreateBerth(bpWitham, 1162, 330, "SE5186");
+        Berths.getOrCreateBerth(bpWitham, 1234, 321, "SE5188").hasBorder();
+        Berths.getOrCreateBerth(bpWitham, 1234, 339, "SEGYNE").hasBorder();
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Signals">

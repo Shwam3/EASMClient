@@ -62,10 +62,13 @@ public class Berth extends JComponent
         currentHeadcode = headcode;
         currentBerthId = berthId;
 
-        if (headcode.equals(""))
-            EastAngliaMapClient.printOut(Arrays.deepToString(BERTH_IDs) + " Cancel " + oldHeadcode + " (" + oldBerthId + ")");
-        else
-            EastAngliaMapClient.printOut(Arrays.deepToString(BERTH_IDs) + " Interpose " + currentHeadcode + " (" + currentBerthId + ")");
+        if (EastAngliaMapClient.verbose)
+        {
+            if (headcode.equals(""))
+                EastAngliaMapClient.printOut(Arrays.deepToString(BERTH_IDs) + " Cancel " + oldHeadcode + " (" + oldBerthId + ")");
+            else
+                EastAngliaMapClient.printOut(Arrays.deepToString(BERTH_IDs) + " Interpose " + currentHeadcode + " (" + currentBerthId + ")");
+        }
 
         setOpaque(false);
     }

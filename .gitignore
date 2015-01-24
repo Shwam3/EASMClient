@@ -65,6 +65,4 @@ $RECYCLE.BIN/
 dist/
 build/
 nbproject/
-*Mappings.csv
-Mappings template.csv
 nbproject/private/private.xml

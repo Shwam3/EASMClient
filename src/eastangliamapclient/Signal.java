@@ -26,6 +26,7 @@ public class Signal extends JComponent
     private final String          DATA_ID;
     private       SignalDirection SIGNAL_DIRECTION;
     private       Point           LOCATION;
+    private       boolean         isShunt = false;
 
     private int currentState = STATE_UNKNOWN;
 
@@ -61,6 +62,8 @@ public class Signal extends JComponent
 
         setVisible(true);
     }
+
+    public void isShunt() { isShunt = true; }
 
     public void setDirection(SignalDirection direction)
     {
@@ -114,7 +117,7 @@ public class Signal extends JComponent
     {
         if (currentState != state)
         {
-            if (currentState != 2)
+            if (currentState != 2 && EastAngliaMapClient.verbose)
             {
                 if (SIGNAL_ID.isEmpty())
                     EastAngliaMapClient.printOut("[" + DATA_ID + "] Change state from " + currentState + " to " + state);
@@ -124,7 +127,7 @@ public class Signal extends JComponent
 
             currentState = state;
 
-            setForeground(currentState == STATE_ON ? STATE_COLOUR_ON : (currentState == STATE_OFF ? STATE_COLOUR_OFF : (currentState == STATE_UNKNOWN ? STATE_COLOUR_UNKNOWN : STATE_COLOUR_BLANK)));
+            setForeground(currentState == STATE_ON ? STATE_COLOUR_ON : (currentState == STATE_OFF ? (isShunt ? Color.WHITE : STATE_COLOUR_OFF) : (currentState == STATE_UNKNOWN ? STATE_COLOUR_UNKNOWN : STATE_COLOUR_BLANK)));
         }
 
         repaint();

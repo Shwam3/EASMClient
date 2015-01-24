@@ -57,6 +57,8 @@ public class EastAngliaMapClient
     public static boolean shownSystemTrayWarn  = false;
     public static boolean preventSleep         = true;
 
+    public static final boolean verbose = true;
+
     public static void main(String[] args)
     {
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
