@@ -227,7 +227,7 @@ public class Berth extends JComponent
         }
         else
         {
-            if (EastAngliaMapClient.visible)
+            if (EastAngliaMapClient.berthsVisible)
             {
                 g2d.setColor(EastAngliaMapClient.GREY);
                 if (hasBorder)

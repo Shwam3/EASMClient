@@ -100,7 +100,7 @@ public class Berths
 
     public static void toggleBerthVisibilities()
     {
-        EastAngliaMapClient.visible = !EastAngliaMapClient.visible;
+        EastAngliaMapClient.berthsVisible = !EastAngliaMapClient.berthsVisible;
 
         for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
             bp.repaint(0, 0, bp.getWidth(), bp.getHeight());

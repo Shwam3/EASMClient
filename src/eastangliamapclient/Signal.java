@@ -1,6 +1,6 @@
 package eastangliamapclient;
 
-import eastangliamapclient.Signals.SignalDirection;
+import eastangliamapclient.Signals.SignalPostDirection;
 import eastangliamapclient.gui.SignalMap;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -10,6 +10,7 @@ import javax.swing.JComponent;
 
 public class Signal extends JComponent
 {
+    //private static final Color TEXT_COLOUR          = Color.LIGHT_GRAY;
     private static final Color STATE_COLOUR_BLANK   = new Color(64, 64, 65); // blank - grey
     private static final Color STATE_COLOUR_ON      = new Color(153,  0, 0); // on - red
     private static final Color STATE_COLOUR_OFF     = new Color(0,  153, 0); // off - green
@@ -24,13 +25,15 @@ public class Signal extends JComponent
 
     private final String          SIGNAL_ID;
     private final String          DATA_ID;
-    private       SignalDirection SIGNAL_DIRECTION;
+    private       SignalPostDirection SIGNAL_DIRECTION;
     private       Point           LOCATION;
-    private       boolean         isShunt = false;
+
+    private       boolean         isShunt    = false;
+    //private       boolean         isCrossing = false;
 
     private int currentState = STATE_UNKNOWN;
 
-    public Signal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalDirection direction)
+    public Signal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalPostDirection direction)
     {
         SIGNAL_ID = description;
         DATA_ID = dataId;
@@ -64,8 +67,9 @@ public class Signal extends JComponent
     }
 
     public void isShunt() { isShunt = true; }
+    //public void isCrossing() { isCrossing = true; }
 
-    public void setDirection(SignalDirection direction)
+    public void setDirection(SignalPostDirection direction)
     {
         SIGNAL_DIRECTION = direction;
         int x = LOCATION == null ? getX() : LOCATION.x;
@@ -139,10 +143,10 @@ public class Signal extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
-        if (EventHandler.isScreencapping && SIGNAL_DIRECTION == SignalDirection.TEST)
+        if (EventHandler.isScreencapping && SIGNAL_DIRECTION == SignalPostDirection.TEST)
             return;
 
-        if (EastAngliaMapClient.visible || EventHandler.isScreencapping)
+        if (EastAngliaMapClient.signalsVisible || EventHandler.isScreencapping)
         {
             Graphics2D g2d = (Graphics2D) g.create();
 

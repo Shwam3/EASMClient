@@ -8,7 +8,7 @@ public class Signals
 {
     private static Map<String, Signal> signalMap = new HashMap<>();
 
-    public static Signal getOrCreateSignal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalDirection direction)
+    public static Signal getOrCreateSignal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalPostDirection direction)
     {
         Signal signal = signalMap.get(dataId);
         if (signal != null)
@@ -20,7 +20,7 @@ public class Signals
             return signal;
         }
         else
-            return new Signal(pnl, x, y, description == null ? "" : description, dataId, direction == null ? SignalDirection.TEST : direction);
+            return new Signal(pnl, x, y, description == null ? "" : description, dataId, direction == null ? SignalPostDirection.TEST : direction);
     }
 
     public static boolean signalExists(String signalId)
@@ -45,7 +45,15 @@ public class Signals
         return null;
     }
 
-    public static enum SignalDirection
+    public static void toggleSignalVisibilities()
+    {
+        EastAngliaMapClient.signalsVisible = !EastAngliaMapClient.signalsVisible;
+
+        for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
+            bp.repaint(0, 0, bp.getWidth(), bp.getHeight());
+    }
+
+    public static enum SignalPostDirection
     {
         LEFT,
         RIGHT,

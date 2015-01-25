@@ -27,7 +27,8 @@ public class EastAngliaMapClient
     public static boolean screencap        = false;
     public static boolean opaque           = false;
     public static boolean showDescriptions = false; // not headcodes
-    public static boolean visible          = true;
+    public static boolean berthsVisible    = true;
+    public static boolean signalsVisible   = true;
 
     public static SignalMap frameSignalMap;
     public static TrayIcon  trayIcon;

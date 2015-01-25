@@ -180,10 +180,18 @@ public class EventHandler
                             }
                             break;
 
-                        case "v":
+                        case "b":
                             if (!EastAngliaMapClient.blockKeyInput)
                             {
                                 Berths.toggleBerthVisibilities();
+                                evt.consume();
+                            }
+                            break;
+
+                        case "s":
+                            if (!EastAngliaMapClient.blockKeyInput)
+                            {
+                                Signals.toggleSignalVisibilities();
                                 evt.consume();
                             }
                             break;

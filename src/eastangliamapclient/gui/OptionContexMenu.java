@@ -9,8 +9,9 @@ import javax.swing.*;
 public class OptionContexMenu extends JPopupMenu
 {
     JCheckBoxMenuItem toggleOpacity;
-    JCheckBoxMenuItem toggleVisibility;
     JCheckBoxMenuItem toggleDescriptions;
+    JCheckBoxMenuItem berthVisibility;
+    JCheckBoxMenuItem signalVisibility;
 
     JMenuItem refresh;
     JMenuItem reconnect;
@@ -32,10 +33,12 @@ public class OptionContexMenu extends JPopupMenu
             Object src = evt.getSource();
             if (src == toggleOpacity)
                 Berths.toggleBerthsOpacities();
-            else if (src == toggleVisibility)
-                Berths.toggleBerthVisibilities();
             else if (src == toggleDescriptions)
                 Berths.toggleBerthDescriptions();
+            else if (src == berthVisibility)
+                Berths.toggleBerthVisibilities();
+            else if (src == signalVisibility)
+                Signals.toggleSignalVisibilities();
             else if (src == refresh)
                 MessageHandler.requestAll();
             else if (src == reconnect)
@@ -92,7 +95,8 @@ public class OptionContexMenu extends JPopupMenu
 
         toggleOpacity      = new JCheckBoxMenuItem("Toggle Opacity",      EastAngliaMapClient.opaque);
         toggleDescriptions = new JCheckBoxMenuItem("Toggle Descriptions", EastAngliaMapClient.showDescriptions);
-        toggleVisibility   = new JCheckBoxMenuItem("Toggle Visibility",   EastAngliaMapClient.visible);
+        berthVisibility    = new JCheckBoxMenuItem("Berths Visibility",   EastAngliaMapClient.berthsVisible);
+        signalVisibility   = new JCheckBoxMenuItem("Signals Visibility",  EastAngliaMapClient.signalsVisible);
         trainHistory       = new JMenuItem("Train History");
         refresh            = new JMenuItem("Refresh Data");
         reconnect          = new JMenuItem("Reconnect");
@@ -105,7 +109,8 @@ public class OptionContexMenu extends JPopupMenu
 
         add(toggleOpacity).addActionListener(clickEvent);
         add(toggleDescriptions).addActionListener(clickEvent);
-        add(toggleVisibility).addActionListener(clickEvent);
+        add(berthVisibility).addActionListener(clickEvent);
+        add(signalVisibility).addActionListener(clickEvent);
         addSeparator();
         add(refresh).addActionListener(clickEvent);
         add(reconnect).addActionListener(clickEvent);
