@@ -40,8 +40,8 @@ public class Signal extends JComponent
         LOCATION = new Point(x, y);
 
         setDirection(direction);
-
         setOpaque(false);
+        setFont(EastAngliaMapClient.TD_FONT.deriveFont(8f));
 
         if (pnl != null)
             pnl.add(this);
@@ -77,6 +77,11 @@ public class Signal extends JComponent
 
         switch (direction)
         {
+            case TRTS:
+                setBounds(x - 12, y - 4, 24, 8);
+                break;
+
+            case NO_POST:
             case TEST:
                 setBounds(x - 4, y - 4, 8, 8);
                 break;
@@ -158,6 +163,11 @@ public class Signal extends JComponent
 
             switch (SIGNAL_DIRECTION)
             {
+                case TRTS:
+                    g2d.setColor(currentState == STATE_OFF ? EastAngliaMapClient.GREEN : new Color(10, 10, 10));
+                    g2d.drawString("TRTS", 0, 8);
+                    break;
+
                 case RIGHT:
                     drawSignal(0, 0, g2d);
 

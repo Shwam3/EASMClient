@@ -55,6 +55,7 @@ public class Signals
 
     public static enum SignalPostDirection
     {
+        TRTS,
         LEFT,
         RIGHT,
         UP,
