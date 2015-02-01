@@ -1,3 +1,20 @@
+v14 - Signals everywhere (01/02/15)
+  + Saxmundham Box signals
+  + Clacton Panel signals
+  * Cambridge (IECC) signals
+  + Norwich Panel signals
+  + Colchester Panel signals
+  + Ipswich Panel signals
+  + Liverpool St Panel signals
+  + Hackney Panel signals
+  + Stratford Panel signals
+  + Cambridge Panel (& nearby boxes) signals
+  + Ilford Panel signals
+
+  + Save current tab on close
+  * Minimise to System Tray defaults to off
+  * System tray icon not appearing
+
 v13 - Signals (15/01/15)
   + Signals on EN panel (Not all correct)
   + "Program to an interface not an implementation" - Tinterweb

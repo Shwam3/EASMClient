@@ -19,8 +19,8 @@ public class EventHandler
 {
     public static Berth tempOpaqueBerth = null;
     public static BerthContextMenu berthContextMenu = null;
-    public static boolean isScreencapping = false; // TODO: Remove for release
 
+    public static boolean isScreencapping = false; // TODO: Remove for release
     private static BufferedImage logo = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
 
     //<editor-fold defaultstate="collapsed" desc="Station Click">

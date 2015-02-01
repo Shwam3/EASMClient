@@ -258,7 +258,7 @@ public class MessageHandler //implements Runnable
         Map<String, Object> message = new HashMap<>();
 
         message.put("type",  MessageType.SET_NAME.getValue());
-        message.put("name",  name + " (" /*+ (EastAngliaMapClient.screencap ? "sc " : "")*/ + "v" + EastAngliaMapClient.VERSION + ")");
+        message.put("name",  name + " (" + "v" + EastAngliaMapClient.VERSION + ")");
         message.put("props", System.getProperties()); // Felt like it
 
         return sendMessage(message);
