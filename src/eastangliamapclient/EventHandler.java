@@ -199,8 +199,11 @@ public class EventHandler
                         case "t":
                             if (!EastAngliaMapClient.blockKeyInput)
                             {
-                                EastAngliaMapClient.frameSignalMap.frame.pack();
-                                EastAngliaMapClient.frameSignalMap.frame.setLocationRelativeTo(null);
+                                JFrame frame = EastAngliaMapClient.frameSignalMap.frame;
+                                frame.setPreferredSize(new Dimension(1877, 928));
+                                frame.pack();
+                                frame.setLocationRelativeTo(null);
+                                frame.setPreferredSize(new Dimension(frame.getSize().width, frame.getSize().height));
 
                                 evt.consume();
                             }
@@ -268,7 +271,7 @@ public class EventHandler
             {
                 Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 int mins = calendar.get(Calendar.MINUTE);
-                calendar.add(Calendar.MINUTE, 5 - (mins % 5));
+                calendar.add(Calendar.MINUTE, 10 - (mins % 10));
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MILLISECOND, 500);
 
@@ -279,15 +282,20 @@ public class EventHandler
                     {
                         try
                         {
+                            // 00:00 to 06:00 images every 10 mins
+                            if (Integer.parseInt(EastAngliaMapClient.getTime().substring(0, 2)) < 6)
+                                if (Calendar.getInstance(TimeZone.getTimeZone("GMT")).get(Calendar.MINUTE) % 10 != 0)
+                                    return;
+
                             if (EastAngliaMapClient.serverSocket != null && EastAngliaMapClient.screencap && EastAngliaMapClient.serverSocket.isConnected())
-                                EventQueue.invokeAndWait(new Runnable() { @Override public void run() { takeScreencaps(); }});
+                                EventQueue.invokeAndWait(new Runnable() { public void run() { takeScreencaps(); }});
                             else
                                 printScreencap("Not taking screencaps", false);
                         }
                         catch (InterruptedException | InvocationTargetException e) { isScreencapping = false; }
                         catch (Throwable t) { isScreencapping = false; }
                     }
-                }, calendar.getTime().getTime() - System.currentTimeMillis(), 300000, TimeUnit.MILLISECONDS);
+                }, calendar.getTime().getTime() - System.currentTimeMillis(), 120000, TimeUnit.MILLISECONDS);
             }
         });
 
@@ -322,28 +330,34 @@ public class EventHandler
         final java.util.List<BufferedImage> images = new ArrayList<>();
         final java.util.List<String> names = new ArrayList<>();
 
-        EastAngliaMapClient.frameSignalMap.prepForScreencap();
-        isScreencapping = true;
-
-        for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
+        try
         {
-            BufferedImage image = bp.getBufferedImage();
-            names.add(bp.getName().replace("/", " + "));
+            EastAngliaMapClient.frameSignalMap.prepForScreencap();
+            isScreencapping = true;
 
-            Graphics2D g2d = image.createGraphics();
-            g2d.setBackground(bp.getBackground());
-            g2d.clearRect(0, 0, SignalMap.BackgroundPanel.BP_DEFAULT_WIDTH, SignalMap.BackgroundPanel.BP_DEFAULT_HEIGHT);
-            bp.invalidate();
-            bp.paint(g2d);
-            bp.revalidate();
+            for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
+            {
+                BufferedImage image = bp.getBufferedImage();
+                names.add(bp.getName().replace("/", " + "));
 
-            g2d.dispose();
+                Graphics2D g2d = image.createGraphics();
+                g2d.setBackground(new Color(0xFF69B4));
+                g2d.clearRect(0, 0, SignalMap.BackgroundPanel.BP_DEFAULT_WIDTH, SignalMap.BackgroundPanel.BP_DEFAULT_HEIGHT);
+                bp.invalidate();
+                bp.paint(g2d);
+                bp.revalidate();
 
-            images.add(overlayImage(image, bp.getName().replace("/", " + ")));
+                g2d.dispose();
+
+                images.add(overlayImage(image, bp.getName().replace("/", " + ")));
+            }
+
         }
-
-        isScreencapping = false;
-        EastAngliaMapClient.frameSignalMap.finishScreencap();
+        finally
+        {
+            isScreencapping = false;
+            EastAngliaMapClient.frameSignalMap.finishScreencap();
+        }
 
         new Thread("uploadScreencaps")
         {
@@ -351,25 +365,29 @@ public class EventHandler
             public void run()
             {
                 File screencapPath = new File(EastAngliaMapClient.storageDir, "images");
+                int width  = SignalMap.BackgroundPanel.BP_DEFAULT_WIDTH + 2;
+                int height = SignalMap.BackgroundPanel.BP_DEFAULT_HEIGHT + 2;
 
                 try
                 {
-                    BufferedImage bigImage = new BufferedImage(5555, 3419, BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage bigImage = new BufferedImage(width*3 - 2, height*4 - 2, BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2d = bigImage.createGraphics();
-                    g2d.clearRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
+                    //g2d.clearRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
+                    g2d.setColor(EastAngliaMapClient.GREY);
+                    g2d.fillRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
 
-                    g2d.drawImage(images.get(0),  0,    0,    null);
-                    g2d.drawImage(images.get(1),  1852, 0,    null);
-                    g2d.drawImage(images.get(2),  3704, 0,    null);
-                    g2d.drawImage(images.get(3),  0,    855,  null);
-                    g2d.drawImage(images.get(4),  1852, 855,  null);
-                    g2d.drawImage(images.get(5),  3704, 855,  null);
-                    g2d.drawImage(images.get(6),  0,    1710, null);
-                    g2d.drawImage(images.get(7),  1852, 1710, null);
-                    g2d.drawImage(images.get(8),  3704, 1710, null);
-                    g2d.drawImage(images.get(9),  0,    2565, null);
-                    g2d.drawImage(images.get(10), 1852, 2565, null);
-                    g2d.drawImage(images.get(11), 3704, 2565, null);
+                    g2d.drawImage(images.get(0),  0,       0,        null);
+                    g2d.drawImage(images.get(1),  width,   0,        null);
+                    g2d.drawImage(images.get(2),  width*2, 0,        null);
+                    g2d.drawImage(images.get(3),  0,       height,   null);
+                    g2d.drawImage(images.get(4),  width,   height,   null);
+                    g2d.drawImage(images.get(5),  width*2, height,   null);
+                    g2d.drawImage(images.get(6),  0,       height*2, null);
+                    g2d.drawImage(images.get(7),  width,   height*2, null);
+                    g2d.drawImage(images.get(8),  width*2, height*2, null);
+                    g2d.drawImage(images.get(9),  0,       height*3, null);
+                    g2d.drawImage(images.get(10), width,   height*3, null);
+                    g2d.drawImage(images.get(11), width*2, height*3, null);
 
                     for (int i = 0; i < images.size(); i++)
                     {
@@ -424,6 +442,7 @@ public class EventHandler
                             int read;
                             while ((read = in.read(buffer)) != -1)
                                 out.write(buffer, 0, read);
+
                         }
                         catch (IOException e) {}
 

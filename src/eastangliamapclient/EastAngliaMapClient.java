@@ -35,7 +35,7 @@ public class EastAngliaMapClient
     public static String    clientName;
     public static boolean   connected = false;
     public static boolean   kicked = false;
-    public static boolean   minimiseToSysTray = true;
+    public static boolean   minimiseToSysTray = false;
     public static Dimension windowSize = new Dimension();
     public static String    ftpBaseUrl = "";
 

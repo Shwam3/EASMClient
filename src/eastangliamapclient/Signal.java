@@ -46,17 +46,17 @@ public class Signal extends JComponent
         if (pnl != null)
             pnl.add(this);
 
-        if (dataId.trim().length() == 6)
+        if (dataId.endsWith("PRED"))
+            currentState = STATE_ON;
+        else if (dataId.trim().length() == 6)
         {
             Signals.putSignal(dataId, this);
             currentState = STATE_UNKNOWN;
-            setForeground(STATE_COLOUR_UNKNOWN);
         }
         else
-        {
             currentState = STATE_BLANK;
-            setForeground(STATE_COLOUR_BLANK);
-        }
+
+        setForeground(currentState == STATE_ON ? STATE_COLOUR_ON : (currentState == STATE_OFF ? STATE_COLOUR_OFF : (currentState == STATE_UNKNOWN ? STATE_COLOUR_UNKNOWN : STATE_COLOUR_BLANK)));
 
         if (description == null || description.trim().equals(""))
             description = "Unnamed";

@@ -28,8 +28,8 @@ public class SignalMap
     private final java.util.List<JScrollPane>     motdPanes = new ArrayList<>();
     private final java.util.List<BackgroundPanel> panels    = new ArrayList<>();
 
-    public static final int DEFAULT_WIDTH  = 1877; //1874;
-    public static final int DEFAULT_HEIGHT = 928; //922;
+    public static final int DEFAULT_WIDTH  = 1877;
+    public static final int DEFAULT_HEIGHT = 928;
 
     //<editor-fold defaultstate="collapsed" desc="Form variables">
     public        JTabbedPane TabBar;
@@ -131,17 +131,6 @@ public class SignalMap
         initCambridgeCA();
         initCambridgeEN();
         initNorwich();
-
-        placeTestSignals(bpCambridgeEN, "EN", 1100, 10,  7,  0x00, 0x1C);
-      //placeTestSignals(bpCambridgeEN, "CA", 970,  367, 8,  0x00, 0xC7);
-        placeTestSignals(bpShenfield,   "SE", 680,  680, 10, 0x00, 0x41);
-        placeTestSignals(bpIlford,      "SI", 820,  550, 8,  0x00, 0x36);
-        placeTestSignals(bpStratford,   "LS", 325,  700, 7,  0x00, 0x41);
-        placeTestSignals(bpIpswich,     "SX", 300,  550, 6,  0x01, 0x18);
-        //placeTestSignals(bpIpswich,     "CC", 10,   70,  17, 0x08, 0xD5);
-        //placeTestSignals(bpNorwich,     "CC", 1224, 120, 3,  0x90, 0xA0);
-        //placeTestSignals(bpNorwich,     "CC", 300,  220, 10, 0x58, 0x5E);
-        //placeTestSignals(bpNorwich,     "CC", 300,  110, 10, 0xC7, 0xCB);
 
         bpStratford  .setName("1. Liverpool St/Stratford");
         bpIlford     .setName("2. Ilford");
@@ -624,9 +613,89 @@ public class SignalMap
         Signals.getOrCreateSignal(bpCambridgeEN, 1496, 102, "EN8236", "EN16:4", RIGHT);
         Signals.getOrCreateSignal(bpCambridgeEN, 1614, 102, "EN8237", "EN16:5", LEFT);
         Signals.getOrCreateSignal(bpCambridgeEN, 1560, 158, "EN8246", "EN16:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 184,  158, "ENA808", "CA",     RIGHT);
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="KLN - ELY">
+        Signals.getOrCreateSignal(bpCambridgeEN, 934,  318, "CADM02", "CAB7:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 854,  318, "CADM03", "CAB7:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 854,  262, "CADM11", "CA",     RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 990,  262, "CADM26", "CAB7:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 846,  262, "CADM27", "CAB7:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1528, 342, "CAKL7A", "CABC:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1608, 326, "CAKL22", "CABC:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1608, 318, "CAKL23", "CABC:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1528, 318, "CAKL25", "CABC:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1416, 318, "CAKL35", "CABD:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1304, 318, "CAKL36", "CABD:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1518, 294, "CAKL43", "CABC:8", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1406, 294, "CAKL44", "CABD:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1294, 294, "CAKL45", "CABD:8", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 728,  286, "CALT04", "CAC1:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 662,  286, "CALT05", "CAC1:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 600,  286, "CALT06", "CAC1:3", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 720,  230, "CALT22", "CAC1:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 654,  230, "CALT24", "CAC1:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1054, 262, "CAMR01", "CAC5:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1118, 262, "CAMR02", "CAC5:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1182, 262, "CAMR03", "CAC5:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1064, 318, "CAMR04", "CAC5:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1128, 318, "CAMR05", "CAC6:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1192, 318, "CAMR06", "CAC6:2", RIGHT);
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Ely North Jnc">
+        Signals.getOrCreateSignal(bpCambridgeEN, 184,  494, "CA0296", "CA94:3", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 184,  438, "CA0298", "CA94:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 312,  382, "CA0301", "CA94:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 286,  438, "CA0303", "CA94:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 286,  494, "CA0305", "CA94:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 392,  526, "CA0306", "CA94:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 446,  470, "CA0307", "CAA4:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 456,  526, "CA0308", "CAA9:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 510,  470, "CA0311", "CAA9:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 362,  606, "CA0800", "CA95:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 414,  550, "CA0801", "CAAB:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 424,  606, "CA0802", "CAA9:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 542,  550, "CA0803", "CAA9:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 488,  606, "CA0804", "CAA9:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 552,  606, "CA0808", "CAA9:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 344,  446, "CA0908", "CA95:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 398,  390, "CA0911", "CA96:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 408,  446, "CA0912", "CA96:3", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 462,  358, "CA0915", "CA96:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 488,  446, "CA0916", "CA96:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 542,  390, "CA0917", "CA96:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 606,  390, "CA0919", "CA96:8", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 552,  446, "CA0920", "CA97:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 670,  390, "CA0921", "CA97:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 616,  446, "CA0922", "CA97:3", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 734,  390, "CA0923", "CA9F:8", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 680,  446, "CA0924", "CAC4:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 606,  550, "CA8019", "EN",     LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 862,  390, "CAM002", "CA",     LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 926,  390, "CAM003", "CA",     LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 808,  446, "CAM021", "CAC3:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 798,  390, "CAM043", "CAC4:8", LEFT);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="BSE - CBG & ELY">
+        Signals.getOrCreateSignal(bpCambridgeEN, 1128, 702, "CA0401", "CA32:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1118, 678, "CA0402", "CA32:8", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 846,  774, "CA0483", "CAAF:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 974,  774, "CA0491", "CAAF:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 984,  798, "CA0494", "CAAF:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1118, 774, "CA0495", "CAAF:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 1128, 798, "CA0498", "CAAF:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 776,  702, "CACM02", "CAB5:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 792,  830, "CACM04", "CAB5:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 664,  734, "CACM05", "CAB5:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 718,  678, "CACM14", "CAB5:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 976,  678, "CAD002", "CABA:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 984,  702, "CAD003", "CABA:3", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 912,  678, "CAD004", "CABA:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeEN, 918,  734, "CAD005", "CABA:1", RIGHT);
+
         Signals.getOrCreateSignal(bpCambridgeEN, 472, 734, "CCB001", "CCD0:2", RIGHT);
         Signals.getOrCreateSignal(bpCambridgeEN, 408, 734, "CCB002", "CCD1:6", RIGHT);
         Signals.getOrCreateSignal(bpCambridgeEN, 246, 734, "CCB017", "CCD0:3", RIGHT);
@@ -801,8 +870,8 @@ public class SignalMap
         Berths.getOrCreateBerth(bpCambridgeCA, 1680, 490, "CA0200");
         Berths.getOrCreateBerth(bpCambridgeCA, 1712, 474, "CA0210");
         Berths.getOrCreateBerth(bpCambridgeCA, 1736, 506, "CA0401").hasBorder();
-        Berths.getOrCreateBerth(bpCambridgeCA, 1112, 370, "CA0653");
-        Berths.getOrCreateBerth(bpCambridgeCA, 1112, 394, "CA0655");
+        Berths.getOrCreateBerth(bpCambridgeCA, 1112, 362, "CA0653");
+        Berths.getOrCreateBerth(bpCambridgeCA, 1112, 386, "CA0655");
         Berths.getOrCreateBerth(bpCambridgeCA, 1680, 522, "CADAPP").hasBorder();
         Berths.getOrCreateBerth(bpCambridgeCA, 1264, 378, "CAX150").hasBorder();
         Berths.getOrCreateBerth(bpCambridgeCA, 1264, 410, "CAX152").hasBorder();
@@ -860,6 +929,176 @@ public class SignalMap
         Berths.getOrCreateBerth(bpCambridgeCA, 1712, 666, "CA0079");
         Berths.getOrCreateBerth(bpCambridgeCA, 32,   666, "CAL187").hasBorder();
         Berths.getOrCreateBerth(bpCambridgeCA, 32,   698, "CAL188").hasBorder();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Signals">
+        Signals.getOrCreateSignal(bpCambridgeCA, 324,  150, "CA0211", "CA4A:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 270,  206, "CA0212", "CA4A:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 350,  206, "CA0220", "CA4A:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 404,  118, "CA0223", "CA4B:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 404,  150, "CA0225", "CA52:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 430,  206, "CA0228", "CA4B:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 484,  150, "CA0229", "CA4D:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 494,  206, "CA0230", "CA4D:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 548,  150, "CA0231", "CA4B:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 556,  206, "CA0232", "CA54:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 678,  150, "CA0235", "CA4B:8", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 686,  206, "CA0236", "CA4C:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 740,  150, "CA0237", "CA4E:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 750,  206, "CA0238", "CA4E:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 804,  150, "CA0239", "CA4C:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 814,  206, "CA0240", "CA4E:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 868,  150, "CA0241", "CA56:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 878,  206, "CA0244", "CA",     RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 932,  150, "CA0245", "CA",     LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 942,  206, "CA0246", "CA8A:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 996,  150, "CA0247", "CA7B:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1006, 206, "CA0248", "CA7B:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1060, 150, "CA0249", "CA7B:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1070, 206, "CA0250", "CA7B:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1124, 150, "CA0251", "CA7B:8", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1134, 206, "CA0252", "CA7C:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1188, 150, "CA0253", "CA7C:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1198, 206, "CA0254", "CA7C:3", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1252, 118, "CA0255", "CA7C:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1198, 150, "CA0256", "CAPRED", RIGHT); // PERM RED
+        Signals.getOrCreateSignal(bpCambridgeCA, 1252, 150, "CA0257", "CA7C:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1268, 246, "CA0259", "CA7C:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1278, 238, "CA0262", "CA7C:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1342, 270, "CA0270", "CA7D:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1412, 182, "CA0271", "CA7D:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1406, 224, "CA0272", "CA7D:3", DOWN);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1412, 118, "CA0273", "CA7D:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1438, 214, "CA0274", "CA7D:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1438, 206, "CA0276", "CA7D:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1438, 150, "CA0278", "CA7D:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1558, 150, "CA0281", "CA7D:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1556, 206, "CA0283", "CA7E:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1556, 214, "CA0285", "CA7E:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1572, 246, "CA0287", "CA7E:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1598, 206, "CA0288", "CA7E:3", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1598, 150, "CA0290", "CA7E:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1700, 150, "CA0293", "CA94:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1700, 206, "CA0295", "CA94:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1412, 86,  "CA0765", "CA7F:2", LEFT).isShunt();
+
+        Signals.getOrCreateSignal(bpCambridgeCA, 158,  494, "CA0078", "CA59:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 220,  494, "CA0080", "CA62:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 286,  494, "CA0082", "CA",     RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 212,  438, "CA0083", "CA59:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 446,  494, "CA0084", "CA5A:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 420,  406, "CA0085", "CA5A:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 420,  438, "CA0087", "CA62:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 510,  494, "CA0090", "CA12:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 500,  438, "CA0091", "CA00:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 574,  494, "CA0092", "CA00:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 564,  438, "CA0093", "CA12:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 638,  494, "CA0094", "CA13:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 628,  438, "CA0095", "CA06:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 702,  494, "CA0096", "CA13:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 692,  438, "CA0097", "CA00:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 758,  438, "CA0099", "CA00:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 766,  494, "CA0100", "CA00:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 276,  310, "CA0103", "CA3D:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 222,  366, "CA0104", "CA3D:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 340,  310, "CA0105", "CA43:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 348,  366, "CA0106", "CA",     RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 406,  310, "CA0107", "CA43:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 414,  366, "CA0108", "CA44:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 468,  310, "CA0109", "CA3D:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 476,  366, "CA0110", "CA3D:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 534,  310, "CA0113", "CA3D:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 572,  366, "CA0114", "CA",     RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 630,  310, "CA0115", "CA3D:8", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 638,  366, "CA0116", "CA3E:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 692,  310, "CA0117", "CA47:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 702,  366, "CA0118", "CA3E:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 756,  310, "CA0119", "CA3E:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 766,  366, "CA0120", "CA3E:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 820,  310, "CA0123", "CA00:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 862,  494, "CA0140", "CA00:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 916,  438, "CA0141", "CA",     LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 926,  494, "CA0142", "CA00:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 980,  438, "CA0143", "CA01:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 990,  494, "CA0144", "CA15:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1044, 438, "CA0145", "CA01:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1108, 406, "CA0147", "CA01:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1054, 494, "CA0148", "CA18:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1108, 438, "CA0149", "CA01:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1196, 374, "CA0150", "CA01:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1196, 430, "CA0152", "CA02:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1196, 438, "CA0154", "CA02:3", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1198, 494, "CA0156", "CA02:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1228, 526, "CA0158", "CA02:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1228, 534, "CA0160", "CA03:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1303, 438, "CA0161", "CA03:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1339, 438, "CA0162", "CA03:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1303, 494, "CA0163", "CA03:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1339, 494, "CA0164", "CA04:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1446, 374, "CA0171", "CA20:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1446, 430, "CA0173", "CA20:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1446, 438, "CA0175", "CA04:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1444, 494, "CA0177", "CA04:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1414, 526, "CA0179", "CA04:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1518, 494, "CA0180", "CA36:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1414, 534, "CA0181", "CA05:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1596, 496, "CA0188", "CA20:7", DOWN);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1630, 470, "CA0190", "CA21:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1684, 406, "CA0193", "CA",     LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1684, 438, "CA0195", "CA21:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1676, 496, "CA0200", "CA21:5", DOWN);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1720, 470, "CA0210", "CA21:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1140, 406, "CA0653", "CA05:6", LEFT).isShunt();
+        Signals.getOrCreateSignal(bpCambridgeCA, 1140, 438, "CA0655", "CA05:7", LEFT).isShunt();
+
+        Signals.getOrCreateSignal(bpCambridgeCA, 180,  662, "CA0019", "CA66:8", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 188,  718, "CA0020", "CA77:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 246,  662, "CA0021", "CA66:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 270,  718, "CA0022", "CA66:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 388,  662, "CA0023", "CA6F:4", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 334,  718, "CA0024", "CA77:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 398,  718, "CA0026", "CA77:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 452,  662, "CA0027", "CA66:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 462,  718, "CA0028", "CA66:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 516,  662, "CA0029", "CA6F:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 526,  718, "CA0030", "CA76:3", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 580,  662, "CA0031", "CA66:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 590,  718, "CA0032", "CA76:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 644,  662, "CA0033", "CA66:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 652,  718, "CA0034", "CA66:1", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 708,  662, "CA0037", "CA67:8", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 716,  718, "CA0038", "CA76:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 774,  662, "CA0039", "CA67:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 782,  718, "CA0040", "CA67:5", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 836,  662, "CA0041", "CA70:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 846,  718, "CA0042", "CA76:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 900,  662, "CA0043", "CA67:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 908,  718, "CA0044", "CA67:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 966,  662, "CA0045", "CA67:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 966,  718, "CA0047", "CA",     LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 974,  718, "CA0050", "CA68:7", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1028, 662, "CA0051", "CA71:7", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1038, 718, "CA0052", "CA75:8", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1092, 662, "CA0053", "CA71:6", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1102, 718, "CA0054", "CA",     RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1156, 662, "CA0055", "CA71:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1166, 718, "CA0056", "CA",     RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1220, 662, "CA0057", "CA71:2", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1230, 718, "CA0058", "CA",     RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1348, 662, "CA0059", "CA71:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1294, 718, "CA0060", "CA",     RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1412, 662, "CA0061", "CA68:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1358, 718, "CA0062", "CA72:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1358, 750, "CA0064", "CA75:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1518, 718, "CA0066", "CA73:6", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1510, 662, "CA0067", "CA69:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1582, 718, "CA0072", "CA69:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1572, 662, "CA0073", "CA59:1", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1646, 718, "CA0074", "CA59:2", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1636, 662, "CA0075", "CA59:3", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1710, 718, "CA0076", "CA59:4", RIGHT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1700, 662, "CA0077", "CA59:5", LEFT);
+        Signals.getOrCreateSignal(bpCambridgeCA, 1764, 662, "CA0079", "CA",     LEFT);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Nav buttons">
@@ -2945,7 +3184,7 @@ public class SignalMap
         Berths.getOrCreateBerth(bpIlford, 629,  617, "SI5084");
         Berths.getOrCreateBerth(bpIlford, 629,  637, "SI5086");
         Berths.getOrCreateBerth(bpIlford, 665,  426, "SI5087");
-        Berths.getOrCreateBerth(bpIlford, 761,  362, "SIA366");
+        Berths.getOrCreateBerth(bpIlford, 762,  362, "SIA366");
         Berths.getOrCreateBerth(bpIlford, 818,  362, "SIB366");
         Berths.getOrCreateBerth(bpIlford, 1257, 362, "SIICIN").hasBorder();
         Berths.getOrCreateBerth(bpIlford, 881,  362, "SIR366").hasBorder();
@@ -2959,6 +3198,131 @@ public class SignalMap
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Signals">
+        Signals.getOrCreateSignal(bpIlford, 286,  118, "SI0383", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 350,  118, "SI0385", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 416,  118, "SI0387", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 416,  182, "SI0389", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 478,  118, "SI0391", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 542,  118, "SI0393", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 542,  182, "SI0395", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 606,  118, "SI0397", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 670,  118, "SI0399", "SI2E:1", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 670,  182, "SI0401", "SI2E:2", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 734,  118, "SI0403", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 734,  182, "SI0405", "SI2E:3", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 798,  118, "SI0407", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 232,  174, "SI0410", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 862,  206, "SI0411", "SI2E:5", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 296,  174, "SI0412", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 862,  118, "SI0413", "SI2E:6", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 358,  174, "SI0414", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 942,  118, "SI0415", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 360,  238, "SI0416", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1008, 118, "SI0417", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 424,  174, "SI0418", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1008, 182, "SI0419", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 488,  174, "SI0420", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1070, 118, "SI0421", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 552,  174, "SI0422", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1134, 118, "SI0423", "SI2E:7", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 552,  238, "SI0424", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1134, 182, "SI0425", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 616,  174, "SI0426", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 680,  174, "SI0428", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1262, 182, "SI0429", "SI25:1", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 680,  238, "SI0430", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1326, 142, "SI0431", "SI25:2", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 744,  150, "SI0432", "SI2E:8", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1422, 118, "SI0433", "SI25:3", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 1422, 182, "SI0435", "SI25:4", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 808,  150, "SI0436", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 792,  238, "SI0438", "SI2F:1", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1486, 78,  "SI0439", "SI25:6", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 872,  174, "SI0440", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1630, 118, "SI0441", "SI25:7", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 950,  174, "SI0442", "SI2F:2", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1630, 182, "SI0443", "SI25:8", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 950,  238, "SI0444", "SI2F:3", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1016, 174, "SI0446", "SI2F:4", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1080, 174, "SI0448", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1080, 270, "SI0450", "SI2F:5", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1080, 238, "SI0454", "SI2F:6", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1208, 174, "SI0456", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1272, 142, "SI0458", "SI26:1", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1272, 150, "SI0460", "SI26:2", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1272, 238, "SI0462", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1352, 78,  "SI0464", "SI26:3", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1354, 146, "SI0468", "SI26:5", SignalPostDirection.NO_POST);
+        Signals.getOrCreateSignal(bpIlford, 1368, 174, "SI0470", "SI26:6", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1368, 238, "SI0472", "SI26:7", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1576, 174, "SI0474", "SI26:8", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1576, 238, "SI0476", "SI27:1", RIGHT);
+
+        Signals.getOrCreateSignal(bpIlford, 270,  390, "SI0321", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 270,  454, "SI0323", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 334,  454, "SI0325", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 400,  454, "SI0327", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 526,  390, "SI0329", "SI27:6", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 526,  454, "SI0331", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 590,  454, "SI0333", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 590,  358, "SI0335", "SI27:7", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 280,  542, "SI0336", "SI22:6", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 590,  542, "SI0337", "SI27:8", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 342,  510, "SI0338", "SI22:7", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 646,  406, "SI0339", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 342,  446, "SI0340", "SI22:8", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 718,  358, "SI0341", "SI28:1", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 718,  390, "SI0343", "SI28:2", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 718,  454, "SI0345", "SI28:3", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 408,  510, "SI0346", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 814,  390, "SI0347", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 880,  390, "SI0349", "SI28:4", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 472,  510, "SI0350", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 942,  454, "SI0351", "SI28:5", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 536,  510, "SI0352", "SI28:6", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 942,  390, "SI0353", "SI28:7", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 536,  542, "SI0354", "SI28:8", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1134, 390, "SI0355", "SI23:1", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 536,  446, "SI0356", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1198, 390, "SI0357", "SI23:2", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 608,  494, "SI0358", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1198, 454, "SI0359", "SI23:3", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 664,  542, "SI0360", "SI29:1", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 822,  446, "SI0362", "SI29:2", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1246, 326, "SI0361", "SI23:4", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 1326, 390, "SI0363", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 822,  510, "SI0364", "SI29:3", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1392, 390, "SI0365", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 760,  382, "SI0366", "SI29:4", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1392, 446, "SI0367", "SI23:5", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 822,  390, "SI0368", "SI29:5", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1392, 454, "SI0369", "SI23:6", LEFT);
+        Signals.getOrCreateSignal(bpIlford, 888,  446, "SI0370", "SI29:6", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1454, 390, "SI0371", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 952,  446, "SI0372", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1518, 390, "SI0373", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 1080, 446, "SI0374", "SI29:7", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1582, 390, "SI0375", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 1080, 510, "SI0376", "SI29:8", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1712, 390, "SI0377", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 1162, 318, "SI0378", "SI2A:1", SignalPostDirection.NO_POST);
+        Signals.getOrCreateSignal(bpIlford, 1712, 454, "SI0379", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 1162, 338, "SI0380", "SI2A:2", SignalPostDirection.NO_POST);
+        Signals.getOrCreateSignal(bpIlford, 1774, 390, "SI0381", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpIlford, 1162, 358, "SI0382", "SI2A:3", SignalPostDirection.NO_POST);
+        Signals.getOrCreateSignal(bpIlford, 1162, 378, "SI0384", "SI2A:4", SignalPostDirection.NO_POST);
+        Signals.getOrCreateSignal(bpIlford, 1144, 446, "SI0386", "SI23:7", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1208, 446, "SI0388", "SI07:2", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1208, 510, "SI0390", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1334, 446, "SI0392", "SI23:8", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1400, 446, "SI0394", "SI24:1", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1464, 446, "SI0396", "SI24:2", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1528, 446, "SI0398", "SI24:3", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1528, 510, "SI0400", "SI24:4", RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1592, 446, "SI0402", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1654, 446, "SI0404", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1720, 446, "SI0406", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpIlford, 1720, 510, "SI0408", "SI",     RIGHT);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Stations">
@@ -2983,101 +3347,11 @@ public class SignalMap
     private void initStratford()
     {
         //<editor-fold defaultstate="collapsed" desc="TD Berths">
-        Berths.getOrCreateBerth(bpStratford, 42,   186, "LSR009").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  186, "LSFC09");
-        Berths.getOrCreateBerth(bpStratford, 170,  186, "LSFB09");
-        Berths.getOrCreateBerth(bpStratford, 234,  186, "LSFA09");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   218, "LSR011").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  218, "LSFC11");
-        Berths.getOrCreateBerth(bpStratford, 170,  218, "LSFB11");
-        Berths.getOrCreateBerth(bpStratford, 234,  218, "LSFA11");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   250, "LSR013").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  250, "LSFC13");
-        Berths.getOrCreateBerth(bpStratford, 170,  250, "LSFB13");
-        Berths.getOrCreateBerth(bpStratford, 234,  250, "LSFA13");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   282, "LSR015").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  282, "LSFC15");
-        Berths.getOrCreateBerth(bpStratford, 170,  282, "LSFB15");
-        Berths.getOrCreateBerth(bpStratford, 234,  282, "LSFA15");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   314, "LSR017").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  314, "LSFC17");
-        Berths.getOrCreateBerth(bpStratford, 170,  314, "LSFB17");
-        Berths.getOrCreateBerth(bpStratford, 234,  314, "LSFA17");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   346, "LSR019").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  346, "LSFC19");
-        Berths.getOrCreateBerth(bpStratford, 170,  346, "LSFB19");
-        Berths.getOrCreateBerth(bpStratford, 234,  346, "LSFA19");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   378, "LSR021").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  378, "LSFC21");
-        Berths.getOrCreateBerth(bpStratford, 170,  378, "LSFB21");
-        Berths.getOrCreateBerth(bpStratford, 234,  378, "LSFA21");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   410, "LSR023").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  410, "LSFC23");
-        Berths.getOrCreateBerth(bpStratford, 170,  410, "LSFB23");
-        Berths.getOrCreateBerth(bpStratford, 234,  410, "LSFA23");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   442, "LSR025").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  442, "LSFC25");
-        Berths.getOrCreateBerth(bpStratford, 170,  442, "LSFB25");
-        Berths.getOrCreateBerth(bpStratford, 234,  442, "LSFA25");
         Berths.getOrCreateBerth(bpStratford, 330,  442, "LS0027");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   474, "LSR029").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  474, "LSFC29");
-        Berths.getOrCreateBerth(bpStratford, 170,  474, "LSFB29");
-        Berths.getOrCreateBerth(bpStratford, 234,  474, "LSFA29");
         Berths.getOrCreateBerth(bpStratford, 330,  474, "LS0031");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   506, "LSR033").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  506, "LSFC33");
-        Berths.getOrCreateBerth(bpStratford, 170,  506, "LSFB33");
-        Berths.getOrCreateBerth(bpStratford, 234,  506, "LSFA33");
         Berths.getOrCreateBerth(bpStratford, 298,  506, "LS0035");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   538, "LSR037").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  538, "LSFC37");
-        Berths.getOrCreateBerth(bpStratford, 170,  538, "LSFB37");
-        Berths.getOrCreateBerth(bpStratford, 234,  538, "LSFA37");
         Berths.getOrCreateBerth(bpStratford, 298,  538, "LS0039");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   570, "LSR041").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  570, "LSFC41");
-        Berths.getOrCreateBerth(bpStratford, 170,  570, "LSFB41");
-        Berths.getOrCreateBerth(bpStratford, 234,  570, "LSFA41");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   602, "LSR043").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  602, "LSFC43");
-        Berths.getOrCreateBerth(bpStratford, 170,  602, "LSFB43");
-        Berths.getOrCreateBerth(bpStratford, 234,  602, "LSFA43");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   634, "LSR045").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  634, "LSFC45");
-        Berths.getOrCreateBerth(bpStratford, 170,  634, "LSFB45");
-        Berths.getOrCreateBerth(bpStratford, 234,  634, "LSFA45");
         Berths.getOrCreateBerth(bpStratford, 282,  634, "LS0047");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   666, "LSR049").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  666, "LSFC49");
-        Berths.getOrCreateBerth(bpStratford, 170,  666, "LSFB49");
-        Berths.getOrCreateBerth(bpStratford, 234,  666, "LSFA49");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   698, "LSR051").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  698, "LSFC51");
-        Berths.getOrCreateBerth(bpStratford, 170,  698, "LSFB51");
-        Berths.getOrCreateBerth(bpStratford, 234,  698, "LSFA51");
-
-        Berths.getOrCreateBerth(bpStratford, 42,   730, "LSR053").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 106,  730, "LSFC53");
-        Berths.getOrCreateBerth(bpStratford, 170,  730, "LSFB53");
-        Berths.getOrCreateBerth(bpStratford, 234,  730, "LSFA53");
-
         Berths.getOrCreateBerth(bpStratford, 522,  474, "LS0054");
         Berths.getOrCreateBerth(bpStratford, 522,  442, "LS0055");
         Berths.getOrCreateBerth(bpStratford, 442,  514, "LS0056");
@@ -3122,6 +3396,78 @@ public class SignalMap
         Berths.getOrCreateBerth(bpStratford, 1034, 634, "LS0203");
         Berths.getOrCreateBerth(bpStratford, 1034, 602, "LS0210");
         Berths.getOrCreateBerth(bpStratford, 1034, 666, "LS0212");
+        Berths.getOrCreateBerth(bpStratford, 234,  186, "LSFA09");
+        Berths.getOrCreateBerth(bpStratford, 234,  218, "LSFA11");
+        Berths.getOrCreateBerth(bpStratford, 234,  250, "LSFA13");
+        Berths.getOrCreateBerth(bpStratford, 234,  282, "LSFA15");
+        Berths.getOrCreateBerth(bpStratford, 234,  314, "LSFA17");
+        Berths.getOrCreateBerth(bpStratford, 234,  346, "LSFA19");
+        Berths.getOrCreateBerth(bpStratford, 234,  378, "LSFA21");
+        Berths.getOrCreateBerth(bpStratford, 234,  410, "LSFA23");
+        Berths.getOrCreateBerth(bpStratford, 234,  442, "LSFA25");
+        Berths.getOrCreateBerth(bpStratford, 234,  474, "LSFA29");
+        Berths.getOrCreateBerth(bpStratford, 234,  506, "LSFA33");
+        Berths.getOrCreateBerth(bpStratford, 234,  538, "LSFA37");
+        Berths.getOrCreateBerth(bpStratford, 234,  570, "LSFA41");
+        Berths.getOrCreateBerth(bpStratford, 234,  602, "LSFA43");
+        Berths.getOrCreateBerth(bpStratford, 234,  634, "LSFA45");
+        Berths.getOrCreateBerth(bpStratford, 234,  666, "LSFA49");
+        Berths.getOrCreateBerth(bpStratford, 234,  698, "LSFA51");
+        Berths.getOrCreateBerth(bpStratford, 234,  730, "LSFA53");
+        Berths.getOrCreateBerth(bpStratford, 170,  186, "LSFB09");
+        Berths.getOrCreateBerth(bpStratford, 170,  218, "LSFB11");
+        Berths.getOrCreateBerth(bpStratford, 170,  250, "LSFB13");
+        Berths.getOrCreateBerth(bpStratford, 170,  282, "LSFB15");
+        Berths.getOrCreateBerth(bpStratford, 170,  314, "LSFB17");
+        Berths.getOrCreateBerth(bpStratford, 170,  346, "LSFB19");
+        Berths.getOrCreateBerth(bpStratford, 170,  378, "LSFB21");
+        Berths.getOrCreateBerth(bpStratford, 170,  410, "LSFB23");
+        Berths.getOrCreateBerth(bpStratford, 170,  442, "LSFB25");
+        Berths.getOrCreateBerth(bpStratford, 170,  474, "LSFB29");
+        Berths.getOrCreateBerth(bpStratford, 170,  506, "LSFB33");
+        Berths.getOrCreateBerth(bpStratford, 170,  538, "LSFB37");
+        Berths.getOrCreateBerth(bpStratford, 170,  570, "LSFB41");
+        Berths.getOrCreateBerth(bpStratford, 170,  602, "LSFB43");
+        Berths.getOrCreateBerth(bpStratford, 170,  634, "LSFB45");
+        Berths.getOrCreateBerth(bpStratford, 170,  666, "LSFB49");
+        Berths.getOrCreateBerth(bpStratford, 170,  698, "LSFB51");
+        Berths.getOrCreateBerth(bpStratford, 170,  730, "LSFB53");
+        Berths.getOrCreateBerth(bpStratford, 106,  186, "LSFC09");
+        Berths.getOrCreateBerth(bpStratford, 106,  218, "LSFC11");
+        Berths.getOrCreateBerth(bpStratford, 106,  250, "LSFC13");
+        Berths.getOrCreateBerth(bpStratford, 106,  282, "LSFC15");
+        Berths.getOrCreateBerth(bpStratford, 106,  314, "LSFC17");
+        Berths.getOrCreateBerth(bpStratford, 106,  346, "LSFC19");
+        Berths.getOrCreateBerth(bpStratford, 106,  378, "LSFC21");
+        Berths.getOrCreateBerth(bpStratford, 106,  410, "LSFC23");
+        Berths.getOrCreateBerth(bpStratford, 106,  442, "LSFC25");
+        Berths.getOrCreateBerth(bpStratford, 106,  474, "LSFC29");
+        Berths.getOrCreateBerth(bpStratford, 106,  506, "LSFC33");
+        Berths.getOrCreateBerth(bpStratford, 106,  538, "LSFC37");
+        Berths.getOrCreateBerth(bpStratford, 106,  570, "LSFC41");
+        Berths.getOrCreateBerth(bpStratford, 106,  602, "LSFC43");
+        Berths.getOrCreateBerth(bpStratford, 106,  634, "LSFC45");
+        Berths.getOrCreateBerth(bpStratford, 106,  666, "LSFC49");
+        Berths.getOrCreateBerth(bpStratford, 106,  698, "LSFC51");
+        Berths.getOrCreateBerth(bpStratford, 106,  730, "LSFC53");
+        Berths.getOrCreateBerth(bpStratford, 42,   186, "LSR009").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   218, "LSR011").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   250, "LSR013").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   282, "LSR015").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   314, "LSR017").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   346, "LSR019").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   378, "LSR021").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   410, "LSR023").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   442, "LSR025").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   474, "LSR029").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   506, "LSR033").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   538, "LSR037").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   570, "LSR041").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   602, "LSR043").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   634, "LSR045").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   666, "LSR049").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   698, "LSR051").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 42,   730, "LSR053").hasBorder();
 
         Berths.getOrCreateBerth(bpStratford, 1098, 602, "SI0220");
         Berths.getOrCreateBerth(bpStratford, 1098, 570, "SI0221");
@@ -3158,7 +3504,7 @@ public class SignalMap
         Berths.getOrCreateBerth(bpStratford, 1610, 634, "SI0266");
         Berths.getOrCreateBerth(bpStratford, 1546, 634, "SI0267");
         Berths.getOrCreateBerth(bpStratford, 1610, 682, "SI0268");
-        Berths.getOrCreateBerth(bpStratford, 1582, 474, "SI0269", "SI1294");
+        Berths.getOrCreateBerth(bpStratford, 1582, 474, "SI0269");
         Berths.getOrCreateBerth(bpStratford, 1658, 570, "SI0273", "SI0270");
         Berths.getOrCreateBerth(bpStratford, 1658, 474, "SI0274");
         Berths.getOrCreateBerth(bpStratford, 1658, 602, "SI0275");
@@ -3202,9 +3548,10 @@ public class SignalMap
         Berths.getOrCreateBerth(bpStratford, 1514, 378, "SI0334");
         Berths.getOrCreateBerth(bpStratford, 1546, 394, "SI0909");
         Berths.getOrCreateBerth(bpStratford, 1498, 394, "SI0911");
-        Berths.getOrCreateBerth(bpStratford, 1546, 490, "SI1292");
-        Berths.getOrCreateBerth(bpStratford, 1482, 450, "SI1296").hasBorder();
-        Berths.getOrCreateBerth(bpStratford, 1258, 74,  "SI1424");
+        Berths.getOrCreateBerth(bpStratford, 1537, 438, "SI1292").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 1591, 438, "SI1294").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 1482, 454, "SI1296").hasBorder();
+        Berths.getOrCreateBerth(bpStratford, 1258, 18,  "SI1424").hasBorder();
         Berths.getOrCreateBerth(bpStratford, 1370, 474, "SI5065");
         Berths.getOrCreateBerth(bpStratford, 1298, 474, "SILSBY").hasBorder();
         Berths.getOrCreateBerth(bpStratford, 1274, 738, "SIU518").hasBorder();
@@ -3333,6 +3680,7 @@ public class SignalMap
         Signals.getOrCreateSignal(bpStratford, 1240, 686, "SI0230", "SI",     RIGHT);
         Signals.getOrCreateSignal(bpStratford, 1294, 630, "SI0231", "SI20:5", LEFT);
         Signals.getOrCreateSignal(bpStratford, 1352, 558, "SI0234", "SI2F:7", RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1286, 688, "SI0235", "SI20:6", DOWN);
         Signals.getOrCreateSignal(bpStratford, 1406, 502, "SI0237", "SI2F:8", LEFT);
         Signals.getOrCreateSignal(bpStratford, 1406, 558, "SI0239", "SI30:1", LEFT);
         Signals.getOrCreateSignal(bpStratford, 1352, 566, "SI0240", "SI20:7", RIGHT);
@@ -3350,15 +3698,17 @@ public class SignalMap
         Signals.getOrCreateSignal(bpStratford, 1454, 630, "SI0255", "SI2A:5", LEFT);
         Signals.getOrCreateSignal(bpStratford, 1464, 686, "SI0256", "SI2A:6", RIGHT);
         Signals.getOrCreateSignal(bpStratford, 1518, 630, "SI0257", "SI2A:7", LEFT);
+        Signals.getOrCreateSignal(bpStratford, 1534, 502, "SI0258", "SI31:2", UP);
         Signals.getOrCreateSignal(bpStratford, 1566, 526, "SI0259", "SI31:3", LEFT);
         Signals.getOrCreateSignal(bpStratford, 1566, 558, "SI0261", "SI31:4", LEFT);
         Signals.getOrCreateSignal(bpStratford, 1606, 590, "SI0262", "SI31:5", RIGHT);
         Signals.getOrCreateSignal(bpStratford, 1566, 566, "SI0263", "SI31:6", LEFT);
         Signals.getOrCreateSignal(bpStratford, 1606, 598, "SI0264", "SI31:7", RIGHT);
         Signals.getOrCreateSignal(bpStratford, 1566, 622, "SI0265", "SI31:8", LEFT);
-        Signals.getOrCreateSignal(bpStratford, 1606, 654, "SI0266", "SI32:1", RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1606, 654, "SI0266", "SI2A:8", RIGHT);
         Signals.getOrCreateSignal(bpStratford, 1598, 630, "SI0267", "SI2B:1", LEFT);
         Signals.getOrCreateSignal(bpStratford, 1606, 702, "SI0268", "SI2B:2", RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1614, 502, "SI0269", "SI32:1", UP);
         Signals.getOrCreateSignal(bpStratford, 1656, 590, "SI0270", "SI32:2", RIGHT);
         Signals.getOrCreateSignal(bpStratford, 1712, 590, "SI0273", "SI32:3", LEFT);
         Signals.getOrCreateSignal(bpStratford, 1712, 598, "SI0275", "SI32:5", LEFT);
@@ -3410,10 +3760,27 @@ public class SignalMap
         Signals.getOrCreateSignal(bpStratford, 1480, 318, "SI0326", "SI22:1", RIGHT);
         Signals.getOrCreateSignal(bpStratford, 1480, 326, "SI0328", "SI22:2", RIGHT);
         Signals.getOrCreateSignal(bpStratford, 1480, 382, "SI0330", "SI22:3", RIGHT);
+
+        Signals.getOrCreateSignal(bpStratford, 1224, 142, "SIS700 to SI0274", "SI1C:7", RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1224, 152, "SIS700 to SI0276", "SI1C:8", RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1278, 86,  "SIS701", "SI1D:2", LEFT);
+        Signals.getOrCreateSignal(bpStratford, 1326, 86,  "SIS703", "SI",     UP);
+        Signals.getOrCreateSignal(bpStratford, 1336, 142, "SIS704", "SI1D:6", RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1390, 86,  "SIS705", "SI1E:1", LEFT);
+        Signals.getOrCreateSignal(bpStratford, 1480, 174, "SIS706", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1480, 206, "SIS708", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1454, 86,  "SIS707", "SI1E:4", LEFT);
+        Signals.getOrCreateSignal(bpStratford, 1480, 142, "SIS712", "SI1F:2", RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1598, 86,  "SIS713", "SI1F:3", LEFT);
+        Signals.getOrCreateSignal(bpStratford, 1598, 150, "SIS715", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpStratford, 1624, 142, "SIS716", "SI1F:7", RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1598, 182, "SIS717", "SI",     LEFT);
+        Signals.getOrCreateSignal(bpStratford, 1688, 142, "SIS718", "SI",     RIGHT);
+        Signals.getOrCreateSignal(bpStratford, 1624, 86,  "SIS770", "SI",     RIGHT);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Stations">
-        largeStation(bpStratford, 1620, 434, "STRATFORD",               "SRA");
+        largeStation(bpStratford, 1620, 738, "STRATFORD",               "SRA");
         largeStation(bpStratford, 56,   140, "LONDON LIVERPOOL STREET", "LST");
 
         smallStation(bpStratford, 845,  410, "BETHNAL",     "BET"); // GREEN
@@ -3749,12 +4116,11 @@ public class SignalMap
 
     public class BackgroundPanel extends JPanel
     {
-        private static final String imageDir  = "/eastangliamapclient/resources/";
         private final Font clockFont = EastAngliaMapClient.TD_FONT.deriveFont(45f);
         private BufferedImage image;
         private BufferedImage bufferedImage;
 
-        public final static int BP_DEFAULT_WIDTH  = DEFAULT_WIDTH  - 23;
+        public final static int BP_DEFAULT_WIDTH  = DEFAULT_WIDTH - 23;
         public final static int BP_DEFAULT_HEIGHT = DEFAULT_HEIGHT - 68;
 
         BackgroundPanel(String imageName)
@@ -3764,7 +4130,7 @@ public class SignalMap
             setFont(clockFont);
             setLayout(null);
             setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-            setPreferredSize(new Dimension(BP_DEFAULT_WIDTH, BP_DEFAULT_HEIGHT));
+            setPreferredSize(new Dimension(1854, 860));
             setOpaque(true);
 
             setImage(imageName);
@@ -3775,21 +4141,21 @@ public class SignalMap
 
         public void setImage(String imageName)
         {
-            try (InputStream in = getClass().getResourceAsStream(imageDir + imageName))
+            try (InputStream in = getClass().getResourceAsStream("/eastangliamapclient/resources/" + imageName))
             {
                 BufferedImage inImage = ImageIO.read(in);
 
                 BufferedImage bimg = new BufferedImage(BP_DEFAULT_WIDTH, BP_DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
                 Graphics2D g2d = bimg.createGraphics();
-                g2d.drawImage(inImage, 0, 0, BP_DEFAULT_WIDTH, BP_DEFAULT_HEIGHT, Color.WHITE, null);
+                g2d.drawImage(inImage, 0, 0, inImage.getWidth(), inImage.getHeight(), Color.WHITE, null);
                 g2d.dispose();
 
                 image = bimg;
             }
             catch (IllegalArgumentException | IOException e)
             {
-                EastAngliaMapClient.printErr("Unable to read image file: \"" + imageDir + String.valueOf(imageName) + "\"");
+                EastAngliaMapClient.printErr("Unable to read image file: \"/eastangliamapclient/resources/" + String.valueOf(imageName) + "\"");
             }
 
             bufferedImage = new BufferedImage(BP_DEFAULT_WIDTH, BP_DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
@@ -3800,7 +4166,7 @@ public class SignalMap
         {
             Graphics2D g2d = (Graphics2D) g.create();
 
-            g2d.clearRect(0, 0, BP_DEFAULT_WIDTH, BP_DEFAULT_HEIGHT);
+            g2d.clearRect(0, 0, Math.max(g.getClipBounds().width, BP_DEFAULT_WIDTH), Math.max(g.getClipBounds().height, BP_DEFAULT_HEIGHT));
             if (isOpaque())
             {
                 g2d.setColor(EastAngliaMapClient.BLACK);
