@@ -11,14 +11,10 @@ public class BerthContextMenu extends JPopupMenu
     private Berth berth;
     public boolean actionInProgress = false;
 
-    ActionListener clickEvent = new ActionListener()
+    ActionListener clickEvent = (ActionEvent evt) ->
     {
-        @Override
-        public void actionPerformed(ActionEvent evt)
-        {
-            actionInProgress = true;
-            EventHandler.berthMenuClick(evt, berth);
-        }
+        actionInProgress = true;
+        EventHandler.berthMenuClick(evt, berth);
     };
 
     FocusListener menuFocus = new FocusListener()
@@ -57,7 +53,7 @@ public class BerthContextMenu extends JPopupMenu
 
         if (berth.isProperHeadcode())
         {
-            JMenuItem search = new JMenuItem("Search Headcode");
+            JMenuItem search = new JMenuItem("Search Headcode (RTT)");
             search.addActionListener(clickEvent);
             search.addFocusListener(menuFocus);
             add(search);

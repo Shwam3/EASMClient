@@ -72,14 +72,7 @@ public class SysTrayHandler
 
         showWindow.addActionListener(menuListener);
         reconnect.addActionListener(menuListener);
-        screenshot.addItemListener(new ItemListener()
-        {
-            @Override
-            public void itemStateChanged(ItemEvent evt)
-            {
-                EventHandler.screencap();
-            }
-        });
+        screenshot.addItemListener((ItemEvent evt) -> { EventHandler.screencap(); });
         exit.addActionListener(menuListener);
 
         pm.add(showWindow);

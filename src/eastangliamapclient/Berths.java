@@ -15,7 +15,7 @@ public class Berths
         if (berth != null)
         {
             if (berth.getParent() != pnl)
-                pnl.add(berth);
+                pnl.add(berth, SignalMap.LAYER_BERTHS);
 
             berth.setLocation(x, y);
             return berth;
@@ -79,6 +79,11 @@ public class Berths
         for (String id : berthIds)
             printBerths("  " + id, false);
     }
+
+    /*public static void reset()
+    {
+        berthMap = new HashMap<>(berthMap.size());
+    }*/
 
     public static void toggleBerthsOpacities()
     {

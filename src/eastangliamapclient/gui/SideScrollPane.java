@@ -1,6 +1,7 @@
 package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
+import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseWheelEvent;
 import javax.swing.JScrollBar;
@@ -8,9 +9,10 @@ import javax.swing.JScrollPane;
 
 public class SideScrollPane extends JScrollPane
 {
-    public SideScrollPane()
+
+    public SideScrollPane(Component view)
     {
-        super();
+        super(view);
 
         verticalScrollBar.setUnitIncrement(20);
         horizontalScrollBar.setUnitIncrement(20);

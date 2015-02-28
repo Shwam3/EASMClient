@@ -14,7 +14,7 @@ public class Signals
         if (signal != null)
         {
             if (signal.getParent() != pnl)
-                pnl.add(signal);
+                pnl.add(signal, SignalMap.LAYER_SIGNALS);
 
             signal.setLocation(x, y);
             return signal;
@@ -45,6 +45,11 @@ public class Signals
         return null;
     }
 
+    /*public static void reset()
+    {
+        signalMap = new HashMap<>(signalMap.size());
+    }*/
+
     public static void toggleSignalVisibilities()
     {
         EastAngliaMapClient.signalsVisible = !EastAngliaMapClient.signalsVisible;
@@ -55,6 +60,7 @@ public class Signals
 
     public static enum SignalPostDirection
     {
+        TEXT,
         TRTS,
         LEFT,
         RIGHT,
@@ -66,5 +72,33 @@ public class Signals
         GANTRY_DOWN,
         NO_POST,
         TEST;
+
+        public static SignalPostDirection getDirection(Object obj)
+        {
+            if (obj instanceof SignalPostDirection)
+                return (SignalPostDirection) obj;
+
+            switch (String.valueOf(obj).toLowerCase().trim())
+            {
+                case "left":
+                    return LEFT;
+                case "right":
+                    return RIGHT;
+                case "up":
+                    return UP;
+                case "down":
+                    return DOWN;
+                case "trts":
+                    return TRTS;
+                case "text":
+                    return TEXT;
+                case "none":
+                    return NO_POST;
+                case "test":
+                    return TEST;
+            }
+
+            return null;
+        }
     }
 }

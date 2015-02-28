@@ -2,10 +2,7 @@ package eastangliamapclient;
 
 import eastangliamapclient.Signals.SignalPostDirection;
 import eastangliamapclient.gui.SignalMap;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.*;
 import javax.swing.JComponent;
 
 public class Signal extends JComponent
@@ -19,17 +16,19 @@ public class Signal extends JComponent
     private static final Color SIGNAL_POST_COLOUR = Color.WHITE;
 
     private static final int STATE_BLANK   = -1;
-    private static final int STATE_ON      = 0;
-    private static final int STATE_OFF     = 1;
+    private static final int STATE_0      = 0;
+    private static final int STATE_1     = 1;
     private static final int STATE_UNKNOWN = 2;
+
+    private boolean isShunt = false;
+    private String TEXT_0  = null;
+    private String TEXT_1 = null;
 
     private final String          SIGNAL_ID;
     private final String          DATA_ID;
     private       SignalPostDirection SIGNAL_DIRECTION;
     private       Point           LOCATION;
 
-    private       boolean         isShunt    = false;
-    //private       boolean         isCrossing = false;
 
     private int currentState = STATE_UNKNOWN;
 
@@ -44,10 +43,10 @@ public class Signal extends JComponent
         setFont(EastAngliaMapClient.TD_FONT.deriveFont(8f));
 
         if (pnl != null)
-            pnl.add(this);
+            pnl.add(this, SignalMap.LAYER_SIGNALS);
 
         if (dataId.endsWith("PRED"))
-            currentState = STATE_ON;
+            currentState = STATE_0;
         else if (dataId.trim().length() == 6)
         {
             Signals.putSignal(dataId, this);
@@ -56,7 +55,7 @@ public class Signal extends JComponent
         else
             currentState = STATE_BLANK;
 
-        setForeground(currentState == STATE_ON ? STATE_COLOUR_ON : (currentState == STATE_OFF ? STATE_COLOUR_OFF : (currentState == STATE_UNKNOWN ? STATE_COLOUR_UNKNOWN : STATE_COLOUR_BLANK)));
+        setForeground(currentState == STATE_0 ? STATE_COLOUR_ON : (currentState == STATE_1 ? STATE_COLOUR_OFF : (currentState == STATE_UNKNOWN ? STATE_COLOUR_UNKNOWN : STATE_COLOUR_BLANK)));
 
         if (description == null || description.trim().equals(""))
             description = "Unnamed";
@@ -67,7 +66,8 @@ public class Signal extends JComponent
     }
 
     public void isShunt() { isShunt = true; }
-    //public void isCrossing() { isCrossing = true; }
+    public void set0Text(String text) { TEXT_0 = text; setDirection(SignalPostDirection.TEXT); }
+    public void set1Text(String text) { TEXT_1 = text; setDirection(SignalPostDirection.TEXT); }
 
     public void setDirection(SignalPostDirection direction)
     {
@@ -77,6 +77,13 @@ public class Signal extends JComponent
 
         switch (direction)
         {
+            case TEXT:
+                int width = 24;
+                if (TEXT_0 != null && TEXT_1 != null) width = Math.max(TEXT_0.length(), TEXT_1.length()) * 6;
+                if (TEXT_0 == null && TEXT_1 != null) width = TEXT_1.length() * 6;
+                if (TEXT_0 != null && TEXT_1 == null) width = TEXT_0.length() * 6;
+                setBounds(x, y, width, 8);
+                break;
             case TRTS:
                 setBounds(x - 12, y - 4, 24, 8);
                 break;
@@ -136,7 +143,7 @@ public class Signal extends JComponent
 
             currentState = state;
 
-            setForeground(currentState == STATE_ON ? STATE_COLOUR_ON : (currentState == STATE_OFF ? (isShunt ? Color.WHITE : STATE_COLOUR_OFF) : (currentState == STATE_UNKNOWN ? STATE_COLOUR_UNKNOWN : STATE_COLOUR_BLANK)));
+            setForeground(currentState == STATE_0 ? STATE_COLOUR_ON : (currentState == STATE_1 ? (isShunt ? Color.WHITE : STATE_COLOUR_OFF) : (currentState == STATE_UNKNOWN ? STATE_COLOUR_UNKNOWN : STATE_COLOUR_BLANK)));
         }
 
         repaint();
@@ -160,11 +167,30 @@ public class Signal extends JComponent
             g2d.fillRect(0, 0, getWidth(), getHeight());
 
             g2d.setColor(c);
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 
             switch (SIGNAL_DIRECTION)
             {
+                case TEXT:
+                    if (TEXT_0 != null && TEXT_1 != null)
+                    {
+                        g2d.setColor(EastAngliaMapClient.GREEN);
+                        g2d.drawString(currentState == STATE_1 ? TEXT_1 : currentState == STATE_0 ? TEXT_0 : "N/A", 0, 8);
+                    }
+                    else if (TEXT_0 != null && TEXT_1 == null)
+                    {
+                        g2d.setColor(currentState == STATE_0 ? EastAngliaMapClient.GREEN : new Color(10, 10, 10));
+                        g2d.drawString(currentState == STATE_1 || currentState == STATE_0 ? TEXT_0 : "N/A", 0, 8);
+                    }
+                    else if (TEXT_0 == null && TEXT_1 != null)
+                    {
+                        g2d.setColor(currentState == STATE_1 ? EastAngliaMapClient.GREEN : new Color(10, 10, 10));
+                        g2d.drawString(currentState == STATE_1 || currentState == STATE_0 ? TEXT_1 : "N/A", 0, 8);
+                    }
+                    break;
+
                 case TRTS:
-                    g2d.setColor(currentState == STATE_OFF ? EastAngliaMapClient.GREEN : new Color(10, 10, 10));
+                    g2d.setColor(currentState == STATE_1 ? EastAngliaMapClient.GREEN : new Color(10, 10, 10));
                     g2d.drawString("TRTS", 0, 8);
                     break;
 

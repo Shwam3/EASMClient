@@ -7,13 +7,12 @@ import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 public class EastAngliaMapClient
 {
-    public static final String VERSION = "14";
+    public static final String VERSION = "15";
     public static final String host = "shwam3.ddns.net";
     public static final int    port = 6321;
 
@@ -58,44 +57,14 @@ public class EastAngliaMapClient
     public static boolean shownSystemTrayWarn  = false;
     public static boolean preventSleep         = true;
 
-    public static final boolean verbose = true;
+    public static final boolean verbose = false;
 
     public static void main(String[] args)
     {
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {}
 
-        try
-        {
-            int localVersion = Integer.parseInt(VERSION);
-
-            int remoteVersion = -1;
-            String downloadLocation = "";
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(new URL("https://raw.githubusercontent.com/Shwam3/EastAngliaSignalMapClient/master/version.txt").openStream())))
-            {
-                remoteVersion = Integer.parseInt(br.readLine());
-                downloadLocation = br.readLine();
-            }
-            catch (NumberFormatException e) {}
-
-            downloadLocation = (downloadLocation == null ? "http://easignalmap.altervista.org/downloads/" : downloadLocation);
-
-            if (remoteVersion > localVersion)
-            {
-                printStartup("New version available", false);
-                if (JOptionPane.showConfirmDialog(null, "A new version is available, download now?", "Updater", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
-                {
-                    Desktop.getDesktop().browse(new URI(downloadLocation));
-                    printStartup("Downloading new version from " + downloadLocation, false);
-                    System.exit(0);
-                }
-            }
-            else if (remoteVersion < Integer.parseInt(VERSION))
-                isPreRelease = true;
-        }
-        catch (FileNotFoundException e) { printStartup("Cant find remote version file", true); }
-        catch (URISyntaxException e) {}
-        catch (IOException e) { printStartup("Error reading remote version file", true); }
+        VersionChecker.checkVersion();
 
         System.setProperty("args", Arrays.deepToString(args));
 
@@ -150,7 +119,7 @@ public class EastAngliaMapClient
         if (Arrays.deepToString(args).contains("-screencap"))
         {
             screencappingActive = true;
-            EventHandler.startScreenCapture(60000 * 5);
+            EventHandler.initScreenCapture(60000 * 5);
         }
 
         EventQueue.invokeLater(new Runnable()
@@ -291,7 +260,7 @@ public class EastAngliaMapClient
         return clockSDF.format(new Date());
     }
 
-    private static void printStartup(String message, boolean toErr)
+    static void printStartup(String message, boolean toErr)
     {
         if (toErr)
             printErr("[Startup] " + message);

@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -67,7 +66,7 @@ public class EventHandler
                 berth.setOpaque(true);
 
                 if (berth.isProperHeadcode())
-                    Desktop.getDesktop().browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s%s", berth.getHeadcode(), evt.isControlDown() || berth.getHeadcode().matches("[0-9]{3}[A-Z]") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
+                    Desktop.getDesktop().browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s%s", berth.getHeadcode(), evt.isControlDown() || berth.getHeadcode().matches("([0-9]{3}[A-Z]|[4678].{3})") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
 
                 getRidOfBerth();
                 evt.consume();
@@ -84,7 +83,7 @@ public class EventHandler
     {
         String cmd = evt.getActionCommand();
 
-        if (cmd.equals("Search Headcode"))
+        if (cmd.equals("Search Headcode (RTT)"))
         {
             try
             {
@@ -209,6 +208,19 @@ public class EventHandler
                             }
                             EastAngliaMapClient.clean();
                             break;
+
+                        /*case "r":
+                            SignalMap sm = EastAngliaMapClient.frameSignalMap;
+                            Berths.reset();
+                            Signals.reset();
+                            EastAngliaMapClient.frameSignalMap = new SignalMap();
+
+                            sm.dispose();
+                            EastAngliaMapClient.frameSignalMap.setVisible(true);
+
+                            MessageHandler.requestAll();
+                            EastAngliaMapClient.frameSignalMap.readFromMap(EastAngliaMapClient.DataMap);
+                            break;*/
                     }
                 }
                 return evt.isConsumed();
@@ -245,15 +257,16 @@ public class EventHandler
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
-                    bp.repaint(780, 10, 280, 50);
+                if (EastAngliaMapClient.frameSignalMap != null)
+                    for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
+                        bp.repaint(780, 10, 280, 50);
             }
         });
         clockTimer.start();
     }
 
     //TODO: Remove next 5 methods
-    public static void startScreenCapture(int interval)
+    public static void initScreenCapture(int interval)
     {
         try
         {
@@ -275,27 +288,25 @@ public class EventHandler
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MILLISECOND, 500);
 
-                Executors.newScheduledThreadPool(1).scheduleAtFixedRate(new Runnable()
+                Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() ->
                 {
-                    @Override
-                    public void run()
+                    try
                     {
-                        try
+                        // 00:00 to 06:00 images every 10 mins
+                        if (Integer.parseInt(EastAngliaMapClient.getTime().substring(0, 2)) < 6 && Calendar.getInstance(TimeZone.getTimeZone("GMT")).get(Calendar.MINUTE) % 10 != 0)
+                            printScreencap("Not taking screencaps", false);
+                        else
                         {
-                            // 00:00 to 06:00 images every 10 mins
-                            if (Integer.parseInt(EastAngliaMapClient.getTime().substring(0, 2)) < 6)
-                                if (Calendar.getInstance(TimeZone.getTimeZone("GMT")).get(Calendar.MINUTE) % 10 != 0)
-                                    return;
-
                             if (EastAngliaMapClient.serverSocket != null && EastAngliaMapClient.screencap && EastAngliaMapClient.serverSocket.isConnected())
-                                EventQueue.invokeAndWait(new Runnable() { public void run() { takeScreencaps(); }});
+                                EventQueue.invokeAndWait(() -> { takeScreencaps(); });
                             else
                                 printScreencap("Not taking screencaps", false);
                         }
-                        catch (InterruptedException | InvocationTargetException e) { isScreencapping = false; }
-                        catch (Throwable t) { isScreencapping = false; }
                     }
+                    catch (Throwable t) { isScreencapping = false; }
                 }, calendar.getTime().getTime() - System.currentTimeMillis(), 120000, TimeUnit.MILLISECONDS);
+
+                System.currentTimeMillis();
             }
         });
 
@@ -321,7 +332,7 @@ public class EventHandler
             return;
         }
 
-        EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
+        EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.screencap ? " - Screencapping in progress" : ""));
 
         printScreencap("Updating images (" + EastAngliaMapClient.getTime() + ")", false);
 
@@ -424,8 +435,8 @@ public class EventHandler
                     SysTrayHandler.popup("Unable to create screencap \"All\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
                 }
 
-                String[] imageURLs = {"LiverpoolStStratford", "Ilford", "Shenfield", "Witham", "HackneyBrimsdown", "Harlow", "Colchester", "Clacton", "Ipswich", "CambridgeCA",
-                    "CambridgeEN", "Norwich", "All"};
+                String[] imageURLs = {"Norwich", "CambridgeEN", "CambridgeCA", "Ipswich", "Clacton", "Colchester",
+                    "Harlow", "HackneyBrimsdown",  "Witham", "Shenfield", "Ilford", "LiverpoolStStratford", "All"};
 
                 Collections.reverse(names);
                 names.add("All");
@@ -451,6 +462,7 @@ public class EventHandler
                     catch (IOException e) {}
                 }
 
+                EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
                 printScreencap("Finished updating website images in ~ " + (System.currentTimeMillis() - startTime) / 1000f + " secs", false);
 
                 EastAngliaMapClient.clean();
@@ -462,7 +474,7 @@ public class EventHandler
     {
         EastAngliaMapClient.screencap = !EastAngliaMapClient.screencap;
 
-        try { EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : "")); }
+        try { EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.screencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")); }
         catch (NullPointerException e) {}
     }
 

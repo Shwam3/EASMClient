@@ -162,7 +162,7 @@ public class Berth extends JComponent
 
         setToolTipText(tooltip.toString());
 
-        pnl.add(this);
+        pnl.add(this, SignalMap.LAYER_BERTHS);
     }
 
     /*public boolean setProblematicBerth(boolean isProblematic)

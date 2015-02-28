@@ -1,4 +1,13 @@
-v14 - Signals everywhere (01/02/15)
+v15 - Separation (28/02/15) Java 8
+  * The "data" (berth/signal placement &amp; names) is now separate from the client
+    (This means small updates to the map files will come separately to bug fixes etc.)
+  + Version checker & Auto-downloader
+  + 'Text' signals (allows for crossing indications, TRTS etc.)
+  
+  + Many auto signals given aspects
+  + Some missing signals added
+
+v14 - Signals everywhere (01/02/15) Java 8
   + Saxmundham Box signals
   + Clacton Panel signals
   * Cambridge (IECC) signals
@@ -15,7 +24,7 @@ v14 - Signals everywhere (01/02/15)
   * Minimise to System Tray defaults to off
   * System tray icon not appearing
 
-v13 - Signals (15/01/15)
+v13 - Signals (15/01/15) Java 7
   + Signals on EN panel (Not all correct)
   + "Program to an interface not an implementation" - Tinterweb
   * Keep PC awake now optional
@@ -25,7 +34,7 @@ v13 - Signals (15/01/15)
   * Walton branch layout
   + Chadwell Heath turnback siding (opens April 2015)
 
-V12 - Updates (24/25/14)
+V12 - Updates (24/25/14) Java 7
   * Reconnection bug
   + Side & Tab scrolling with mouse wheel
   + System tray (optional)
