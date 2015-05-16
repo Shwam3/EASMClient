@@ -9,7 +9,6 @@ import javax.swing.JScrollPane;
 
 public class SideScrollPane extends JScrollPane
 {
-
     public SideScrollPane(Component view)
     {
         super(view);

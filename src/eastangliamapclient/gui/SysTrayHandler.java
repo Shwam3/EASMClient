@@ -2,27 +2,34 @@ package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
 import static eastangliamapclient.EastAngliaMapClient.minimiseToSysTray;
-import static eastangliamapclient.EastAngliaMapClient.trayIcon;
-import eastangliamapclient.EventHandler;
-import java.awt.*;
-import java.awt.event.*;
+import eastangliamapclient.ScreencapManager;
+import java.awt.AWTException;
+import java.awt.CheckboxMenuItem;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class SysTrayHandler
 {
+    private static TrayIcon trayIcon;
+
     public static void initSysTray()
     {
         if (SystemTray.isSupported())
         {
-            ActionListener actionListener = new ActionListener()
+            ActionListener actionListener = (ActionEvent evt) ->
             {
-                @Override
-                public void actionPerformed(ActionEvent evt)
-                {
-                    EastAngliaMapClient.frameSignalMap.setVisible(true);
-                    EastAngliaMapClient.frameSignalMap.frame.requestFocus();
-                }
+                EastAngliaMapClient.frameSignalMap.setVisible(true);
+                EastAngliaMapClient.frameSignalMap.frame.requestFocus();
             };
             MouseListener mouseListener = new MouseAdapter()
             {
@@ -36,7 +43,7 @@ public class SysTrayHandler
             try
             {
                 trayIcon = new TrayIcon(ImageIO.read(SysTrayHandler.class.getResource("/eastangliamapclient/resources/TrayIcon.png")));
-                trayIcon.setToolTip("East Anglia Signal Map - v" + EastAngliaMapClient.VERSION);
+                trayIcon.setToolTip("East Anglia Signal Map Client - v" + EastAngliaMapClient.CLIENT_VERSION);
                 trayIcon.setImageAutoSize(true);
                 trayIcon.setPopupMenu(getPopupMenu());
                 trayIcon.addActionListener(actionListener);
@@ -55,24 +62,20 @@ public class SysTrayHandler
         final MenuItem reconnect = new MenuItem("Reconnect");
         final CheckboxMenuItem screenshot = new CheckboxMenuItem("Auto Screenshot", EastAngliaMapClient.screencap);
 
-        ActionListener menuListener = new ActionListener()
+        ActionListener menuListener = (ActionEvent evt) ->
         {
-            @Override
-            public void actionPerformed(ActionEvent evt)
-            {
-                Object src = evt.getSource();
-                if (src == exit)
-                    System.exit(0);
-                else if (src == showWindow)
-                    EastAngliaMapClient.frameSignalMap.setVisible(true);
-                else if (src == reconnect)
-                    EastAngliaMapClient.reconnect(true);
-            }
+            Object src = evt.getSource();
+            if (src == exit)
+                System.exit(0);
+            else if (src == showWindow)
+                EastAngliaMapClient.frameSignalMap.setVisible(true);
+            else if (src == reconnect)
+                EastAngliaMapClient.reconnect(true);
         };
 
         showWindow.addActionListener(menuListener);
         reconnect.addActionListener(menuListener);
-        screenshot.addItemListener((ItemEvent evt) -> { EventHandler.screencap(); });
+        screenshot.addItemListener((ItemEvent evt) -> { ScreencapManager.screencap(); });
         exit.addActionListener(menuListener);
 
         pm.add(showWindow);
@@ -88,12 +91,12 @@ public class SysTrayHandler
     public static void popup(String message, TrayIcon.MessageType type)
     {
         if (minimiseToSysTray && trayIcon != null)
-            trayIcon.displayMessage("East Anglia Signal Map - v" + EastAngliaMapClient.VERSION, message, type);
+            trayIcon.displayMessage("East Anglia Signal Map Client - v" + EastAngliaMapClient.CLIENT_VERSION, message, type);
     }
 
     public static void trayTooltip(String tooltip)
     {
         if (minimiseToSysTray && trayIcon != null)
-            trayIcon.setToolTip("East Anglia Signal Map - v" + EastAngliaMapClient.VERSION + (tooltip.equals("") ? "" : "\n") + tooltip);
+            trayIcon.setToolTip("East Anglia Signal Map Client - v" + EastAngliaMapClient.CLIENT_VERSION + (tooltip.equals("") ? "" : "\n") + tooltip);
     }
 }

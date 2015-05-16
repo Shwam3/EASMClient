@@ -2,17 +2,42 @@ package eastangliamapclient;
 
 import eastangliamapclient.gui.SignalMap;
 import eastangliamapclient.gui.SysTrayHandler;
-import java.awt.*;
-import java.io.*;
-import java.net.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 public class EastAngliaMapClient
 {
-    public static final String VERSION = "15";
+    public static final String CLIENT_VERSION = "16";
+    public static       String DATA_VERSION   = "0";
+
     public static final String host = "shwam3.ddns.net";
     public static final int    port = 6321;
 
@@ -22,7 +47,6 @@ public class EastAngliaMapClient
 
     public static Map<String, String> DataMap = new HashMap<>();
 
-    public static boolean logToFile        = true;
     public static boolean screencap        = false;
     public static boolean opaque           = false;
     public static boolean showDescriptions = false; // not headcodes
@@ -30,7 +54,6 @@ public class EastAngliaMapClient
     public static boolean signalsVisible   = true;
 
     public static SignalMap frameSignalMap;
-    public static TrayIcon  trayIcon;
     public static String    clientName;
     public static boolean   connected = false;
     public static boolean   kicked = false;
@@ -116,90 +139,82 @@ public class EastAngliaMapClient
         catch (FileNotFoundException e) {}
         catch (IOException e) { printThrowable(e, "FTP Login"); }
 
+        EventQueue.invokeLater(() ->
+        {
+            try
+            {
+                TD_FONT = Font.createFont(0, EastAngliaMapClient.class.getResourceAsStream("/eastangliamapclient/resources/TDBerth-DM.ttf")).deriveFont(16f);
+            }
+            catch (FontFormatException | IOException e)
+            {
+                TD_FONT = new Font("Monospaced", 0, 19);
+
+                printStartup("Couldn\'t create font, stuff will look strange", true);
+                printThrowable(e, "Startup - Font");
+            }
+
+            frameSignalMap = new SignalMap(windowSize);
+
+            SysTrayHandler.initSysTray();
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() ->
+            {
+                try { MessageHandler.stop(); }
+                catch (NullPointerException e) {}
+            }, "shutdownHook"));
+
+            try
+            {
+                lastReconnectAttempt = System.currentTimeMillis();
+
+                serverSocket = new Socket(getHostIp(), port); // Throws the errors
+
+                if (serverSocket.isConnected() && MessageHandler.sendName(clientName))
+                {
+                    connected = true;
+                    printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
+                    SysTrayHandler.trayTooltip("Connected");
+                }
+                else
+                {
+                    connected = false;
+                    printStartup("Not connected to server: " + InetAddress.getByName(host).toString() + ":" + port, true);
+                    SysTrayHandler.trayTooltip("Not conected");
+                }
+            }
+            catch (ConnectException e)
+            {
+                printStartup("Couldnt connect, server probably down", true);
+                printThrowable(e, "Startup");
+                //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error (ConnEx)", JOptionPane.ERROR_MESSAGE);
+                SysTrayHandler.popup("Unable to connect", TrayIcon.MessageType.ERROR);
+                SysTrayHandler.trayTooltip("Not Connected");
+            }
+            catch (IOException e)
+            {
+                printStartup("Unable to connect to server", true);
+                printThrowable(e, "Startup");
+                //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error (IOEx)", JOptionPane.ERROR_MESSAGE);
+                SysTrayHandler.popup("Unable to connect", TrayIcon.MessageType.ERROR);
+                SysTrayHandler.trayTooltip("Not Connected");
+            }
+
+            MessageHandler.start(); // Should be already but make sure
+
+            frameSignalMap.setVisible(true);
+        });
+
         if (Arrays.deepToString(args).contains("-screencap"))
         {
             screencappingActive = true;
-            EventHandler.initScreenCapture(60000 * 5);
-        }
+            ScreencapManager.initScreenCapture();
 
-        EventQueue.invokeLater(new Runnable()
-        {
-            @Override
-            public void run()
+            EventQueue.invokeLater(() ->
             {
-                try
-                {
-                    TD_FONT = Font.createFont(0, EastAngliaMapClient.class.getResourceAsStream("/eastangliamapclient/resources/TDBerth-DM.ttf")).deriveFont(16f);
-                }
-                catch (FontFormatException | IOException e)
-                {
-                    TD_FONT = new Font("Monospaced", 0, 19);
-
-                    printStartup("Couldn\'t create font, stuff will look strange", true);
-                    printThrowable(e, "Startup - Font");
-                }
-
-                frameSignalMap = new SignalMap(windowSize);
-
-                SysTrayHandler.initSysTray();
-
-                Runtime.getRuntime().addShutdownHook(new Thread("shutdownHook")
-                {
-                    @Override
-                    public void run()
-                    {
-                        try { MessageHandler.stop(); }
-                        catch (NullPointerException e) {}
-                    }
-                });
-
-                try
-                {
-                    lastReconnectAttempt = System.currentTimeMillis();
-
-                    serverSocket = new Socket(getHostIp(), port); // Throws the errors
-
-                    if (serverSocket.isConnected() && MessageHandler.sendName(clientName))
-                    {
-                        connected = true;
-                        printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
-                        SysTrayHandler.trayTooltip("Connected");
-                    }
-                    else
-                    {
-                        connected = false;
-                        printStartup("Not connected to server: " + InetAddress.getByName(host).toString() + ":" + port, true);
-                        SysTrayHandler.trayTooltip("Not conected");
-                    }
-                }
-                catch (ConnectException e)
-                {
-                    printStartup("Couldnt connect, server probably down", true);
-                    printThrowable(e, "Startup");
-                    //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error (ConnEx)", JOptionPane.ERROR_MESSAGE);
-                    SysTrayHandler.popup("Unable to connect", TrayIcon.MessageType.ERROR);
-                    SysTrayHandler.trayTooltip("Not Connected");
-                }
-                catch (IOException e)
-                {
-                    printStartup("Unable to connect to server", true);
-                    printThrowable(e, "Startup");
-                    //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error (IOEx)", JOptionPane.ERROR_MESSAGE);
-                    SysTrayHandler.popup("Unable to connect", TrayIcon.MessageType.ERROR);
-                    SysTrayHandler.trayTooltip("Not Connected");
-                }
-
-                MessageHandler.start(); // Should be already but make sure
-
-                frameSignalMap.setVisible(true);
-            }
-        });
-
-        EventHandler.addKeyboardEvents();
-        EventHandler.startTimerTasks();
-
-        if (Arrays.deepToString(args).contains("-screencap"))
-            EventHandler.screencap();
+                ScreencapManager.screencap();
+                ScreencapManager.takeScreencaps();
+            });
+        }
     }
 
     public static synchronized boolean reconnect(boolean force)
@@ -211,8 +226,7 @@ public class EastAngliaMapClient
             lastReconnectAttempt = time;
             kicked = false;
 
-            MessageHandler.sendSocketClose();
-            MessageHandler.closeSocket();
+            MessageHandler.stop();
 
             try
             {
@@ -307,7 +321,7 @@ public class EastAngliaMapClient
     {
         stream.println(message);
     }
-//</editor-fold>
+    //</editor-fold>
 
     public static void writeSetting(String preferenceName, String preferenceValue)
     {

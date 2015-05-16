@@ -1,12 +1,29 @@
 package eastangliamapclient.gui;
 
-import eastangliamapclient.*;
-import java.awt.*;
+import eastangliamapclient.Berth;
+import eastangliamapclient.Berths;
+import eastangliamapclient.EastAngliaMapClient;
+import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
-import java.awt.event.*;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 public class ListDialog
@@ -30,17 +47,17 @@ public class ListDialog
         dialog.setModalityType(ModalityType.APPLICATION_MODAL);
 
         if (berth != null)
+        {
             dialog.addWindowListener(new WindowAdapter()
             {
                 @Override
                 public void windowClosed(WindowEvent evt)
                 {
-                    if (berth != null)
-                    {
-                        EventHandler.getRidOfBerth();
-                    }
+                    if (Berths.getOpaqueBerth() == berth)
+                        Berths.setOpaqueBerth(null);
                 }
             });
+        }
 
         JPanel pnl = new JPanel(null);
         pnl.setLayout(new BorderLayout(10, 10));
@@ -66,41 +83,18 @@ public class ListDialog
 
         JButton okButton = new JButton("OK");
         okButton.setPreferredSize(new Dimension(73, 23));
-        okButton.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent evt)
-            {
-                dialog.dispose();
-            }
-        });
+        okButton.addActionListener((ActionEvent evt) -> { dialog.dispose(); });
         JPanel buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         buttonPnl.add(okButton);
         pnl.add(buttonPnl, BorderLayout.SOUTH);
 
-        dialog.getRootPane().registerKeyboardAction(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                dialog.dispose();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
-
-        dialog.getRootPane().registerKeyboardAction(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                dialog.dispose();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
+        dialog.getRootPane().registerKeyboardAction((ActionEvent e) -> { dialog.dispose(); }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        dialog.getRootPane().registerKeyboardAction((ActionEvent e) -> { dialog.dispose(); }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,  0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         dialog.add(pnl);
         dialog.pack();
         dialog.setLocationRelativeTo(EastAngliaMapClient.frameSignalMap.frame);
 
-        okButton.requestFocusInWindow();
         dialog.setVisible(true);
     }
 }

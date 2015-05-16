@@ -1,29 +1,84 @@
 package eastangliamapclient.gui;
 
-import eastangliamapclient.*;
+import eastangliamapclient.Berth;
+import eastangliamapclient.Berths;
+import eastangliamapclient.EastAngliaMapClient;
 import static eastangliamapclient.EastAngliaMapClient.newFile;
 import static eastangliamapclient.EastAngliaMapClient.storageDir;
-import eastangliamapclient.Signals.SignalPostDirection;
+import eastangliamapclient.MessageHandler;
+import eastangliamapclient.Signal;
+import eastangliamapclient.Signals;
+import eastangliamapclient.Signals.SignalType;
 import eastangliamapclient.json.JSONParser;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AWTException;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.KeyboardFocusManager;
+import java.awt.MouseInfo;
+import java.awt.PointerInfo;
+import java.awt.RenderingHints;
+import java.awt.Robot;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 public class SignalMap
 {
     public JFrame frame;
 
-    private final java.util.List<JButton>         buttons   = new ArrayList<>();
-    private final java.util.List<JScrollPane>     motdPanes = new ArrayList<>();
-    private final java.util.List<BackgroundPanel> panelList = new ArrayList<>();
-    private final Map<String, BackgroundPanel>    panelMap  = new HashMap<>();
+    private final List<JButton>                buttons   = new ArrayList<>();
+    private final List<JScrollPane>            motdPanes = new ArrayList<>();
+    private final List<BackgroundPanel>        panelList = new ArrayList<>();
+    private final Map<String, BackgroundPanel> panelMap  = new HashMap<>();
 
     public JTabbedPane TabBar;
+
+    private static final Font CLOCK_FONT = EastAngliaMapClient.TD_FONT.deriveFont(45f);
 
     public static final int DEFAULT_WIDTH  = 1877;
     public static final int DEFAULT_HEIGHT = 928;
@@ -32,7 +87,7 @@ public class SignalMap
     public static final int LAYER_SIGNALS = 1;
     public static final int LAYER_BERTHS  = 2;
     public static final int LAYER_LABELS  = 3;
-    public static final int LAYER_TOPS    = 4;
+    public static final int LAYER_TOP     = 4;
 
     public SignalMap()
     {
@@ -41,7 +96,7 @@ public class SignalMap
 
     public SignalMap(Dimension dim)
     {
-        frame = new JFrame("East Anglia Signal Map - Client (v" + EastAngliaMapClient.VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
+        frame = new JFrame("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
         TabBar = new JTabbedPane();
 
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -90,19 +145,18 @@ public class SignalMap
             });
         }
 
-        frame.setLocationByPlatform(true);
         frame.setMinimumSize(new Dimension(800, 600));
         frame.setPreferredSize(new Dimension(Math.min(Math.max((int) dim.getWidth(), 800), DEFAULT_WIDTH), Math.min(Math.max((int) dim.getHeight(), 600), DEFAULT_HEIGHT)));
         frame.setMaximumSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         frame.setLayout(new BorderLayout());
 
         {
-            String jsonString = "";
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(storageDir, "data" + File.separator + "signalmap.json")))))
+            StringBuilder jsonString = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new FileReader(new File(storageDir, "data" + File.separator + "signalmap.json"))))
             {
                 String line;
                 while ((line = br.readLine()) != null)
-                    jsonString += line.trim();
+                    jsonString.append(line);
             }
             catch (IOException e)
             {
@@ -112,20 +166,21 @@ public class SignalMap
                 System.exit(-1);
             }
 
-            if (jsonString.isEmpty())
+            if (jsonString.length() < 1)
             {
                 JOptionPane.showMessageDialog(null, "Error in map file\nEmpty file", "Signal Map", JOptionPane.ERROR_MESSAGE);
                 System.exit(-1);
             }
 
-            Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString);
-            jsonString = null;
+            Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString.toString());
+            jsonString.trimToSize();
 
-            EastAngliaMapClient.printOut("Map version v" + json.get("version"));
+            EastAngliaMapClient.DATA_VERSION = String.valueOf(json.get("version"));
+            frame.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  " / v" + EastAngliaMapClient.DATA_VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
 
-            java.util.List<Map<String, Object>> panelsJson = (java.util.List<Map<String, Object>>) json.get("signalMap");
+            List<Map<String, Object>> panelsJson = (List<Map<String, Object>>) json.get("signalMap");
 
-            for (Map<String, Object> panel : panelsJson)
+            panelsJson.stream().forEachOrdered((panel) ->
             {
                 String name = panel.get("panelId") + ". " + panel.get("panelName");
 
@@ -136,25 +191,28 @@ public class SignalMap
 
                 TabBar.addTab(name, null, new SideScrollPane(bp), "<html>" + panel.get("panelDescription") + "</html>");
 
-                for (Map<String, Object> berthData : (java.util.List<Map<String, Object>>) panel.get("berths"))
+                //<editor-fold defaultstate="collapsed" desc="Berths">
+                ((List<Map<String, Object>>) panel.get("berths")).parallelStream().forEach((berthData) ->
                 {
                     Berth berth = Berths.getOrCreateBerth(bp,
                             (int) ((long) berthData.get("posX")),
                             (int) ((long) berthData.get("posY")),
-                            ((java.util.List<String>) berthData.get("berthIds")).toArray(new String[0]));
+                            ((List<String>) berthData.get("berthIds")).toArray(new String[0]));
 
                     if (berthData.containsKey("hasBorder") && (Boolean) berthData.get("hasBorder"))
                         berth.hasBorder();
-                }
+                });
+                //</editor-fold>
 
-                for (Map<String, Object> signalData : (java.util.List<Map<String, Object>>) panel.get("signals"))
+                //<editor-fold defaultstate="collapsed" desc="Signals">
+                ((List<Map<String, Object>>) panel.get("signals")).parallelStream().forEach((signalData) ->
                 {
                     Signal signal = Signals.getOrCreateSignal(bp,
                             (int) ((long) signalData.get("posX")),
                             (int) ((long) signalData.get("posY")),
                             (String) signalData.get("signalId"),
                             (String) signalData.get("dataId"),
-                            SignalPostDirection.getDirection(signalData.get("direction")));
+                            SignalType.getDirection(signalData.get("direction")));
 
                     if (signalData.containsKey("isShunt") && (Boolean) signalData.get("isShunt"))
                         signal.isShunt();
@@ -162,9 +220,11 @@ public class SignalMap
                         signal.set0Text(String.valueOf(signalData.get("text0")));
                     if (signalData.containsKey("text1"))
                         signal.set1Text(String.valueOf(signalData.get("text1")));
-                }
+                });
+                //</editor-fold>
 
-                for (Map<String, Object> stationData : (java.util.List<Map<String, Object>>) panel.get("stations"))
+                //<editor-fold defaultstate="collapsed" desc="Stations">
+                ((List<Map<String, Object>>) panel.get("stations")).parallelStream().forEach((stationData) ->
                 {
                     if (stationData.containsKey("isLarge") && (Boolean) stationData.get("isLarge"))
                     {
@@ -182,41 +242,121 @@ public class SignalMap
                                 (String) stationData.get("name"),
                                 (String) stationData.get("url"));
                     }
-                }
+                });
+                //</editor-fold>
 
-                for (Map<String, Object> navButtonData : (java.util.List<Map<String, Object>>) panel.get("navButtons"))
+                //<editor-fold defaultstate="collapsed" desc="Nav Buttons">
+                ((List<Map<String, Object>>) panel.get("navButtons")).parallelStream().forEach((navButtonData) ->
                 {
                     makeNavButton(bp,
                             (int) ((long) navButtonData.get("posX")),
                             (int) ((long) navButtonData.get("posY")),
                             (String) navButtonData.get("name"),
                             (int) ((long) navButtonData.get("linkedPanel")));
-                }
-            }
+                });
+                //</editor-fold>
+            });
         }
 
+        //<editor-fold defaultstate="collapsed" desc="Test Signals">
         /*placeTestSignals(panelMap.get("11"), 1100, 15, 0,  "EN05:7","EN09:8","EN0A:1","EN0A:2","EN0A:5","EN0A:6","EN0A:8","EN0B:1","EN0B:2","","EN14:4","EN17:1","EN17:2","EN17:3","EN17:4","EN17:5","EN17:7","EN17:8","EN18:1");
 
         placeTestSignals(panelMap.get("9"), 300, 550, 35, "SX05:1","SX05:2","SX05:3","SX05:4","SX06:1","SX06:2",
-                "SX06:3","SX06:4","SX06:5","SX06:6","SX07:3","SX07:4","SX07:6","SX07:7","SX08:4","SX09:1","SX09:4",
-                "SX09:5","SX09:6","SX09:7","SX0A:1","SX0A:3","SX0B:1","SX0B:2","SX0B:3","SX0B:4","SX0B:5","SX0B:6",
-                "SX0C:3","SX0C:4","SX0C:5","SX0C:6","SX0C:7","SX0C:8","SX0D:1","SX0D:2","SX0E:1","SX0E:2","SX0E:3",
-                "SX0E:4","SX0E:5","SX0E:6","SX0E:7","SX0E:8","SX0F:1","SX0F:2","SX0F:4","SX0F:5","SX10:5","SX10:6",
-                "SX10:7","SX11:2","SX11:3","SX12:2","SX12:5","SX12:6","SX12:7","SX12:8","SX13:1","SX14:2","SX15:1",
-                "SX15:2","SX15:3","SX15:4","SX16:2","SX16:3","SX16:6","SX16:7","SX17:2","SX17:3","SX17:6");
+        "SX06:3","SX06:4","SX06:5","SX06:6","SX07:3","SX07:4","SX07:6","SX07:7","SX08:4","SX09:1","SX09:4",
+        "SX09:5","SX09:6","SX09:7","SX0A:1","SX0A:3","SX0B:1","SX0B:2","SX0B:3","SX0B:4","SX0B:5","SX0B:6",
+        "SX0C:3","SX0C:4","SX0C:5","SX0C:6","SX0C:7","SX0C:8","SX0D:1","SX0D:2","SX0E:1","SX0E:2","SX0E:3",
+        "SX0E:4","SX0E:5","SX0E:6","SX0E:7","SX0E:8","SX0F:1","SX0F:2","SX0F:4","SX0F:5","SX10:5","SX10:6",
+        "SX10:7","SX11:2","SX11:3","SX12:2","SX12:5","SX12:6","SX12:7","SX12:8","SX13:1","SX14:2","SX15:1",
+        "SX15:2","SX15:3","SX15:4","SX16:2","SX16:3","SX16:6","SX16:7","SX17:2","SX17:3","SX17:6");
 
         placeTestSignals(panelMap.get("9"), 300, 590, 35, "SX0C:2","SX0D:3","SX0D:4","SX0D:5","SX0D:6","SX0D:7",
-                "SX0D:8","SX0F:3","SX10:1","SX10:2","SX10:3","SX10:4","SX10:8","SX11:1","SX11:4","SX11:5","SX11:6",
-                "SX11:7","SX11:8","SX12:1","SX12:3","SX12:4","SX13:2","SX13:3","SX13:4","SX13:5","SX13:6","SX13:7",
-                "SX13:8","SX14:1","SX14:3");*/
+        "SX0D:8","SX0F:3","SX10:1","SX10:2","SX10:3","SX10:4","SX10:8","SX11:1","SX11:4","SX11:5","SX11:6",
+        "SX11:7","SX11:8","SX12:1","SX12:3","SX12:4","SX13:2","SX13:3","SX13:4","SX13:5","SX13:6","SX13:7",
+        "SX13:8","SX14:1","SX14:3");*/
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Keyboard Commands">
+        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+            {
+                //frame.setPreferredSize(new Dimension(1877, 928));
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                //frame.setPreferredSize(new Dimension(frame.getSize().width, frame.getSize().height));
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                Signals.toggleSignalVisibilities();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                Berths.toggleBerthVisibilities();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                Berths.toggleBerthsOpacities();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_O, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                Berths.toggleBerthDescriptions();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                new HelpDialog();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_H, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
+        {
+            EastAngliaMapClient.blockKeyInput = false;
+            EastAngliaMapClient.clean();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher((KeyEvent evt) ->
+        {
+            if (evt.getID() == KeyEvent.KEY_PRESSED && !EastAngliaMapClient.blockKeyInput)
+            {
+                int keyCode = evt.getKeyCode();
+
+                if (keyCode >= KeyEvent.VK_F1 && keyCode <= KeyEvent.VK_F1 + TabBar.getTabCount() - 1) // Function keys
+                {
+                    keyCode -= KeyEvent.VK_F1;
+
+                    if (evt.isControlDown()) // Control for tabs 13-24
+                        keyCode += 12;
+                    if (evt.isShiftDown()) // Shift for tabs 25-36, both for tabs 37-48
+                        keyCode += 24;
+
+                    if (keyCode >= 0 && keyCode <= TabBar.getTabCount() - 1)
+                        TabBar.setSelectedIndex(keyCode);
+
+                    return true;
+                }
+
+                if (!TabBar.hasFocus())
+                {
+                    TabBar.requestFocusInWindow();
+
+                    if (keyCode == KeyEvent.VK_LEFT)
+                        TabBar.setSelectedIndex(Math.max(0, TabBar.getSelectedIndex() - 1));
+                    else if (keyCode == KeyEvent.VK_RIGHT)
+                        TabBar.setSelectedIndex(Math.min(TabBar.getTabCount() - 1, TabBar.getSelectedIndex() + 1));
+
+                    return keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_RIGHT;
+                }
+            }
+            return false;
+        });
+        //</editor-fold>
 
         frame.add(TabBar, BorderLayout.CENTER);
-
         frame.pack();
         frame.setLocationRelativeTo(null);
-
         frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/eastangliamapclient/resources/Icon.png")));
-
         try
         {
             File preferencesFile = newFile(new File(storageDir, "preferences.txt"));
@@ -230,110 +370,147 @@ public class SignalMap
             TabBar.setSelectedIndex(Integer.parseInt(preferences.getProperty("lastTab", Integer.toString(TabBar.getSelectedIndex()))));
         }
         catch (IOException | IndexOutOfBoundsException e) {}
+
+        Timer timer = new Timer("keepAwake", true);
+        timer.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    PointerInfo mouseInfo = MouseInfo.getPointerInfo();
+                    if (mouseInfo != null)
+                        new Robot(mouseInfo.getDevice()).mouseMove(mouseInfo.getLocation().x, mouseInfo.getLocation().y);
+                }
+                catch (AWTException | NullPointerException e) {}
+            }
+        }, 30000, 10000);
+        timer.schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                try { MessageHandler.requestAll(); }
+                catch (Exception e) {}
+            }
+        }, 30000, 120000);
+
+        new javax.swing.Timer(250, (ActionEvent e) ->
+            panelList.parallelStream().forEach((bp) -> bp.repaint(780, 10, 280, 50))
+        ).start();
     }
 
     //<editor-fold defaultstate="collapsed" desc="Util methods">
     private void largeStation(BackgroundPanel bp, int x, int y, String name, String crsCode)
     {
-        JLabel lbl = new JLabel(name.toUpperCase());
+        final JLabel stationLbl = new JLabel(name.toUpperCase());
 
-        lbl.setBackground(EastAngliaMapClient.GREY);
-        lbl.setFont(EastAngliaMapClient.TD_FONT);
-        lbl.setForeground(EastAngliaMapClient.GREEN);
-        lbl.setHorizontalAlignment(SwingConstants.CENTER);
-        lbl.setFocusable(false);
-        lbl.setToolTipText(crsCode.toUpperCase());
-        lbl.addMouseListener(new MouseAdapter()
+        stationLbl.setBackground(EastAngliaMapClient.GREY);
+        stationLbl.setFont(EastAngliaMapClient.TD_FONT);
+        stationLbl.setForeground(EastAngliaMapClient.GREEN);
+        stationLbl.setHorizontalAlignment(SwingConstants.CENTER);
+        stationLbl.setFocusable(false);
+        stationLbl.setToolTipText(crsCode.toUpperCase());
+        stationLbl.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                EventHandler.stnClick(evt);
+                if (SwingUtilities.isLeftMouseButton(evt))
+                {
+                    try
+                    {
+                        if (evt.isControlDown())
+                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + new SimpleDateFormat("/yyyy/MM/dd").format(new Date()) + "/0000-2359?stp=WVS&show=all&order=wtt"));
+                        else
+                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + "?stp=WVS&show=all&order=wtt"));
+
+                        evt.consume();
+                    }
+                    catch (URISyntaxException | IOException e) {}
+                }
             }
 
             @Override
             public void mouseEntered(MouseEvent evt)
             {
-                JLabel stationLbl = (JLabel) evt.getComponent();
-
-                if (stationLbl != null)
-                    stationLbl.setOpaque(true);
-
-                frame.repaint();
+                stationLbl.setOpaque(true);
+                stationLbl.repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent evt)
             {
-                JLabel stationLbl = (JLabel) evt.getComponent();
-
-                if (stationLbl != null)
-                    stationLbl.setOpaque(false);
-
-                frame.repaint();
+                stationLbl.setOpaque(false);
+                stationLbl.repaint();
             }
         });
 
-        lbl.setBounds(x, y, name.length() * 12, 16);
-        bp.add(lbl, LAYER_LABELS);
+        stationLbl.setBounds(x, y, name.length() * 12, 16);
+        bp.add(stationLbl, LAYER_LABELS);
     }
 
     private void smallStation(BackgroundPanel bp, int x, int y, String name, String crsCode)
     {
-        JLabel lbl = new JLabel(name.toUpperCase());
+        final JLabel stationLbl = new JLabel(name.toUpperCase());
 
-        lbl.setBackground(EastAngliaMapClient.GREY);
-        lbl.setFont(EastAngliaMapClient.TD_FONT.deriveFont(8f));
-        lbl.setForeground(EastAngliaMapClient.GREEN);
-        lbl.setHorizontalAlignment(SwingConstants.CENTER);
-        lbl.setFocusable(false);
-        lbl.setToolTipText(crsCode.toUpperCase());
-        lbl.addMouseListener(new MouseAdapter()
+        stationLbl.setBackground(EastAngliaMapClient.GREY);
+        stationLbl.setFont(EastAngliaMapClient.TD_FONT.deriveFont(8f));
+        stationLbl.setForeground(EastAngliaMapClient.GREEN);
+        stationLbl.setHorizontalAlignment(SwingConstants.CENTER);
+        stationLbl.setFocusable(false);
+        stationLbl.setToolTipText(crsCode.toUpperCase());
+        stationLbl.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                EventHandler.stnClick(evt);
+                if (SwingUtilities.isLeftMouseButton(evt))
+                {
+                    try
+                    {
+                        if (evt.isControlDown())
+                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + new SimpleDateFormat("/yyyy/MM/dd").format(new Date()) + "/0000-2359?stp=WVS&show=all&order=wtt"));
+                        else
+                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + "?stp=WVS&show=all&order=wtt"));
+
+                        evt.consume();
+                    }
+                    catch (URISyntaxException | IOException e) {}
+                }
             }
 
             @Override
             public void mouseEntered(MouseEvent evt)
             {
-                JLabel stationLbl = (JLabel) evt.getComponent();
-
-                if (stationLbl != null)
-                    stationLbl.setOpaque(true);
-
-                frame.repaint();
+                stationLbl.setOpaque(true);
+                stationLbl.repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent evt)
             {
-                JLabel stationLbl = (JLabel) evt.getComponent();
-
-                if (stationLbl != null)
-                    stationLbl.setOpaque(false);
-
-                frame.repaint();
+                stationLbl.setOpaque(false);
+                stationLbl.repaint();
             }
         });
 
-        lbl.setBounds(x, y, name.length() * 6, 8);
-        bp.add(lbl, LAYER_LABELS);
+        stationLbl.setBounds(x, y, name.length() * 6, 8);
+        bp.add(stationLbl, LAYER_LABELS);
     }
 
     private void makeNavButton(BackgroundPanel bp, int x, int y, String text, final int tabIndex)
     {
-        JLabel lbl = new JLabel(text.toUpperCase());
+        final JLabel navLbl = new JLabel(text.toUpperCase());
 
-        lbl.setBackground(EastAngliaMapClient.GREY);
-        lbl.setFont(EastAngliaMapClient.TD_FONT);
-        lbl.setForeground(EastAngliaMapClient.GREEN);
-        lbl.setHorizontalAlignment(SwingConstants.CENTER);
-        lbl.setFocusable(false);
-        lbl.setToolTipText("Tab: " + String.valueOf(tabIndex));
-        lbl.addMouseListener(new MouseAdapter()
+        navLbl.setBackground(EastAngliaMapClient.GREY);
+        navLbl.setFont(EastAngliaMapClient.TD_FONT);
+        navLbl.setForeground(EastAngliaMapClient.GREEN);
+        navLbl.setHorizontalAlignment(SwingConstants.CENTER);
+        navLbl.setFocusable(false);
+        navLbl.setToolTipText("Tab: " + String.valueOf(tabIndex));
+        navLbl.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent evt)
@@ -344,28 +521,20 @@ public class SignalMap
             @Override
             public void mouseEntered(MouseEvent evt)
             {
-                JLabel navLbl = (JLabel) evt.getComponent();
-
-                if (navLbl != null)
-                    navLbl.setOpaque(true);
-
-                frame.repaint();
+                navLbl.setOpaque(true);
+                navLbl.repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent evt)
             {
-                JLabel navLbl = (JLabel) evt.getComponent();
-
-                if (navLbl != null)
-                    navLbl.setOpaque(false);
-
-                frame.repaint();
+                navLbl.setOpaque(false);
+                navLbl.repaint();
             }
         });
 
-        lbl.setBounds(x, y, text.length() * 12, 16);
-        bp.add(lbl, LAYER_LABELS);
+        navLbl.setBounds(x, y, text.length() * 12, 16);
+        bp.add(navLbl, LAYER_LABELS);
     }
 
     private void placeTopBits(final BackgroundPanel bp)
@@ -380,11 +549,11 @@ public class SignalMap
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                if (evt.getButton() == 1)
-                    new OptionContexMenu(evt.getComponent(), evt.getX(), evt.getY());
+                if (SwingUtilities.isLeftMouseButton(evt))
+                    new OptionContexMenu(evt.getComponent());
             }
         });
-        bp.add(menu, LAYER_TOPS);
+        bp.add(menu, LAYER_TOP);
 
         JButton help = new JButton("?");
         help.setToolTipText("Help");
@@ -396,11 +565,11 @@ public class SignalMap
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                if (evt.getButton() == 1)
+                if (SwingUtilities.isLeftMouseButton(evt))
                     new HelpDialog();
             }
         });
-        bp.add(help, LAYER_TOPS);
+        bp.add(help, LAYER_TOP);
 
         JLabel motd = new JLabel();
         motd.setText("XXMOTD");
@@ -419,16 +588,16 @@ public class SignalMap
         JScrollPane spMOTD = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         spMOTD.setViewportView(motd);
         spMOTD.setBounds(200, 10, 550, 50);
-        bp.add(spMOTD, LAYER_TOPS);
+        bp.add(spMOTD, LAYER_TOP);
         motdPanes.add(spMOTD);
 
         buttons.add(menu);
         buttons.add(help);
     }
 
-    private void placeTestSignals(BackgroundPanel pnl, String areaId, int x, int y, int width, int min, int max)
+    /*private void placeTestSignals(BackgroundPanel pnl, String areaId, int x, int y, int width, int min, int max)
     {
-        java.util.List<String> bytes = new ArrayList<>();
+        List<String> bytes = new ArrayList<>();
 
         for (int i = min; i < max; i++)
         {
@@ -446,7 +615,7 @@ public class SignalMap
 
     private void placeTestSignals(BackgroundPanel pnl, int x, int y, int width, String... ids)
     {
-        java.util.List<String> bytes = Arrays.asList(ids);
+        List<String> bytes = Arrays.asList(ids);
 
         int curWidth = 0;
         for (String id : bytes)
@@ -459,20 +628,18 @@ public class SignalMap
 
             if (!id.isEmpty())
             {
-                Signal sig = Signals.getOrCreateSignal(pnl, x + curWidth*27, y, "", id + (Signals.signalExists(id) ? " " : ""), SignalPostDirection.TEXT);
+                Signal sig = Signals.getOrCreateSignal(pnl, x + curWidth*27, y, "", id + (Signals.signalExists(id) ? " " : ""), SignalType.TEXT);
                 sig.set0Text(id.substring(2));
             }
 
             curWidth++;
         }
-    }
+    }*/
     //</editor-fold>
 
     public void dispose()
     {
         frame.dispose();
-        /*Berths.reset();
-        Signals.reset();*/
     }
 
     public void setVisible(boolean visible)
@@ -510,31 +677,25 @@ public class SignalMap
                 if (signal != null)
                     signal.setState(String.valueOf(pairs.getValue()).equals("0") ? 0 : (String.valueOf(pairs.getValue()).equals("1") ? 1 : 2));
             }
-            catch (Throwable t) { EastAngliaMapClient.printThrowable(t, "Handler"); }
+            catch (Exception e) { EastAngliaMapClient.printThrowable(e, "Handler"); }
         }
     }
 
-    public java.util.List<BackgroundPanel> getPanels()
+    public List<BackgroundPanel> getPanels()
     {
         return panelList;
     }
 
     public void prepForScreencap()
     {
-        for (JButton button : buttons)
-            button.setVisible(false);
-
-        for (JScrollPane sp : motdPanes)
-            sp.setVisible(false);
+        buttons.stream().forEach((button) -> { button.setVisible(false); });
+        motdPanes.stream().forEach((sp) -> { sp.setVisible(false); });
     }
 
     public void finishScreencap()
     {
-        for (JButton button : buttons)
-            button.setVisible(true);
-
-        for (JScrollPane sp : motdPanes)
-            sp.setVisible(true);
+        buttons.stream().forEach((button) -> { button.setVisible(true); });
+        motdPanes.stream().forEach((sp) -> { sp.setVisible(true); });
     }
 
     public void setTitle(String title)
@@ -548,27 +709,22 @@ public class SignalMap
         return frame.hasFocus();
     }
 
-    public void repaint()
-    {
-        frame.repaint();
-    }
 
     public void setMOTD(String motd)
     {
-        motd = "<html><body style='width:auto;height:auto'>" + (motd == null || motd.isEmpty() ? "No problems" : motd.trim()) + "</body></html>";
-        int size = (((motd.length() - motd.replace("<br>", "").length()) / 4) + (motd.replaceAll("\\<.*?\\>", "").length() / 30)) * 24 + 24;
+        String motdHTML = "<html><body style='width:auto;height:auto'>" + (motd == null || motd.isEmpty() ? "No problems" : motd.trim()) + "</body></html>";
+        int height = (((motdHTML.length() - motdHTML.replace("<br>", "").length()) / 4) + (motdHTML.replaceAll("\\<.*?\\>", "").length() / 30)) * 12 + 12;
 
-        for (JScrollPane sp : motdPanes)
+        motdPanes.parallelStream().forEach((sp) ->
         {
             JLabel lbl = (JLabel) sp.getViewport().getView();
-            lbl.setText(motd);
-            lbl.setPreferredSize(new Dimension(520, size));
-        }
+            lbl.setText(motdHTML);
+            lbl.setPreferredSize(new Dimension(520, height));
+        });
     }
 
     public class BackgroundPanel extends JLayeredPane
     {
-        private final Font clockFont = EastAngliaMapClient.TD_FONT.deriveFont(45f);
         private BufferedImage image;
         private BufferedImage bufferedImage;
 
@@ -579,7 +735,7 @@ public class SignalMap
         {
             super();
 
-            setFont(clockFont);
+            setFont(CLOCK_FONT);
             setLayout(null);
             setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
             setPreferredSize(new Dimension(1854, 860));

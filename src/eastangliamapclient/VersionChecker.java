@@ -1,18 +1,34 @@
 package eastangliamapclient;
 
 import eastangliamapclient.json.JSONParser;
-import java.awt.*;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 
 public class VersionChecker
 {
@@ -26,7 +42,7 @@ public class VersionChecker
     {
         try
         {
-            int localVersion = Integer.parseInt(EastAngliaMapClient.VERSION);
+            int localVersion = Integer.parseInt(EastAngliaMapClient.CLIENT_VERSION);
             int remoteVersion = -1;
 
             URL downloadLocation = null;
@@ -70,7 +86,7 @@ public class VersionChecker
             }
             else
             {
-                if (remoteVersion < Integer.parseInt(EastAngliaMapClient.VERSION))
+                if (remoteVersion < Integer.parseInt(EastAngliaMapClient.CLIENT_VERSION))
                     EastAngliaMapClient.isPreRelease = true;
 
                 EastAngliaMapClient.printStartup("Client up to date", false);
@@ -82,6 +98,8 @@ public class VersionChecker
 
     private static void checkMapVersion()
     {
+        int newVersion = 0;
+
         try
         {
             File mapFile = new File(EastAngliaMapClient.storageDir, "data" + File.separator + "signalmap.json");
@@ -92,20 +110,16 @@ public class VersionChecker
 
             if (mapFile.exists())
             {
-                String jsonString = "";
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(mapFile))))
+                StringBuilder jsonString = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(new FileReader(mapFile)))
                 {
                     String line;
                     while ((line = br.readLine()) != null)
-                    {
-                        jsonString += line.trim();
-                    }
-                } catch (IOException e)
-                {
-                    EastAngliaMapClient.printThrowable(e, "Updater");
+                        jsonString.append(line);
                 }
+                catch (IOException e) { EastAngliaMapClient.printThrowable(e, "Updater"); }
 
-                Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString);
+                Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString.toString());
 
                 if (json.containsKey("version"))
                     versionLocal = (int) ((long) json.get("version"));
@@ -115,10 +129,10 @@ public class VersionChecker
             {
                 versionRemote = Integer.parseInt(br.readLine());
                 archiveLocation = new URL(br.readLine());
-            } catch (IOException e)
-            {
-                EastAngliaMapClient.printThrowable(e, "Updater");
             }
+            catch (IOException e) { EastAngliaMapClient.printThrowable(e, "Updater"); }
+
+            newVersion = versionLocal;
 
             if (versionRemote > versionLocal)
             {
@@ -137,7 +151,7 @@ public class VersionChecker
                                 if (!file.equals(updateArchive))
                                     file.delete();
 
-                        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(updateArchive)))
+                        try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(updateArchive))))
                         {
                             ZipEntry entry;
                             while ((entry = zis.getNextEntry()) != null)
@@ -164,6 +178,8 @@ public class VersionChecker
                     {
                         EastAngliaMapClient.printStartup("Unable to download map files (file = " + String.valueOf(updateArchive) + ")", true);
                     }
+
+                    newVersion = versionRemote;
                 }
 
                 if (!mapFile.exists())
@@ -177,6 +193,8 @@ public class VersionChecker
             EastAngliaMapClient.printThrowable(e, "Updater");
             JOptionPane.showMessageDialog(null, "Unable to update map files\n" + e.toString(), "Updater", JOptionPane.ERROR_MESSAGE);
         }
+
+        EastAngliaMapClient.DATA_VERSION = Integer.toString(newVersion);
     }
 
     private static File downloadFile(URL location, File destinationFolder, boolean forceOverwrite)

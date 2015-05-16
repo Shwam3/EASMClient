@@ -1,10 +1,17 @@
 package eastangliamapclient.gui;
 
-import eastangliamapclient.*;
+import eastangliamapclient.Berths;
+import eastangliamapclient.EastAngliaMapClient;
+import eastangliamapclient.ScreencapManager;
+import eastangliamapclient.MessageHandler;
+import eastangliamapclient.Signals;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 
 public class OptionContexMenu extends JPopupMenu
 {
@@ -22,74 +29,70 @@ public class OptionContexMenu extends JPopupMenu
     JMenuItem takeScreencaps; //TODO: Remove for release
 
     JCheckBoxMenuItem preventSleep;
-    JCheckBoxMenuItem minToSys;
+    JCheckBoxMenuItem minToSysTray;
     JMenuItem exit;
 
-    ActionListener clickEvent = new ActionListener()
+    ActionListener clickEvent = (ActionEvent evt) ->
     {
-        @Override
-        public void actionPerformed(ActionEvent evt)
+        Object src = evt.getSource();
+        if (src == toggleOpacity)
+            Berths.toggleBerthsOpacities();
+        else if (src == toggleDescriptions)
+            Berths.toggleBerthDescriptions();
+        else if (src == berthVisibility)
+            Berths.toggleBerthVisibilities();
+        else if (src == signalVisibility)
+            Signals.toggleSignalVisibilities();
+        else if (src == refresh)
+            MessageHandler.requestAll();
+        else if (src == reconnect)
+            EastAngliaMapClient.reconnect(true);
+        else if (src == trainHistory)
         {
-            Object src = evt.getSource();
-            if (src == toggleOpacity)
-                Berths.toggleBerthsOpacities();
-            else if (src == toggleDescriptions)
-                Berths.toggleBerthDescriptions();
-            else if (src == berthVisibility)
-                Berths.toggleBerthVisibilities();
-            else if (src == signalVisibility)
-                Signals.toggleSignalVisibilities();
-            else if (src == refresh)
-                MessageHandler.requestAll();
-            else if (src == reconnect)
-                EastAngliaMapClient.reconnect(true);
-            else if (src == trainHistory)
-            {
-                String UUID = JOptionPane.showInputDialog(EastAngliaMapClient.frameSignalMap.frame, "Enter Train UUID:", "Train History", JOptionPane.QUESTION_MESSAGE);
+            String UUID = JOptionPane.showInputDialog(EastAngliaMapClient.frameSignalMap.frame, "Enter Train UUID:", "Train History", JOptionPane.QUESTION_MESSAGE);
 
-                if (UUID != null)
-                    if (UUID.length() >= 5 && UUID.matches("[0-9]+"))
-                        MessageHandler.requestHistoryOfTrain(UUID);
-                    else
-                        JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "'" + UUID + "' is not a valid train UUID", "Error", JOptionPane.WARNING_MESSAGE);
-            }
-            else if (src == changeName)
+            if (UUID != null)
+                if (UUID.length() >= 5 && UUID.matches("[0-9]+"))
+                    MessageHandler.requestHistoryOfTrain(UUID);
+                else
+                    JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "'" + UUID + "' is not a valid train UUID", "Error", JOptionPane.WARNING_MESSAGE);
+        }
+        else if (src == changeName)
+        {
+            EastAngliaMapClient.blockKeyInput = true;
+            String newName = JOptionPane.showInputDialog("New Name:", EastAngliaMapClient.clientName);
+            if (newName != null)
             {
-                EastAngliaMapClient.blockKeyInput = true;
-                String newName = JOptionPane.showInputDialog("New Name:", EastAngliaMapClient.clientName);
-                if (newName != null)
-                {
-                    EastAngliaMapClient.writeSetting("clientName", newName);
-                    EastAngliaMapClient.clientName = newName;
-                    MessageHandler.sendName(EastAngliaMapClient.clientName);
-                }
-                EastAngliaMapClient.blockKeyInput = false;
+                EastAngliaMapClient.writeSetting("clientName", newName);
+                EastAngliaMapClient.clientName = newName;
+                MessageHandler.sendName(EastAngliaMapClient.clientName);
             }
-            else if (src == screencap)
-                EventHandler.screencap();
-            else if (src == takeScreencaps)
-                EventHandler.takeScreencaps();
-            else if (src == preventSleep)
-            {
-               EastAngliaMapClient.preventSleep = preventSleep.isSelected();
-               EastAngliaMapClient.writeSetting("preventSleep", String.valueOf(preventSleep.isSelected()));
-            }
-            else if (src == minToSys)
-            {
-                EastAngliaMapClient.minimiseToSysTray = minToSys.isSelected();
-                EastAngliaMapClient.writeSetting("minimiseToSysTray", String.valueOf(minToSys.isSelected()));
-            }
-            else if (src == exit)
-            {
-                EastAngliaMapClient.writeSetting("windowSize", ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getWidth()) + "," + ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getHeight()));
-                EastAngliaMapClient.writeSetting("lastTab", Integer.toString(EastAngliaMapClient.frameSignalMap.TabBar.getSelectedIndex()));
+            EastAngliaMapClient.blockKeyInput = false;
+        }
+        else if (src == screencap)
+            ScreencapManager.screencap();
+        else if (src == takeScreencaps)
+            ScreencapManager.takeScreencaps();
+        else if (src == preventSleep)
+        {
+            EastAngliaMapClient.preventSleep = preventSleep.isSelected();
+            EastAngliaMapClient.writeSetting("preventSleep", String.valueOf(preventSleep.isSelected()));
+        }
+        else if (src == minToSysTray)
+        {
+            EastAngliaMapClient.minimiseToSysTray = minToSysTray.isSelected();
+            EastAngliaMapClient.writeSetting("minimiseToSysTray", String.valueOf(minToSysTray.isSelected()));
+        }
+        else if (src == exit)
+        {
+            EastAngliaMapClient.writeSetting("windowSize", ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getWidth()) + "," + ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getHeight()));
+            EastAngliaMapClient.writeSetting("lastTab", Integer.toString(EastAngliaMapClient.frameSignalMap.TabBar.getSelectedIndex()));
 
-                System.exit(0);
-            }
+            System.exit(0);
         }
     };
 
-    public OptionContexMenu(Component invoker, int x, int y)
+    public OptionContexMenu(Component invoker)
     {
         super();
 
@@ -104,7 +107,7 @@ public class OptionContexMenu extends JPopupMenu
         screencap          = new JCheckBoxMenuItem("Auto Screencap", EastAngliaMapClient.screencap);
         takeScreencaps     = new JMenuItem("Take Screencaps");
         preventSleep       = new JCheckBoxMenuItem("Keep your PC Awake",      EastAngliaMapClient.preventSleep);
-        minToSys           = new JCheckBoxMenuItem("Minimise to System Tray", EastAngliaMapClient.minimiseToSysTray);
+        minToSysTray       = new JCheckBoxMenuItem("Minimise to System Tray", EastAngliaMapClient.minimiseToSysTray);
         exit               = new JMenuItem("Exit");
 
         add(toggleOpacity).addActionListener(clickEvent);
@@ -127,10 +130,10 @@ public class OptionContexMenu extends JPopupMenu
 
         addSeparator();
         add(preventSleep).addActionListener(clickEvent);
-        add(minToSys).addActionListener(clickEvent);
+        add(minToSysTray).addActionListener(clickEvent);
         add(exit).addActionListener(clickEvent);
 
-        show(invoker, x, y);
+        show(invoker, 1, invoker.getHeight() - 1);
         requestFocus();
     }
 }

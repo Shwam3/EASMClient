@@ -1,18 +1,37 @@
 package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 
 public class HelpDialog extends JDialog
 {
     public HelpDialog()
     {
         setTitle("Help");
-        setPreferredSize(new Dimension(550, 328));
+        setPreferredSize(new Dimension(575, 458));
         setResizable(false);
-        setLayout(null);
+        setLayout(new BorderLayout());
         setLocationByPlatform(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setModalityType(ModalityType.APPLICATION_MODAL);
@@ -20,29 +39,53 @@ public class HelpDialog extends JDialog
         JLabel mainText = new JLabel(
                 "<html>"
                     + "<p><b>Navigation:</b></p>"
-                    + "<p>Use the <i>number</i> keys or the <i>function</i> keys (F1, F2 ...) (CTRL 13-24 SHIFT 25-36 CTRL+SHIFT 36-48) to change the tabs as well as the arrow keys.</p>"
+                    + "<p>Use the <i>function</i> keys (F1, F2 ...) (CTRL 13-24 SHIFT 25-36 CTRL+SHIFT 36-48) to change the tabs as well as the arrow keys.</p>"
                     + "<br>"
                     + "<p><b>Train headcodes:</b></p>"
                     + "<p>Left clicking on a green headcode will bring up an RTT search for the train.</p>"
                     + "<br>"
                     + "<p><b>Key Bindings:</b></p>"
-                    + "<p>'O'&nbsp;- Toggle berth opacity</p>"
-                    + "<p>'D'&nbsp;- Toggle berth id's</p>"
-                    + "<p>'H'&nbsp;- Opens this dialog</p>"
-                    + "<br>"
+                    + "<p>'O' - Toggle berth opacity mode</p>"
+                    + "<p>'D' - Toggle berth id's</p>"
+                    + "<p>'B' - Toggle berth visibility</p>"
+                    + "<p>'S' - Toggle signals visibility</p>"
+                    + "<p>'H' - Opens this dialog</p>"
                     + "<br>"
                     + "<p>Note: This program may regularly disconnect/be unavailable as the server program is run on my local PC which may not always "
-                    +    "be on/active. In such cases I highly recommend using opentraintimes.com and/or railcam.org.uk as alternatives.</p>"
+                    +    "be on/available. In such cases I highly recommend using opentraintimes.com or railcam.org.uk as alternatives.</p>"
                     + "<br>"
                     + "<p>The source code is available at http://www.github.com/Shwam3/EastAngliaSignalMapClient"
                     +    " and http://www.github.com/Shwam3/EastAngliaSignalMapServer</p>"
                     + "<p>&copy; Cameron Bird 2014</p>"
                 + "</html>");
 
-        mainText.setOpaque(false);
+        mainText.setOpaque(true);
+        mainText.setFont(new Font(Font.MONOSPACED, Font.TRUETYPE_FONT, 12));
         mainText.setForeground(EastAngliaMapClient.GREEN);
-        mainText.setVerticalAlignment(SwingConstants.CENTER);
-        mainText.setBounds(10, 10, 524, 280);
+        mainText.setBackground(Color.BLACK);
+        mainText.setVerticalAlignment(SwingConstants.TOP);
+        mainText.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
+        add(mainText, BorderLayout.CENTER);
+
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener((ActionEvent e) -> { dispose(); EastAngliaMapClient.blockKeyInput = false; });
+        okButton.setPreferredSize(new Dimension(73, 23));
+        okButton.setOpaque(false);
+
+        JButton gitButton = new JButton("GitHub...");
+        gitButton.addActionListener((ActionEvent evt) ->
+        {
+            try { Desktop.getDesktop().browse(new URI("https://www.github.com/Shwam3/")); }
+            catch (URISyntaxException | IOException e) { EastAngliaMapClient.printThrowable(e, "HelpDialog"); }
+        });
+        gitButton.setPreferredSize(new Dimension(76, 23));
+        gitButton.setOpaque(false);
+
+        JPanel buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        buttonPnl.add(okButton);
+        buttonPnl.add(gitButton);
+        buttonPnl.setOpaque(false);
+        add(buttonPnl, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter()
         {
@@ -53,23 +96,15 @@ public class HelpDialog extends JDialog
             }
         });
 
-        getRootPane().registerKeyboardAction(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                dispose();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
+        getRootPane().registerKeyboardAction((ActionEvent e) -> { okButton.doClick(100); }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction((ActionEvent e) -> { okButton.doClick(100); }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,  0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        add(mainText);
         getContentPane().setBackground(EastAngliaMapClient.BLACK);
         pack();
         setLocationRelativeTo(EastAngliaMapClient.frameSignalMap.frame);
 
-        setVisible(true);
+        EastAngliaMapClient.blockKeyInput = true;
 
-        if (isVisible())
-            EastAngliaMapClient.blockKeyInput = true;
+        setVisible(true);
     }
 }

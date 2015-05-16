@@ -8,7 +8,7 @@ public class Signals
 {
     private static Map<String, Signal> signalMap = new HashMap<>();
 
-    public static Signal getOrCreateSignal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalPostDirection direction)
+    public static Signal getOrCreateSignal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType direction)
     {
         Signal signal = signalMap.get(dataId);
         if (signal != null)
@@ -20,7 +20,7 @@ public class Signals
             return signal;
         }
         else
-            return new Signal(pnl, x, y, description == null ? "" : description, dataId, direction == null ? SignalPostDirection.TEST : direction);
+            return new Signal(pnl, x, y, description == null ? "" : description, dataId, direction == null ? SignalType.POST_TEST : direction);
     }
 
     public static boolean signalExists(String signalId)
@@ -54,48 +54,44 @@ public class Signals
     {
         EastAngliaMapClient.signalsVisible = !EastAngliaMapClient.signalsVisible;
 
-        for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
-            bp.repaint(0, 0, bp.getWidth(), bp.getHeight());
+        EastAngliaMapClient.frameSignalMap.getPanels().parallelStream()
+                .forEach((bp) -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));
     }
 
-    public static enum SignalPostDirection
+    public static enum SignalType
     {
         TEXT,
         TRTS,
-        LEFT,
-        RIGHT,
-        UP,
-        DOWN,
-        GANTRY_LEFT,
-        GANTRY_RIGHT,
-        GANTRY_UP,
-        GANTRY_DOWN,
-        NO_POST,
-        TEST;
+        POST_LEFT,
+        POST_RIGHT,
+        POST_UP,
+        POST_DOWN,
+        POST_NONE,
+        POST_TEST;
 
-        public static SignalPostDirection getDirection(Object obj)
+        public static SignalType getDirection(Object obj)
         {
-            if (obj instanceof SignalPostDirection)
-                return (SignalPostDirection) obj;
+            if (obj instanceof SignalType)
+                return (SignalType) obj;
 
             switch (String.valueOf(obj).toLowerCase().trim())
             {
                 case "left":
-                    return LEFT;
+                    return POST_LEFT;
                 case "right":
-                    return RIGHT;
+                    return POST_RIGHT;
                 case "up":
-                    return UP;
+                    return POST_UP;
                 case "down":
-                    return DOWN;
+                    return POST_DOWN;
                 case "trts":
                     return TRTS;
                 case "text":
                     return TEXT;
                 case "none":
-                    return NO_POST;
+                    return POST_NONE;
                 case "test":
-                    return TEST;
+                    return POST_TEST;
             }
 
             return null;

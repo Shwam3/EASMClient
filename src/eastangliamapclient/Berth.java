@@ -1,11 +1,18 @@
 package eastangliamapclient;
 
+import eastangliamapclient.gui.BerthContextMenu;
 import eastangliamapclient.gui.SignalMap;
+import java.awt.Desktop;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 public class Berth extends JComponent
 {
@@ -79,7 +86,7 @@ public class Berth extends JComponent
         isOpaque = opaque ||
                 mouseIn ||
                 /*isProblematic ||*/
-                EventHandler.tempOpaqueBerth == this ||
+                Berths.getOpaqueBerth() == this ||
                 (currentHeadcode != null && !currentHeadcode.isEmpty()); //||
                 //EastAngliaMapClient.opaque ||
                 //EastAngliaMapClient.showDescriptions;
@@ -122,7 +129,36 @@ public class Berth extends JComponent
             @Override
             public void mouseClicked(MouseEvent evt)
             {
-                EventHandler.berthClick(evt);
+                Berth berth = (Berth) evt.getComponent();
+
+                if (berth == null)
+                    return;
+
+                if (SwingUtilities.isRightMouseButton(evt) || evt.isPopupTrigger())
+                {
+                    Berths.setOpaqueBerth(berth);
+
+                    new BerthContextMenu(berth, evt.getComponent(), evt.getX(), evt.getY());
+                    evt.consume();
+                }
+
+                try
+                {
+                    if (SwingUtilities.isLeftMouseButton(evt))
+                    {
+                        berth.setOpaque(true);
+
+                        if (berth.isProperHeadcode())
+                            Desktop.getDesktop().browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s%s", berth.getHeadcode(), evt.isControlDown() || berth.getHeadcode().matches("([0-9]{3}[A-Z]|[4678].{3})") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
+
+                        Berths.setOpaqueBerth(null);
+
+                        evt.consume();
+                    }
+                }
+                catch (URISyntaxException | IOException e) {}
+
+                berth.setOpaque(false);
             }
 
             @Override
@@ -207,7 +243,7 @@ public class Berth extends JComponent
     {
         Graphics2D g2d = (Graphics2D) g.create();
 
-        if (EventHandler.isScreencapping)
+        if (ScreencapManager.isScreencapping)
         {
             g2d.setColor(EastAngliaMapClient.GREY);
             if (hasBorder)

@@ -3,12 +3,21 @@ package eastangliamapclient;
 import eastangliamapclient.gui.ListDialog;
 import eastangliamapclient.gui.SysTrayHandler;
 import java.awt.TrayIcon;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.StreamCorruptedException;
 import java.net.SocketException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.JOptionPane;
 
-public class MessageHandler //implements Runnable
+public class MessageHandler
 {
     private static int     errors = 0;
     private static boolean stop = true;
@@ -17,6 +26,7 @@ public class MessageHandler //implements Runnable
     private static long  timeoutTime          = 30000;
     private static final Timer timeoutTimer   = new Timer("timeoutTimer");
     private static       Thread messageHandler;
+    private static       boolean ready        = false;
 
     private static void run()
     {
@@ -26,7 +36,7 @@ public class MessageHandler //implements Runnable
         {
             try
             {
-                Object obj = new ObjectInputStream(EastAngliaMapClient.serverSocket.getInputStream()).readObject();
+                Object obj = new ObjectInputStream(new BufferedInputStream(EastAngliaMapClient.serverSocket.getInputStream())).readObject();
 
                 if (obj instanceof Map)
                 {
@@ -36,12 +46,6 @@ public class MessageHandler //implements Runnable
 
                     switch (MessageType.getType((int) message.get("type")))
                     {
-                        /*case PING:
-                            connectedOnLastPing = true;
-                            if (pingThread != null)
-                                pingThread.interrupt();
-                            break;*/
-
                         case SOCKET_CLOSE:
                             //JOptionPane.showMessageDialog(null, "Connection to the host has been closed.", "Connection closed by host", JOptionPane.WARNING_MESSAGE);
                             EastAngliaMapClient.connected = false;
@@ -69,6 +73,8 @@ public class MessageHandler //implements Runnable
 
                             if (EastAngliaMapClient.frameSignalMap != null)
                                 EastAngliaMapClient.frameSignalMap.readFromMap(EastAngliaMapClient.DataMap);
+
+                            ready = true;
                             break;
 
                         case SEND_UPDATE:
@@ -81,9 +87,10 @@ public class MessageHandler //implements Runnable
                             break;
 
                         case SEND_HIST_TRAIN:
-                            if (message.get("history") == null)
+                            if (message.get("history") == null || message.get("headcode").equals(""))
                             {
-                                EventHandler.getRidOfBerth();
+                                Berths.setOpaqueBerth(null);
+
                                 printMsgHandler("Received no history for train " + message.get("headcode") + (message.get("berth_id") != null ? " in berth " + message.get("berth_id") : ""), false);
                                 JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "No history for train \"" + message.get("headcode") + (message.get("berth_id") != null ? " in berth " + message.get("berth_id") : "") + "\"", "Train's history", JOptionPane.WARNING_MESSAGE);
                             }
@@ -99,14 +106,15 @@ public class MessageHandler //implements Runnable
                         case SEND_HIST_BERTH:
                             if (message.get("history") == null)
                             {
-                                EventHandler.getRidOfBerth();
+                                Berths.setOpaqueBerth(null);
+
                                 printMsgHandler("Received no history for berth " + message.get("berth_descr"), false);
                                 JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "No history for berth \"" + message.get("berth_descr") + "\"", "Berth's history", JOptionPane.WARNING_MESSAGE);
                             }
                             else
                             {
                                 printMsgHandler("Received history for berth " + message.get("berth_descr"), false);
-                                new Thread("trainHist" + message.get("berth_id"))  { @Override public void run() {
+                                new Thread("trainHist" + message.get("berth_id")) { @Override public void run() {
                                         new ListDialog(Berths.getBerth((String) message.get("berth_id")), "Berth's history", "Trains passed through berth '" + message.get("berth_descr") + "'", (List<String>) message.get("history"));
                                     }}.start();
                             }
@@ -149,15 +157,23 @@ public class MessageHandler //implements Runnable
         }
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Start/Stop methods">
     public static void start()
     {
         if (stop)
         {
             errors = 0;
             stop = false;
-            messageHandler = new Thread(new Runnable() {@Override public void run() {MessageHandler.run();}});
+
+            messageHandler = new Thread(() -> { MessageHandler.run(); }, "MessageHandler");
             messageHandler.start();
             printMsgHandler("Started", false);
+
+            try { Thread.sleep(500); }
+            catch(InterruptedException e) {}
+
+            if (!isReady())
+                MessageHandler.requestAll();
         }
     }
 
@@ -165,18 +181,25 @@ public class MessageHandler //implements Runnable
     {
         if (!stop)
         {
+            EastAngliaMapClient.connected = false;
             stop = true;
+            ready = false;
 
             sendSocketClose();
-            closeSocket();
+
+            if (EastAngliaMapClient.serverSocket != null && !EastAngliaMapClient.serverSocket.isClosed())
+            {
+                try { EastAngliaMapClient.serverSocket.close(); }
+                catch (IOException e) { EastAngliaMapClient.printThrowable(e, "Handler"); }
+            }
+
             messageHandler.interrupt();
 
             printMsgHandler("Handler stopped & Socket closed", false);
         }
     }
 
-    //<editor-fold defaultstate="collapsed" desc="SOCKET_CLOSE">
-    public static void sendSocketClose()
+    private static void sendSocketClose()
     {
         if (EastAngliaMapClient.serverSocket != null && EastAngliaMapClient.connected)
         {
@@ -193,6 +216,7 @@ public class MessageHandler //implements Runnable
         }
     }
     //</editor-fold>
+
 
     //<editor-fold defaultstate="collapsed" desc="HEARTBEAT_REQUEST">
     public static boolean sendHeartbeatRequest()
@@ -228,13 +252,12 @@ public class MessageHandler //implements Runnable
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="REQUEST_HIST_TRAIN">
-    public static boolean requestHistoryOfTrain(String id, String... headcode)
+    public static boolean requestHistoryOfTrain(String id)
     {
         Map<String, Object> message = new HashMap<>();
 
-        message.put("type",     MessageType.REQUEST_HIST_TRAIN.getValue());
-        message.put("id",       id);
-        message.put("headcode", headcode.length == 1 ? headcode[0] : "in berth " + id);
+        message.put("type", MessageType.REQUEST_HIST_TRAIN.getValue());
+        message.put("id",   id);
 
         return sendMessage(message);
     }
@@ -258,8 +281,8 @@ public class MessageHandler //implements Runnable
         Map<String, Object> message = new HashMap<>();
 
         message.put("type",  MessageType.SET_NAME.getValue());
-        message.put("name",  name + " (" + "v" + EastAngliaMapClient.VERSION + ")");
-        message.put("props", System.getProperties()); // Felt like it
+        message.put("name",  name + " (" + "v" + EastAngliaMapClient.CLIENT_VERSION + ")");
+        message.put("props", System.getProperties());
 
         return sendMessage(message);
     }
@@ -293,8 +316,7 @@ public class MessageHandler //implements Runnable
     {
         if (errors >= 10)
         {
-            sendSocketClose();
-            closeSocket();
+            stop();
         }
         else if (errors >= 2)
         {
@@ -341,19 +363,6 @@ public class MessageHandler //implements Runnable
         }, 30000, 30000);
     }
 
-    public static void closeSocket()
-    {
-        EastAngliaMapClient.connected = false;
-
-        if (EastAngliaMapClient.serverSocket != null && !EastAngliaMapClient.serverSocket.isClosed())
-        {
-            try { EastAngliaMapClient.serverSocket.close(); }
-            catch (IOException e) {}
-
-            stop();
-        }
-    }
-
     private static void printMsgHandler(String message, boolean toErr)
     {
         if (toErr)
@@ -366,4 +375,7 @@ public class MessageHandler //implements Runnable
     {
         return lastMessageTime;
     }
+
+    public static void waitForFullMap() { ready = false; }
+    public static boolean isReady() { return ready; }
 }

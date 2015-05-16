@@ -1,13 +1,19 @@
 package eastangliamapclient;
 
 import eastangliamapclient.gui.SignalMap;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class Berths
 {
     private static Map<String, Berth> berthMap = new HashMap<>();
+    private static Berth OPAQUE_BERTH = null;
 
     public static Berth getOrCreateBerth(SignalMap.BackgroundPanel pnl, int x, int y, String... berthIds)
     {
@@ -65,19 +71,37 @@ public class Berths
         return berthMap.keySet();
     }
 
+    public static void setOpaqueBerth(Berth berth)
+    {
+        if (OPAQUE_BERTH != null)
+        {
+            Berth opaqueBerth = OPAQUE_BERTH;
+            OPAQUE_BERTH = berth;
+            opaqueBerth.setOpaque(false);
+        }
+        else
+            OPAQUE_BERTH = berth;
+
+        if (berth != null)
+            berth.repaint();
+    }
+
+    public static Berth getOpaqueBerth()
+    {
+        return OPAQUE_BERTH;
+    }
+
     public static void printIds()
     {
         printBerths("Berth Ids:", false);
 
         List<String> berthIds = new ArrayList<>();
 
-        for (String id : berthMap.keySet())
-            berthIds.add(id);
+        berthMap.keySet().parallelStream().forEach((id) ->  berthIds.add(id));
 
         Collections.sort(berthIds);
 
-        for (String id : berthIds)
-            printBerths("  " + id, false);
+        berthIds.stream().forEachOrdered((id) -> printBerths("  " + id, false));
     }
 
     /*public static void reset()
@@ -89,8 +113,7 @@ public class Berths
     {
         EastAngliaMapClient.opaque = !EastAngliaMapClient.opaque;
 
-        for (Map.Entry<String, Berth> pairs : Berths.getEntrySet())
-            pairs.getValue().setOpaque(EastAngliaMapClient.opaque);
+        Berths.getEntrySet().parallelStream().forEach((pairs) -> pairs.getValue().setOpaque(EastAngliaMapClient.opaque));
 
         EastAngliaMapClient.frameSignalMap.frame.repaint();
     }
@@ -99,16 +122,16 @@ public class Berths
     {
         EastAngliaMapClient.showDescriptions = !EastAngliaMapClient.showDescriptions;
 
-        for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
-            bp.repaint(0, 0, bp.getWidth(), bp.getHeight());
+        EastAngliaMapClient.frameSignalMap.getPanels().parallelStream()
+                .forEach((bp) -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));
     }
 
     public static void toggleBerthVisibilities()
     {
         EastAngliaMapClient.berthsVisible = !EastAngliaMapClient.berthsVisible;
 
-        for (SignalMap.BackgroundPanel bp : EastAngliaMapClient.frameSignalMap.getPanels())
-            bp.repaint(0, 0, bp.getWidth(), bp.getHeight());
+        EastAngliaMapClient.frameSignalMap.getPanels().parallelStream()
+                .forEach((bp) -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));
     }
 
     private static void printBerths(String message, boolean toErr)
