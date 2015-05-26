@@ -83,13 +83,13 @@ public class ListDialog
 
         JButton okButton = new JButton("OK");
         okButton.setPreferredSize(new Dimension(73, 23));
-        okButton.addActionListener((ActionEvent evt) -> { dialog.dispose(); });
+        okButton.addActionListener((ActionEvent evt) -> dialog.dispose());
         JPanel buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         buttonPnl.add(okButton);
         pnl.add(buttonPnl, BorderLayout.SOUTH);
 
-        dialog.getRootPane().registerKeyboardAction((ActionEvent e) -> { dialog.dispose(); }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        dialog.getRootPane().registerKeyboardAction((ActionEvent e) -> { dialog.dispose(); }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,  0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        dialog.getRootPane().registerKeyboardAction((ActionEvent e) -> dialog.dispose(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        dialog.getRootPane().registerKeyboardAction((ActionEvent e) -> dialog.dispose(), KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,  0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         dialog.add(pnl);
         dialog.pack();

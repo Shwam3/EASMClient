@@ -247,9 +247,9 @@ public class VersionChecker
 
                 EastAngliaMapClient.printStartup("Downloading file from \"" + location.toExternalForm() + "\" to \"" + destinationFolder.getAbsolutePath() + "\"", false);
 
-                new Thread(() -> { dialog.setVisible(true); }).start();
+                new Thread(() -> dialog.setVisible(true)).start();
 
-                new Thread(() -> { downloader.download(); }).start();
+                new Thread(() -> downloader.download()).start();
 
                 /*try { Thread.sleep(5); }
                 catch (InterruptedException e) {}*/

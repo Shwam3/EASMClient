@@ -286,7 +286,7 @@ public class Signal extends JComponent
         }
         else if (isShunt)
         {
-            if (SIGNAL_TYPE == SignalType.POST_LEFT)
+            if (SIGNAL_TYPE == SignalType.POST_RIGHT)
             {
                 g2d.fillRect(x,   y,   2, 8);
                 g2d.fillRect(x+2, y+1, 2, 7);
@@ -295,7 +295,7 @@ public class Signal extends JComponent
                 g2d.fillRect(x+6, y+4, 1, 4);
                 g2d.fillRect(x+7, y+6, 1, 2);
             }
-            else if (SIGNAL_TYPE == SignalType.POST_DOWN)
+            else if (SIGNAL_TYPE == SignalType.POST_UP)
             {
                 g2d.fillRect(x,   y+6, 1, 2);
                 g2d.fillRect(x+1, y+4, 1, 4);
@@ -304,7 +304,7 @@ public class Signal extends JComponent
                 g2d.fillRect(x+4, y+1, 2, 7);
                 g2d.fillRect(x+6, y,   2, 8);
             }
-            else if (SIGNAL_TYPE == SignalType.POST_UP)
+            else if (SIGNAL_TYPE == SignalType.POST_DOWN)
             {
                 g2d.fillRect(x,   y, 2, 8);
                 g2d.fillRect(x+2, y, 2, 7);
@@ -313,7 +313,7 @@ public class Signal extends JComponent
                 g2d.fillRect(x+6, y, 1, 4);
                 g2d.fillRect(x+7, y, 1, 2);
             }
-            else if (SIGNAL_TYPE == SignalType.POST_RIGHT)
+            else if (SIGNAL_TYPE == SignalType.POST_LEFT)
             {
                 g2d.fillRect(x,   y,   8, 2);
                 g2d.fillRect(x+1, y+2, 7, 2);

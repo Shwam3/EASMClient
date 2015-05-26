@@ -75,7 +75,7 @@ public class SysTrayHandler
 
         showWindow.addActionListener(menuListener);
         reconnect.addActionListener(menuListener);
-        screenshot.addItemListener((ItemEvent evt) -> { ScreencapManager.screencap(); });
+        screenshot.addItemListener((ItemEvent evt) -> ScreencapManager.screencap());
         exit.addActionListener(menuListener);
 
         pm.add(showWindow);

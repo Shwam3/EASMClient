@@ -96,8 +96,8 @@ public class HelpDialog extends JDialog
             }
         });
 
-        getRootPane().registerKeyboardAction((ActionEvent e) -> { okButton.doClick(100); }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        getRootPane().registerKeyboardAction((ActionEvent e) -> { okButton.doClick(100); }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,  0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction((ActionEvent e) -> { dispose(); EastAngliaMapClient.blockKeyInput = false; }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction((ActionEvent e) -> { dispose(); EastAngliaMapClient.blockKeyInput = false; }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,  0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         getContentPane().setBackground(EastAngliaMapClient.BLACK);
         pack();

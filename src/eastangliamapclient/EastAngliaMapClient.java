@@ -236,11 +236,19 @@ public class EastAngliaMapClient
                 {
                     printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
                     SysTrayHandler.popup("Reconnected", TrayIcon.MessageType.INFO);
-                    SysTrayHandler.trayTooltip("Connected");
+                    SysTrayHandler.trayTooltip("Reconnected");
 
                     connected = true;
 
                     return true;
+                }
+                else
+                {
+                    connected = false;
+                    printStartup("Not connected to server: " + InetAddress.getByName(host).toString() + ":" + port, true);
+                    SysTrayHandler.trayTooltip("Not conected");
+
+                    return false;
                 }
             }
             catch (ConnectException e)

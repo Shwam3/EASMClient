@@ -688,14 +688,14 @@ public class SignalMap
 
     public void prepForScreencap()
     {
-        buttons.stream().forEach((button) -> { button.setVisible(false); });
-        motdPanes.stream().forEach((sp) -> { sp.setVisible(false); });
+        buttons.stream().forEach((button) -> button.setVisible(false));
+        motdPanes.stream().forEach((sp) -> sp.setVisible(false));
     }
 
     public void finishScreencap()
     {
-        buttons.stream().forEach((button) -> { button.setVisible(true); });
-        motdPanes.stream().forEach((sp) -> { sp.setVisible(true); });
+        buttons.stream().forEach((button) -> button.setVisible(true));
+        motdPanes.stream().forEach((sp) -> sp.setVisible(true));
     }
 
     public void setTitle(String title)

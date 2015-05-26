@@ -165,7 +165,7 @@ public class MessageHandler
             errors = 0;
             stop = false;
 
-            messageHandler = new Thread(() -> { MessageHandler.run(); }, "MessageHandler");
+            messageHandler = new Thread(() -> MessageHandler.run(), "MessageHandler");
             messageHandler.start();
             printMsgHandler("Started", false);
 
@@ -281,7 +281,7 @@ public class MessageHandler
         Map<String, Object> message = new HashMap<>();
 
         message.put("type",  MessageType.SET_NAME.getValue());
-        message.put("name",  name + " (" + "v" + EastAngliaMapClient.CLIENT_VERSION + ")");
+        message.put("name",  name + " (v" + EastAngliaMapClient.CLIENT_VERSION + ")");
         message.put("props", System.getProperties());
 
         return sendMessage(message);
