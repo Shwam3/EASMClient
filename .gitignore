@@ -64,5 +64,5 @@ $RECYCLE.BIN/
 
 dist/
 build/
-nbproject/
+\nbproject
 nbproject/private/private.xml
