@@ -39,7 +39,7 @@ public class EastAngliaMapClient
     public static       String DATA_VERSION   = "0";
 
     public static final String host = "shwam3.ddns.net";
-    public static final int    port = 6321;
+    public static final int    port = 6323;
 
     public static final File storageDir = new File(System.getProperty("user.home", "C:") + File.separator + ".easigmap");
 

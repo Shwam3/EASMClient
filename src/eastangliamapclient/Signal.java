@@ -27,7 +27,7 @@ public class Signal extends JComponent
     private static final int STATE_UNKNOWN = 2;
 
     private boolean isShunt = false;
-    private String TEXT_0  = null;
+    private String TEXT_0 = null;
     private String TEXT_1 = null;
 
     private final String     SIGNAL_ID;
@@ -35,16 +35,15 @@ public class Signal extends JComponent
     private       SignalType SIGNAL_TYPE;
     private       Point      LOCATION;
 
-
     private int currentState = STATE_UNKNOWN;
 
-    public Signal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType direction)
+    public Signal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType type)
     {
         SIGNAL_ID = description;
         DATA_ID = dataId;
         LOCATION = new Point(x, y);
 
-        setDirection(direction);
+        setType(type);
         setOpaque(false);
         setFont(EastAngliaMapClient.TD_FONT.deriveFont(8f));
 
@@ -72,35 +71,44 @@ public class Signal extends JComponent
     }
 
     public void isShunt() { isShunt = true; }
-    public void set0Text(String text) { TEXT_0 = text; setDirection(SignalType.TEXT); }
-    public void set1Text(String text) { TEXT_1 = text; setDirection(SignalType.TEXT); }
+    public void set0Text(String text) { TEXT_0 = text; setType(SIGNAL_TYPE); }
+    public void set1Text(String text) { TEXT_1 = text; setType(SIGNAL_TYPE); }
 
-    public void setDirection(SignalType direction)
+    public void setType(SignalType direction)
     {
         SIGNAL_TYPE = direction;
-        int x = LOCATION == null ? getX() : LOCATION.x;
-        int y = LOCATION == null ? getY() : LOCATION.y;
+        int x = LOCATION.x;
+        int y = LOCATION.y;
 
         switch (direction)
         {
             case TEXT:
-                int width = 24;
-                if (TEXT_0 != null && TEXT_1 != null) width = Math.max(TEXT_0.length(), TEXT_1.length()) * 6;
-                if (TEXT_0 == null && TEXT_1 != null) width = TEXT_1.length() * 6;
-                if (TEXT_0 != null && TEXT_1 == null) width = TEXT_0.length() * 6;
-                setBounds(x, y, width, 8);
+                int widthTX = 24;
+                if (TEXT_0 != null && TEXT_1 != null) widthTX = Math.max(TEXT_0.length(), TEXT_1.length()) * 6;
+                if (TEXT_0 == null && TEXT_1 != null) widthTX = TEXT_1.length() * 6;
+                if (TEXT_0 != null && TEXT_1 == null) widthTX = TEXT_0.length() * 6;
+                setBounds(x, y, widthTX, 8);
+                setToolTipText(SIGNAL_ID + " (" + DATA_ID + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
                 break;
+
             case TRTS:
                 setBounds(x - 12, y - 4, 24, 8);
                 break;
 
+            case TRACK_CIRCUIT:
+                int widthTC  = TEXT_0 == null ? 16 : (int) Long.parseLong(TEXT_0);
+                int heightTC = TEXT_1 == null ? 8  : (int) Long.parseLong(TEXT_1);
+                setBounds(x, y, widthTC, heightTC);
+                setToolTipText(SIGNAL_ID + " (" + DATA_ID + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
+                break;
+
             case POST_NONE:
-            case POST_TEST:
+            case POST_NONE_HIDDEN:
                 setBounds(x - 4, y - 4, 8, 8);
                 break;
 
             case POST_LEFT:
-                setBounds(x - 12, y - 4, 14, 8);
+                setBounds(x - 12, y - 4, 14, 8); //sub: x-12 -> x-10
                 break;
 
             case POST_RIGHT:
@@ -124,15 +132,15 @@ public class Signal extends JComponent
     @Override
     public void setLocation(int x, int y)
     {
-        super.setLocation(x, y);
         LOCATION = new Point(x, y);
+        setType(SIGNAL_TYPE);
     }
 
     @Override
     public void setLocation(Point p)
     {
-        super.setLocation(p);
         LOCATION = p;
+        setType(SIGNAL_TYPE);
     }
 
     public void setState(int state)
@@ -162,7 +170,7 @@ public class Signal extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
-        if (ScreencapManager.isScreencapping && SIGNAL_TYPE == SignalType.POST_TEST)
+        if (ScreencapManager.isScreencapping && SIGNAL_TYPE == SignalType.POST_NONE_HIDDEN)
             return;
 
         if (EastAngliaMapClient.signalsVisible || ScreencapManager.isScreencapping)
@@ -233,6 +241,11 @@ public class Signal extends JComponent
                     g2d.drawString("TRTS", 0, 8);
                     break;
 
+                case TRACK_CIRCUIT:
+                    g2d.setColor(currentState == STATE_0 ? COLOUR_STATE_ON : COLOUR_STATE_UNKNOWN);
+                    g2d.fillRect(0, 0, getWidth(), getHeight());
+                    break;
+
                 case POST_RIGHT:
                     drawSignal(0, 0, g2d);
 
@@ -286,7 +299,7 @@ public class Signal extends JComponent
         }
         else if (isShunt)
         {
-            if (SIGNAL_TYPE == SignalType.POST_RIGHT)
+            if (SIGNAL_TYPE == SignalType.POST_DOWN)
             {
                 g2d.fillRect(x,   y,   2, 8);
                 g2d.fillRect(x+2, y+1, 2, 7);
@@ -295,7 +308,7 @@ public class Signal extends JComponent
                 g2d.fillRect(x+6, y+4, 1, 4);
                 g2d.fillRect(x+7, y+6, 1, 2);
             }
-            else if (SIGNAL_TYPE == SignalType.POST_UP)
+            else if (SIGNAL_TYPE == SignalType.POST_RIGHT)
             {
                 g2d.fillRect(x,   y+6, 1, 2);
                 g2d.fillRect(x+1, y+4, 1, 4);
@@ -304,7 +317,7 @@ public class Signal extends JComponent
                 g2d.fillRect(x+4, y+1, 2, 7);
                 g2d.fillRect(x+6, y,   2, 8);
             }
-            else if (SIGNAL_TYPE == SignalType.POST_DOWN)
+            else if (SIGNAL_TYPE == SignalType.POST_LEFT)
             {
                 g2d.fillRect(x,   y, 2, 8);
                 g2d.fillRect(x+2, y, 2, 7);
@@ -313,7 +326,7 @@ public class Signal extends JComponent
                 g2d.fillRect(x+6, y, 1, 4);
                 g2d.fillRect(x+7, y, 1, 2);
             }
-            else if (SIGNAL_TYPE == SignalType.POST_LEFT)
+            else if (SIGNAL_TYPE == SignalType.POST_UP)
             {
                 g2d.fillRect(x,   y,   8, 2);
                 g2d.fillRect(x+1, y+2, 7, 2);

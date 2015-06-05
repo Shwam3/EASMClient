@@ -104,10 +104,10 @@ public class Berths
         berthIds.stream().forEachOrdered((id) -> printBerths("  " + id, false));
     }
 
-    /*public static void reset()
-    {
-        berthMap = new HashMap<>(berthMap.size());
-    }*/
+    //public static void reset()
+    //{
+    //    berthMap = new HashMap<>(berthMap.size());
+    //}
 
     public static void toggleBerthsOpacities()
     {

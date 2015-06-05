@@ -43,4 +43,3 @@ Key
   + New
   * Fix/Change
   - Removal
-  

@@ -8,7 +8,7 @@ public class Signals
 {
     private static Map<String, Signal> signalMap = new HashMap<>();
 
-    public static Signal getOrCreateSignal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType direction)
+    public static Signal getOrCreateSignal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType type)
     {
         Signal signal = signalMap.get(dataId);
         if (signal != null)
@@ -20,7 +20,7 @@ public class Signals
             return signal;
         }
         else
-            return new Signal(pnl, x, y, description == null ? "" : description, dataId, direction == null ? SignalType.POST_TEST : direction);
+            return new Signal(pnl, x, y, description == null ? "" : description, dataId, type == null ? SignalType.POST_NONE_HIDDEN : type);
     }
 
     public static boolean signalExists(String signalId)
@@ -45,10 +45,10 @@ public class Signals
         return null;
     }
 
-    /*public static void reset()
-    {
-        signalMap = new HashMap<>(signalMap.size());
-    }*/
+    //public static void reset()
+    //{
+    //    signalMap = new HashMap<>(signalMap.size());
+    //}
 
     public static void toggleSignalVisibilities()
     {
@@ -60,40 +60,29 @@ public class Signals
 
     public static enum SignalType
     {
-        TEXT,
-        TRTS,
-        POST_LEFT,
-        POST_RIGHT,
-        POST_UP,
-        POST_DOWN,
-        POST_NONE,
-        POST_TEST;
+        TEXT          ("text"),
+        TRTS          ("trts"),
+        TRACK_CIRCUIT ("tc"),
+        POST_LEFT     ("left"),
+        POST_RIGHT    ("right"),
+        POST_UP       ("up"),
+        POST_DOWN     ("down"),
+        POST_NONE     ("none"),
+        POST_NONE_HIDDEN     ("text");
 
-        public static SignalType getDirection(Object obj)
+        private final String code;
+
+        private SignalType(String code) { this.code = code; }
+        public String getCode() { return code; }
+
+        public static SignalType getType(Object obj)
         {
             if (obj instanceof SignalType)
                 return (SignalType) obj;
 
-            switch (String.valueOf(obj).toLowerCase().trim())
-            {
-                case "left":
-                    return POST_LEFT;
-                case "right":
-                    return POST_RIGHT;
-                case "up":
-                    return POST_UP;
-                case "down":
-                    return POST_DOWN;
-                case "trts":
-                    return TRTS;
-                case "text":
-                    return TEXT;
-                case "none":
-                    return POST_NONE;
-                case "test":
-                    return POST_TEST;
-            }
-
+            for (SignalType type : values())
+                if (type.getCode().equals(String.valueOf(obj).toLowerCase()))
+                    return type;
             return null;
         }
     }

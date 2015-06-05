@@ -66,3 +66,4 @@ dist/
 build/
 \nbproject
 nbproject/private/private.xml
+*.hprof

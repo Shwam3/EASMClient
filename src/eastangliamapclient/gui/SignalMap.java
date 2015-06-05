@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.MouseInfo;
 import java.awt.PointerInfo;
@@ -76,7 +77,8 @@ public class SignalMap
     private final List<BackgroundPanel>        panelList = new ArrayList<>();
     private final Map<String, BackgroundPanel> panelMap  = new HashMap<>();
 
-    public JTabbedPane TabBar;
+    public final JTabbedPane TabBar;
+    public final KeyEventDispatcher dispatcher;
 
     private static final Font CLOCK_FONT = EastAngliaMapClient.TD_FONT.deriveFont(45f);
 
@@ -212,7 +214,7 @@ public class SignalMap
                             (int) ((long) signalData.get("posY")),
                             (String) signalData.get("signalId"),
                             (String) signalData.get("dataId"),
-                            SignalType.getDirection(signalData.get("direction")));
+                            SignalType.getType(signalData.get("direction")));
 
                     if (signalData.containsKey("isShunt") && (Boolean) signalData.get("isShunt"))
                         signal.isShunt();
@@ -220,6 +222,10 @@ public class SignalMap
                         signal.set0Text(String.valueOf(signalData.get("text0")));
                     if (signalData.containsKey("text1"))
                         signal.set1Text(String.valueOf(signalData.get("text1")));
+                  //if (signalData.containsKey("width"))
+                  //    signal.set0Text(String.valueOf(signalData.get("width")));
+                  //if (signalData.containsKey("height"))
+                  //    signal.set1Text(String.valueOf(signalData.get("height")));
                 });
                 //</editor-fold>
 
@@ -258,65 +264,8 @@ public class SignalMap
             });
         }
 
-        //<editor-fold defaultstate="collapsed" desc="Test Signals">
-        /*placeTestSignals(panelMap.get("11"), 1100, 15, 0,  "EN05:7","EN09:8","EN0A:1","EN0A:2","EN0A:5","EN0A:6","EN0A:8","EN0B:1","EN0B:2","","EN14:4","EN17:1","EN17:2","EN17:3","EN17:4","EN17:5","EN17:7","EN17:8","EN18:1");
-
-        placeTestSignals(panelMap.get("9"), 300, 550, 35, "SX05:1","SX05:2","SX05:3","SX05:4","SX06:1","SX06:2",
-        "SX06:3","SX06:4","SX06:5","SX06:6","SX07:3","SX07:4","SX07:6","SX07:7","SX08:4","SX09:1","SX09:4",
-        "SX09:5","SX09:6","SX09:7","SX0A:1","SX0A:3","SX0B:1","SX0B:2","SX0B:3","SX0B:4","SX0B:5","SX0B:6",
-        "SX0C:3","SX0C:4","SX0C:5","SX0C:6","SX0C:7","SX0C:8","SX0D:1","SX0D:2","SX0E:1","SX0E:2","SX0E:3",
-        "SX0E:4","SX0E:5","SX0E:6","SX0E:7","SX0E:8","SX0F:1","SX0F:2","SX0F:4","SX0F:5","SX10:5","SX10:6",
-        "SX10:7","SX11:2","SX11:3","SX12:2","SX12:5","SX12:6","SX12:7","SX12:8","SX13:1","SX14:2","SX15:1",
-        "SX15:2","SX15:3","SX15:4","SX16:2","SX16:3","SX16:6","SX16:7","SX17:2","SX17:3","SX17:6");
-
-        placeTestSignals(panelMap.get("9"), 300, 590, 35, "SX0C:2","SX0D:3","SX0D:4","SX0D:5","SX0D:6","SX0D:7",
-        "SX0D:8","SX0F:3","SX10:1","SX10:2","SX10:3","SX10:4","SX10:8","SX11:1","SX11:4","SX11:5","SX11:6",
-        "SX11:7","SX11:8","SX12:1","SX12:3","SX12:4","SX13:2","SX13:3","SX13:4","SX13:5","SX13:6","SX13:7",
-        "SX13:8","SX14:1","SX14:3");*/
-        //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="Keyboard Commands">
-        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
-        {
-            if (!EastAngliaMapClient.blockKeyInput)
-            {
-                //frame.setPreferredSize(new Dimension(1877, 928));
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                //frame.setPreferredSize(new Dimension(frame.getSize().width, frame.getSize().height));
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
-        {
-            if (!EastAngliaMapClient.blockKeyInput)
-                Signals.toggleSignalVisibilities();
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
-        {
-            if (!EastAngliaMapClient.blockKeyInput)
-                Berths.toggleBerthVisibilities();
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
-        {
-            if (!EastAngliaMapClient.blockKeyInput)
-                Berths.toggleBerthsOpacities();
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_O, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
-        {
-            if (!EastAngliaMapClient.blockKeyInput)
-                Berths.toggleBerthDescriptions();
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
-        {
-            if (!EastAngliaMapClient.blockKeyInput)
-                new HelpDialog();
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_H, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
-        {
-            EastAngliaMapClient.blockKeyInput = false;
-            EastAngliaMapClient.clean();
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher((KeyEvent evt) ->
+        dispatcher = (KeyEvent evt) ->
         {
             if (evt.getID() == KeyEvent.KEY_PRESSED && !EastAngliaMapClient.blockKeyInput)
             {
@@ -350,7 +299,71 @@ public class SignalMap
                 }
             }
             return false;
-        });
+        };
+
+        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+            {
+                //frame.setPreferredSize(new Dimension(1877, 928));
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                //frame.setPreferredSize(new Dimension(frame.getSize().width, frame.getSize().height));
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                Signals.toggleSignalVisibilities();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                Berths.toggleBerthVisibilities();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                Berths.toggleBerthsOpacities();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_O, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                Berths.toggleBerthDescriptions();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                new HelpDialog();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_H, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        {
+            EastAngliaMapClient.blockKeyInput = false;
+            EastAngliaMapClient.clean();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        //frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        //{
+        //    MessageHandler.stop();
+        //    Cursor origCursor = frame.getRootPane().getCursor();
+        //    frame.getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        //    Signals.reset();
+        //    Berths.reset();
+
+        //    EastAngliaMapClient.frameSignalMap = new SignalMap();
+
+        //    KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(dispatcher);
+        //    frame.getContentPane().setCursor(origCursor);
+        //    frame.dispose();
+
+        //    EastAngliaMapClient.reconnect(true);
+        //    EastAngliaMapClient.frameSignalMap.setVisible(true);
+
+        //    EastAngliaMapClient.blockKeyInput = false;
+        //    EastAngliaMapClient.clean();
+        //}, KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(dispatcher);
         //</editor-fold>
 
         frame.add(TabBar, BorderLayout.CENTER);
@@ -396,9 +409,7 @@ public class SignalMap
             }
         }, 30000, 120000);
 
-        new javax.swing.Timer(250, (ActionEvent e) ->
-            panelList.parallelStream().forEach((bp) -> bp.repaint(780, 10, 280, 50))
-        ).start();
+        new javax.swing.Timer(250, (ActionEvent e) -> panelList.parallelStream().forEach((bp) -> bp.repaint(780, 10, 280, 50))).start(); // Clock section only
     }
 
     //<editor-fold defaultstate="collapsed" desc="Util methods">

@@ -9,15 +9,18 @@ public class JSONParser
 {
     public static Object parseJSON(String json)
     {
-        json = json.trim();
+        try
+        {
+            json = json.trim();
 
-        if (json.startsWith("\""))
-            return valueOf(json.substring(1, indexOfNextUnescapedChar('"', json)), json);
-        else if (json.startsWith("["))
-            return getArray(json);
-
-      //else if (json.startsWith("{"))
-            return getObject(json);
+            if (json.startsWith("\""))
+                return valueOf(json.substring(1, indexOfNextUnescapedChar('"', json)), json);
+            else if (json.startsWith("["))
+                return getArray(json);
+          //else if (json.startsWith("{"))
+                return getObject(json);
+        }
+        catch (Exception e) { throw new IllegalArgumentException("Bad JSON String: \"" + json + "\"", e); }
     }
 
     private static Object valueOf(String string, String in)
