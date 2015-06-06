@@ -168,14 +168,14 @@ public class SignalMap
                 System.exit(-1);
             }
 
-            if (jsonString.length() < 1)
+            if (jsonString.length() == 0)
             {
                 JOptionPane.showMessageDialog(null, "Error in map file\nEmpty file", "Signal Map", JOptionPane.ERROR_MESSAGE);
                 System.exit(-1);
             }
 
-            Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString.toString());
             jsonString.trimToSize();
+            Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString.toString());
 
             EastAngliaMapClient.DATA_VERSION = String.valueOf(json.get("version"));
             frame.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  " / v" + EastAngliaMapClient.DATA_VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
@@ -606,46 +606,46 @@ public class SignalMap
         buttons.add(help);
     }
 
-    /*private void placeTestSignals(BackgroundPanel pnl, String areaId, int x, int y, int width, int min, int max)
-    {
-        List<String> bytes = new ArrayList<>();
+    //private void placeTestSignals(BackgroundPanel pnl, String areaId, int x, int y, int width, int min, int max)
+    //{
+    //    List<String> bytes = new ArrayList<>();
+    //
+    //    for (int i = min; i < max; i++)
+    //    {
+    //        String currByte = Integer.toHexString(i).toUpperCase();
+    //        currByte = areaId + (currByte.length() % 2 != 0 ? "0" + currByte : currByte);
+    //
+    //        for (int j = 1; j < 9; j++)
+    //            bytes.add(currByte + ":" + j);
+    //
+    //        bytes.add("");
+    //    }
+    //
+    //    placeTestSignals(pnl, x, y, width, bytes.toArray(new String[0]));
+    //}
 
-        for (int i = min; i < max; i++)
-        {
-            String currByte = Integer.toHexString(i).toUpperCase();
-            currByte = areaId + (currByte.length() % 2 != 0 ? "0" + currByte : currByte);
-
-            for (int j = 1; j < 9; j++)
-                bytes.add(currByte + ":" + j);
-
-            bytes.add("");
-        }
-
-        placeTestSignals(pnl, x, y, width, bytes.toArray(new String[0]));
-    }
-
-    private void placeTestSignals(BackgroundPanel pnl, int x, int y, int width, String... ids)
-    {
-        List<String> bytes = Arrays.asList(ids);
-
-        int curWidth = 0;
-        for (String id : bytes)
-        {
-            if (curWidth > width - 1 && width > 0)
-            {
-                y += 12;
-                curWidth = 0;
-            }
-
-            if (!id.isEmpty())
-            {
-                Signal sig = Signals.getOrCreateSignal(pnl, x + curWidth*27, y, "", id + (Signals.signalExists(id) ? " " : ""), SignalType.TEXT);
-                sig.set0Text(id.substring(2));
-            }
-
-            curWidth++;
-        }
-    }*/
+    //private void placeTestSignals(BackgroundPanel pnl, int x, int y, int width, String... ids)
+    //{
+    //    List<String> bytes = Arrays.asList(ids);
+    //
+    //    int curWidth = 0;
+    //    for (String id : bytes)
+    //    {
+    //        if (curWidth > width - 1 && width > 0)
+    //        {
+    //            y += 12;
+    //            curWidth = 0;
+    //        }
+    //
+    //        if (!id.isEmpty())
+    //        {
+    //            Signal sig = Signals.getOrCreateSignal(pnl, x + curWidth*27, y, "", id + (Signals.signalExists(id) ? " " : ""), SignalType.TEXT);
+    //            sig.set0Text(id.substring(2));
+    //        }
+    //
+    //        curWidth++;
+    //    }
+    //}
     //</editor-fold>
 
     public void dispose()

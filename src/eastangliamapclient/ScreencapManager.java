@@ -64,7 +64,7 @@ public class ScreencapManager
                         else
                         {
                             if (EastAngliaMapClient.serverSocket != null && EastAngliaMapClient.screencap && EastAngliaMapClient.serverSocket.isConnected())
-                                EventQueue.invokeAndWait(() -> { takeScreencaps(); });
+                                EventQueue.invokeAndWait(() -> takeScreencaps());
                             else
                                 printScreencap("Not taking screencaps, disconnected or turned off", false);
                         }
@@ -129,7 +129,7 @@ public class ScreencapManager
             EastAngliaMapClient.frameSignalMap.prepForScreencap();
             isScreencapping = true;
 
-            EastAngliaMapClient.frameSignalMap.getPanels().parallelStream().forEach((bp) ->
+            EastAngliaMapClient.frameSignalMap.getPanels().stream().forEachOrdered((bp) ->
             {
                 BufferedImage image = bp.getBufferedImage();
                 names.add(bp.getName().replace("/", " + "));
