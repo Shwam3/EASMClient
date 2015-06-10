@@ -7,7 +7,6 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -68,12 +67,12 @@ public class HelpDialog extends JDialog
         add(mainText, BorderLayout.CENTER);
 
         JButton okButton = new JButton("OK");
-        okButton.addActionListener((ActionEvent e) -> { dispose(); EastAngliaMapClient.blockKeyInput = false; });
+        okButton.addActionListener(e -> { dispose(); EastAngliaMapClient.blockKeyInput = false; });
         okButton.setPreferredSize(new Dimension(73, 23));
         okButton.setOpaque(false);
 
         JButton gitButton = new JButton("GitHub...");
-        gitButton.addActionListener((ActionEvent evt) ->
+        gitButton.addActionListener(evt ->
         {
             try { Desktop.getDesktop().browse(new URI("https://www.github.com/Shwam3/")); }
             catch (URISyntaxException | IOException e) { EastAngliaMapClient.printThrowable(e, "HelpDialog"); }
@@ -96,8 +95,8 @@ public class HelpDialog extends JDialog
             }
         });
 
-        getRootPane().registerKeyboardAction((ActionEvent e) -> { dispose(); EastAngliaMapClient.blockKeyInput = false; }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        getRootPane().registerKeyboardAction((ActionEvent e) -> { dispose(); EastAngliaMapClient.blockKeyInput = false; }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,  0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(e -> { dispose(); EastAngliaMapClient.blockKeyInput = false; }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(e -> { dispose(); EastAngliaMapClient.blockKeyInput = false; }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,  0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         getContentPane().setBackground(EastAngliaMapClient.BLACK);
         pack();

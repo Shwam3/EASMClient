@@ -2,11 +2,10 @@ package eastangliamapclient.gui;
 
 import eastangliamapclient.Berths;
 import eastangliamapclient.EastAngliaMapClient;
-import eastangliamapclient.ScreencapManager;
 import eastangliamapclient.MessageHandler;
+import eastangliamapclient.ScreencapManager;
 import eastangliamapclient.Signals;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
@@ -32,9 +31,9 @@ public class OptionContexMenu extends JPopupMenu
     JCheckBoxMenuItem minToSysTray;
     JMenuItem exit;
 
-    ActionListener clickEvent = (ActionEvent evt) ->
+    ActionListener clickEvent = e ->
     {
-        Object src = evt.getSource();
+        Object src = e.getSource();
         if (src == toggleOpacity)
             Berths.toggleBerthsOpacities();
         else if (src == toggleDescriptions)

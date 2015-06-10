@@ -9,9 +9,7 @@ import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -26,7 +24,7 @@ public class SysTrayHandler
     {
         if (SystemTray.isSupported())
         {
-            ActionListener actionListener = (ActionEvent evt) ->
+            ActionListener actionListener = e ->
             {
                 EastAngliaMapClient.frameSignalMap.setVisible(true);
                 EastAngliaMapClient.frameSignalMap.frame.requestFocus();
@@ -62,9 +60,9 @@ public class SysTrayHandler
         final MenuItem reconnect = new MenuItem("Reconnect");
         final CheckboxMenuItem screenshot = new CheckboxMenuItem("Auto Screenshot", EastAngliaMapClient.screencap);
 
-        ActionListener menuListener = (ActionEvent evt) ->
+        ActionListener menuListener = e ->
         {
-            Object src = evt.getSource();
+            Object src = e.getSource();
             if (src == exit)
                 System.exit(0);
             else if (src == showWindow)
@@ -75,7 +73,7 @@ public class SysTrayHandler
 
         showWindow.addActionListener(menuListener);
         reconnect.addActionListener(menuListener);
-        screenshot.addItemListener((ItemEvent evt) -> ScreencapManager.screencap());
+        screenshot.addItemListener(e -> ScreencapManager.screencap());
         exit.addActionListener(menuListener);
 
         pm.add(showWindow);

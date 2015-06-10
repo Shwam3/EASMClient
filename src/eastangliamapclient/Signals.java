@@ -55,7 +55,7 @@ public class Signals
         EastAngliaMapClient.signalsVisible = !EastAngliaMapClient.signalsVisible;
 
         EastAngliaMapClient.frameSignalMap.getPanels().parallelStream()
-                .forEach((bp) -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));
+                .forEach(bp -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));
     }
 
     public static enum SignalType

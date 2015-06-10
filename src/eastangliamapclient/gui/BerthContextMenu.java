@@ -6,7 +6,6 @@ import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.MessageHandler;
 import java.awt.Component;
 import java.awt.Desktop;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -21,7 +20,7 @@ public class BerthContextMenu extends JPopupMenu
     private Berth berth;
     public boolean actionInProgress = false;
 
-    ActionListener clickEvent = (ActionEvent evt) ->
+    ActionListener clickEvent = evt ->
     {
         actionInProgress = true;
 

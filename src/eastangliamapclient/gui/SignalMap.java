@@ -29,7 +29,6 @@ import java.awt.Robot;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -182,7 +181,7 @@ public class SignalMap
 
             List<Map<String, Object>> panelsJson = (List<Map<String, Object>>) json.get("signalMap");
 
-            panelsJson.stream().forEachOrdered((panel) ->
+            panelsJson.stream().forEachOrdered(panel ->
             {
                 String name = panel.get("panelId") + ". " + panel.get("panelName");
 
@@ -194,7 +193,7 @@ public class SignalMap
                 TabBar.addTab(name, null, new SideScrollPane(bp), "<html>" + panel.get("panelDescription") + "</html>");
 
                 //<editor-fold defaultstate="collapsed" desc="Berths">
-                ((List<Map<String, Object>>) panel.get("berths")).parallelStream().forEach((berthData) ->
+                ((List<Map<String, Object>>) panel.get("berths")).parallelStream().forEach(berthData ->
                 {
                     Berth berth = Berths.getOrCreateBerth(bp,
                             (int) ((long) berthData.get("posX")),
@@ -207,7 +206,7 @@ public class SignalMap
                 //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Signals">
-                ((List<Map<String, Object>>) panel.get("signals")).parallelStream().forEach((signalData) ->
+                ((List<Map<String, Object>>) panel.get("signals")).parallelStream().forEach(signalData ->
                 {
                     Signal signal = Signals.getOrCreateSignal(bp,
                             (int) ((long) signalData.get("posX")),
@@ -230,7 +229,7 @@ public class SignalMap
                 //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Stations">
-                ((List<Map<String, Object>>) panel.get("stations")).parallelStream().forEach((stationData) ->
+                ((List<Map<String, Object>>) panel.get("stations")).parallelStream().forEach(stationData ->
                 {
                     if (stationData.containsKey("isLarge") && (Boolean) stationData.get("isLarge"))
                     {
@@ -252,7 +251,7 @@ public class SignalMap
                 //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Nav Buttons">
-                ((List<Map<String, Object>>) panel.get("navButtons")).parallelStream().forEach((navButtonData) ->
+                ((List<Map<String, Object>>) panel.get("navButtons")).parallelStream().forEach(navButtonData ->
                 {
                     makeNavButton(bp,
                             (int) ((long) navButtonData.get("posX")),
@@ -265,19 +264,19 @@ public class SignalMap
         }
 
         //<editor-fold defaultstate="collapsed" desc="Keyboard Commands">
-        dispatcher = (KeyEvent evt) ->
+        dispatcher = e ->
         {
-            if (evt.getID() == KeyEvent.KEY_PRESSED && !EastAngliaMapClient.blockKeyInput)
+            if (e.getID() == KeyEvent.KEY_PRESSED && !EastAngliaMapClient.blockKeyInput)
             {
-                int keyCode = evt.getKeyCode();
+                int keyCode = e.getKeyCode();
 
                 if (keyCode >= KeyEvent.VK_F1 && keyCode <= KeyEvent.VK_F1 + TabBar.getTabCount() - 1) // Function keys
                 {
                     keyCode -= KeyEvent.VK_F1;
 
-                    if (evt.isControlDown()) // Control for tabs 13-24
+                    if (e.isControlDown()) // Control for tabs 13-24
                         keyCode += 12;
-                    if (evt.isShiftDown()) // Shift for tabs 25-36, both for tabs 37-48
+                    if (e.isShiftDown()) // Shift for tabs 25-36, both for tabs 37-48
                         keyCode += 24;
 
                     if (keyCode >= 0 && keyCode <= TabBar.getTabCount() - 1)
@@ -301,7 +300,7 @@ public class SignalMap
             return false;
         };
 
-        frame.getRootPane().registerKeyboardAction((ActionEvent evt) ->
+        frame.getRootPane().registerKeyboardAction(e ->
         {
             if (!EastAngliaMapClient.blockKeyInput)
             {
@@ -311,37 +310,37 @@ public class SignalMap
                 //frame.setPreferredSize(new Dimension(frame.getSize().width, frame.getSize().height));
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        frame.getRootPane().registerKeyboardAction(e ->
         {
             if (!EastAngliaMapClient.blockKeyInput)
                 Signals.toggleSignalVisibilities();
         }, KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        frame.getRootPane().registerKeyboardAction(e ->
         {
             if (!EastAngliaMapClient.blockKeyInput)
                 Berths.toggleBerthVisibilities();
         }, KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        frame.getRootPane().registerKeyboardAction(e ->
         {
             if (!EastAngliaMapClient.blockKeyInput)
                 Berths.toggleBerthsOpacities();
         }, KeyStroke.getKeyStroke(KeyEvent.VK_O, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        frame.getRootPane().registerKeyboardAction(e ->
         {
             if (!EastAngliaMapClient.blockKeyInput)
                 Berths.toggleBerthDescriptions();
         }, KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        frame.getRootPane().registerKeyboardAction(e ->
         {
             if (!EastAngliaMapClient.blockKeyInput)
                 new HelpDialog();
         }, KeyStroke.getKeyStroke(KeyEvent.VK_H, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        frame.getRootPane().registerKeyboardAction(e ->
         {
             EastAngliaMapClient.blockKeyInput = false;
             EastAngliaMapClient.clean();
         }, KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-        //frame.getRootPane().registerKeyboardAction((ActionEvent e) ->
+        //frame.getRootPane().registerKeyboardAction(e ->
         //{
         //    MessageHandler.stop();
         //    Cursor origCursor = frame.getRootPane().getCursor();
@@ -409,7 +408,7 @@ public class SignalMap
             }
         }, 30000, 120000);
 
-        new javax.swing.Timer(250, (ActionEvent e) -> panelList.parallelStream().forEach((bp) -> bp.repaint(780, 10, 280, 50))).start(); // Clock section only
+        new javax.swing.Timer(250, e -> panelList.parallelStream().forEach(bp -> bp.repaint(780, 10, 280, 50))).start(); // Clock section only
     }
 
     //<editor-fold defaultstate="collapsed" desc="Util methods">
@@ -699,14 +698,14 @@ public class SignalMap
 
     public void prepForScreencap()
     {
-        buttons.stream().forEach((button) -> button.setVisible(false));
-        motdPanes.stream().forEach((sp) -> sp.setVisible(false));
+        buttons.stream().forEach(button -> button.setVisible(false));
+        motdPanes.stream().forEach(sp -> sp.setVisible(false));
     }
 
     public void finishScreencap()
     {
-        buttons.stream().forEach((button) -> button.setVisible(true));
-        motdPanes.stream().forEach((sp) -> sp.setVisible(true));
+        buttons.stream().forEach(button -> button.setVisible(true));
+        motdPanes.stream().forEach(sp -> sp.setVisible(true));
     }
 
     public void setTitle(String title)
@@ -720,13 +719,12 @@ public class SignalMap
         return frame.hasFocus();
     }
 
-
     public void setMOTD(String motd)
     {
         String motdHTML = "<html><body style='width:auto;height:auto'>" + (motd == null || motd.isEmpty() ? "No problems" : motd.trim()) + "</body></html>";
         int height = (((motdHTML.length() - motdHTML.replace("<br>", "").length()) / 4) + (motdHTML.replaceAll("\\<.*?\\>", "").length() / 30)) * 12 + 12;
 
-        motdPanes.parallelStream().forEach((sp) ->
+        motdPanes.parallelStream().forEach(sp ->
         {
             JLabel lbl = (JLabel) sp.getViewport().getView();
             lbl.setText(motdHTML);

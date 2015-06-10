@@ -20,6 +20,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +35,7 @@ public class ScreencapManager
     {
         try
         {
-            // Redraw as a copy, uses less memory for some reason
+            // Redraw a copy, uses less memory for some reason
             BufferedImage tmpLogo = ImageIO.read(EastAngliaMapClient.newFile(new File(EastAngliaMapClient.storageDir, "logo.png")));
             Graphics2D g2d = logo.createGraphics();
             g2d.drawImage(tmpLogo, 0, 0, null);
@@ -70,7 +71,7 @@ public class ScreencapManager
                         }
                     }
                     catch (Exception e) { isScreencapping = false; }
-                }, calendar.getTime().getTime() - System.currentTimeMillis(), 120000, TimeUnit.MILLISECONDS);
+                }, calendar.getTimeInMillis() - System.currentTimeMillis(), 120000, TimeUnit.MILLISECONDS);
 
                 printScreencap("Auto-Screencapping started", false);
             });
@@ -121,21 +122,20 @@ public class ScreencapManager
 
         printScreencap("Updating images (" + EastAngliaMapClient.getTime() + ")", false);
 
-        final java.util.List<BufferedImage> images = new ArrayList<>();
-        final java.util.List<String> names = new ArrayList<>();
+        final List<BufferedImage> images = new ArrayList<>();
+        final List<String> names = new ArrayList<>();
 
         try
         {
             EastAngliaMapClient.frameSignalMap.prepForScreencap();
             isScreencapping = true;
 
-            EastAngliaMapClient.frameSignalMap.getPanels().stream().forEachOrdered((bp) ->
+            EastAngliaMapClient.frameSignalMap.getPanels().stream().forEachOrdered(bp ->
             {
                 BufferedImage image = bp.getBufferedImage();
                 names.add(bp.getName().replace("/", " + "));
 
                 Graphics2D g2d = image.createGraphics();
-                g2d.setBackground(new Color(0xFF69B4));
                 g2d.clearRect(0, 0, SignalMap.BackgroundPanel.BP_DEFAULT_WIDTH, SignalMap.BackgroundPanel.BP_DEFAULT_HEIGHT);
                 bp.invalidate();
                 bp.paint(g2d);
@@ -152,104 +152,100 @@ public class ScreencapManager
             EastAngliaMapClient.frameSignalMap.finishScreencap();
         }
 
-        new Thread("uploadScreencaps")
+        new Thread(() ->
         {
-            @Override
-            public void run()
+            File screencapPath = new File(EastAngliaMapClient.storageDir, "images");
+            int width  = SignalMap.BackgroundPanel.BP_DEFAULT_WIDTH + 2;
+            int height = SignalMap.BackgroundPanel.BP_DEFAULT_HEIGHT + 2;
+
+            try
             {
-                File screencapPath = new File(EastAngliaMapClient.storageDir, "images");
-                int width  = SignalMap.BackgroundPanel.BP_DEFAULT_WIDTH + 2;
-                int height = SignalMap.BackgroundPanel.BP_DEFAULT_HEIGHT + 2;
+                BufferedImage bigImage = new BufferedImage(width*3 - 2, height*4 - 2, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2d = bigImage.createGraphics();
+              //g2d.clearRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
+                g2d.setColor(EastAngliaMapClient.GREY);
+                g2d.fillRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
 
-                try
-                {
-                    BufferedImage bigImage = new BufferedImage(width*3 - 2, height*4 - 2, BufferedImage.TYPE_INT_ARGB);
-                    Graphics2D g2d = bigImage.createGraphics();
-                    //g2d.clearRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
-                    g2d.setColor(EastAngliaMapClient.GREY);
-                    g2d.fillRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
+                g2d.drawImage(images.get(0),  0,       0,        null);
+                g2d.drawImage(images.get(1),  width,   0,        null);
+                g2d.drawImage(images.get(2),  width*2, 0,        null);
+                g2d.drawImage(images.get(3),  0,       height,   null);
+                g2d.drawImage(images.get(4),  width,   height,   null);
+                g2d.drawImage(images.get(5),  width*2, height,   null);
+                g2d.drawImage(images.get(6),  0,       height*2, null);
+                g2d.drawImage(images.get(7),  width,   height*2, null);
+                g2d.drawImage(images.get(8),  width*2, height*2, null);
+                g2d.drawImage(images.get(9),  0,       height*3, null);
+                g2d.drawImage(images.get(10), width,   height*3, null);
+                g2d.drawImage(images.get(11), width*2, height*3, null);
 
-                    g2d.drawImage(images.get(0),  0,       0,        null);
-                    g2d.drawImage(images.get(1),  width,   0,        null);
-                    g2d.drawImage(images.get(2),  width*2, 0,        null);
-                    g2d.drawImage(images.get(3),  0,       height,   null);
-                    g2d.drawImage(images.get(4),  width,   height,   null);
-                    g2d.drawImage(images.get(5),  width*2, height,   null);
-                    g2d.drawImage(images.get(6),  0,       height*2, null);
-                    g2d.drawImage(images.get(7),  width,   height*2, null);
-                    g2d.drawImage(images.get(8),  width*2, height*2, null);
-                    g2d.drawImage(images.get(9),  0,       height*3, null);
-                    g2d.drawImage(images.get(10), width,   height*3, null);
-                    g2d.drawImage(images.get(11), width*2, height*3, null);
-
-                    for (int i = 0; i < images.size(); i++)
-                    {
-                        try
-                        {
-                            ImageIO.write(images.get(i), "png", EastAngliaMapClient.newFile(new File(screencapPath, names.get(i) + ".png")));
-                            //printScreencap("    > " + names.get(i) + ".png", !ImageIO.write(images.get(i), "png", imageFile));
-                        }
-                        catch (FileNotFoundException e)
-                        {
-                            SysTrayHandler.popup("Unable to create screencap \"" + names.get(i) + "\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
-                        }
-                        catch (IOException e)
-                        {
-                            printScreencap("IOException creating screencap \"" + names.get(i) + "\"", true);
-                            EastAngliaMapClient.printThrowable(e, "Screencap");
-                            SysTrayHandler.popup("Unable to create screencap \"" + names.get(i) + "\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
-                        }
-                    }
-
-                    ImageIO.write(bigImage, "png", EastAngliaMapClient.newFile(new File(screencapPath, "All.png")));
-                    //printScreencap("    > All.png", !ImageIO.write(bigImage, "png", new File(screencapPath, "All.png")));
-                }
-                catch (FileNotFoundException e)
-                {
-                    printScreencap("FileNotFoundException creating screencap \"All\"", true);
-                    EastAngliaMapClient.printThrowable(e, "Screencap");
-                    SysTrayHandler.popup("Unable to create screencap \"All\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
-                }
-                catch (IOException e)
-                {
-                    printScreencap("IOException creating screencap \"All\"", true);
-                    EastAngliaMapClient.printThrowable(e, "Screencap");
-                    SysTrayHandler.popup("Unable to create screencap \"All\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
-                }
-
-                String[] imageURLs = {"Norwich", "CambridgeEN", "CambridgeCA", "Ipswich", "Clacton", "Colchester",
-                    "Harlow", "HackneyBrimsdown",  "Witham", "Shenfield", "Ilford", "LiverpoolStStratford", "All"};
-
-                Collections.reverse(names);
-                names.add("All");
-
-                for (int i = 0; i < 13; i++)
+                for (int i = 0; i < images.size(); i++)
                 {
                     try
                     {
-                        URLConnection con = new URL(EastAngliaMapClient.ftpBaseUrl + imageURLs[i] + "/image.png;type=i").openConnection();
-                        con.setConnectTimeout(10000);
-                        try (FileInputStream in = new FileInputStream(new File(screencapPath, names.get(i) + ".png")); BufferedOutputStream out = new BufferedOutputStream(con.getOutputStream()))
-                        {
-                            byte[] buffer = new byte[8192];
-                            int read;
-                            while ((read = in.read(buffer)) != -1)
-                                out.write(buffer, 0, read);
-
-                        }
-                        catch (IOException e) {}
-
-                        //printScreencap("    > " + names.get(i), false);
+                        ImageIO.write(images.get(i), "png", EastAngliaMapClient.newFile(new File(screencapPath, names.get(i) + ".png")));
+                        //printScreencap("    > " + names.get(i) + ".png", !ImageIO.write(images.get(i), "png", imageFile));
                     }
-                    catch (IOException e) {}
+                    catch (FileNotFoundException e)
+                    {
+                        SysTrayHandler.popup("Unable to create screencap \"" + names.get(i) + "\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
+                    }
+                    catch (IOException e)
+                    {
+                        printScreencap("IOException creating screencap \"" + names.get(i) + "\"", true);
+                        EastAngliaMapClient.printThrowable(e, "Screencap");
+                        SysTrayHandler.popup("Unable to create screencap \"" + names.get(i) + "\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
+                    }
                 }
 
-                EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  " / v" + EastAngliaMapClient.DATA_VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
-                printScreencap("Finished updating website images in ~ " + (System.currentTimeMillis() - startTime) / 1000f + " secs", false);
-
-                EastAngliaMapClient.clean();
+                ImageIO.write(bigImage, "png", EastAngliaMapClient.newFile(new File(screencapPath, "All.png")));
+                //printScreencap("    > All.png", !ImageIO.write(bigImage, "png", new File(screencapPath, "All.png")));
             }
-        }.start();
+            catch (FileNotFoundException e)
+            {
+                printScreencap("FileNotFoundException creating screencap \"All\"", true);
+                EastAngliaMapClient.printThrowable(e, "Screencap");
+                SysTrayHandler.popup("Unable to create screencap \"All\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
+            }
+            catch (IOException e)
+            {
+                printScreencap("IOException creating screencap \"All\"", true);
+                EastAngliaMapClient.printThrowable(e, "Screencap");
+                SysTrayHandler.popup("Unable to create screencap \"All\"\n(" + e.getClass().getSimpleName() + ")", TrayIcon.MessageType.WARNING);
+            }
+
+            String[] imageURLs = {"Norwich", "CambridgeEN", "CambridgeCA", "Ipswich", "Clacton", "Colchester",
+                "Harlow", "HackneyBrimsdown",  "Witham", "Shenfield", "Ilford", "LiverpoolStStratford", "All"};
+
+            Collections.reverse(names);
+            names.add("All");
+
+            for (int i = 0; i < 13; i++)
+            {
+                try
+                {
+                    URLConnection con = new URL(EastAngliaMapClient.ftpBaseUrl + imageURLs[i] + "/image.png;type=i").openConnection();
+                    con.setConnectTimeout(10000);
+                    File imageFile = new File(screencapPath, names.get(i) + ".png");
+                    try (FileInputStream in = new FileInputStream(imageFile); BufferedOutputStream out = new BufferedOutputStream(con.getOutputStream()))
+                    {
+                        byte[] buffer = new byte[(int) imageFile.length()];
+                        int read;
+                        while ((read = in.read(buffer)) != -1)
+                            out.write(buffer, 0, read);
+                    }
+                    catch (IOException e) {}
+
+                    //printScreencap("    > " + names.get(i), false);
+                }
+                catch (IOException e) {}
+            }
+
+            EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  " / v" + EastAngliaMapClient.DATA_VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
+            printScreencap("Finished updating website images in ~ " + (System.currentTimeMillis() - startTime) / 1000f + " secs", false);
+
+            EastAngliaMapClient.clean();
+        }, "uploadScreencaps").start();
     }
 
     public static void screencap()

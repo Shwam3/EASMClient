@@ -5,7 +5,6 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Frame;
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
@@ -223,7 +222,7 @@ public class VersionChecker
                 final JButton but = new JButton("Cancel");
                 but.setLocation(97, 45);
                 but.setSize(75, 23);
-                but.addActionListener((ActionEvent e) ->
+                but.addActionListener(e ->
                 {
                     lbl.setText("Cancelling... " + downloader.getProgressString());
                     downloader.cancel();

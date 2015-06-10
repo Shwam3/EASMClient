@@ -97,11 +97,11 @@ public class Berths
 
         List<String> berthIds = new ArrayList<>();
 
-        berthMap.keySet().parallelStream().forEach((id) ->  berthIds.add(id));
+        berthMap.keySet().parallelStream().forEach(id ->  berthIds.add(id));
 
         Collections.sort(berthIds);
 
-        berthIds.stream().forEachOrdered((id) -> printBerths("  " + id, false));
+        berthIds.stream().forEachOrdered(id -> printBerths("  " + id, false));
     }
 
     //public static void reset()
@@ -113,7 +113,7 @@ public class Berths
     {
         EastAngliaMapClient.opaque = !EastAngliaMapClient.opaque;
 
-        Berths.getEntrySet().parallelStream().forEach((pairs) -> pairs.getValue().setOpaque(EastAngliaMapClient.opaque));
+        Berths.getEntrySet().parallelStream().forEach(pairs -> pairs.getValue().setOpaque(EastAngliaMapClient.opaque));
 
         EastAngliaMapClient.frameSignalMap.frame.repaint();
     }
@@ -123,7 +123,7 @@ public class Berths
         EastAngliaMapClient.showDescriptions = !EastAngliaMapClient.showDescriptions;
 
         EastAngliaMapClient.frameSignalMap.getPanels().parallelStream()
-                .forEach((bp) -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));
+                .forEach(bp -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));
     }
 
     public static void toggleBerthVisibilities()
@@ -131,7 +131,7 @@ public class Berths
         EastAngliaMapClient.berthsVisible = !EastAngliaMapClient.berthsVisible;
 
         EastAngliaMapClient.frameSignalMap.getPanels().parallelStream()
-                .forEach((bp) -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));
+                .forEach(bp -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));
     }
 
     private static void printBerths(String message, boolean toErr)
