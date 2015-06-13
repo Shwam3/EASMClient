@@ -288,7 +288,7 @@ public class Signal extends JComponent
     {
         if (isShunt)
         {
-            if (currentState == STATE_BLANK || true)
+            if (currentState == STATE_BLANK)
             {
                 switch (SIGNAL_TYPE)
                 {
