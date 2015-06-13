@@ -3,7 +3,6 @@ package eastangliamapclient.gui;
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.ScreencapManager;
 import eastangliamapclient.gui.Signals.SignalType;
-import eastangliamapclient.gui.SignalMapGui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -287,55 +286,164 @@ public class Signal extends JComponent
 
     private void drawSignal(int x, int y, Graphics2D g2d)
     {
-        if (currentState == STATE_BLANK)
+        if (isShunt)
         {
-            g2d.drawLine(x+2, y,   x+5, y);
-            g2d.drawLine(x,   y+2, x,   y+5);
-            g2d.drawLine(x+2, y+7, x+5, y+7);
-            g2d.drawLine(x+7, y+2, x+7, y+5);
+            if (currentState == STATE_BLANK || true)
+            {
+                switch (SIGNAL_TYPE)
+                {
+                    case POST_DOWN:
+                    {
+                        g2d.fillRect(x,   y,   2, 1);
+                        g2d.fillRect(x,   y+1, 4, 1);
+                        g2d.fillRect(x,   y+2, 1, 6);
+                        g2d.fillRect(x,   y+7, 8, 1);
+                        g2d.fillRect(x+3, y+2, 2, 1);
+                        g2d.fillRect(x+4, y+3, 2, 1);
+                        g2d.fillRect(x+5, y+4, 2, 1);
+                        g2d.fillRect(x+6, y+5, 1, 1);
+                        g2d.fillRect(x+6, y+6, 2, 1);
 
-            g2d.fillRect(x+1, y+1, 1, 1);
-            g2d.fillRect(x+6, y+1, 1, 1);
-            g2d.fillRect(x+1, y+6, 1, 1);
-            g2d.fillRect(x+6, y+6, 1, 1);
+                        break;
+                    }
+
+                    case POST_RIGHT:
+                    {
+                        g2d.fillRect(x+7, y,   1, 8);
+                        g2d.fillRect(x+6, y,   2, 1);
+                        g2d.fillRect(x+4, y+1, 3, 1);
+                        g2d.fillRect(x+3, y+2, 2, 1);
+                        g2d.fillRect(x+2, y+3, 2, 1);
+                        g2d.fillRect(x+1, y+4, 2, 1);
+                        g2d.fillRect(x+1, y+5, 1, 1);
+                        g2d.fillRect(x,   y+6, 2, 1);
+                        g2d.fillRect(x,   y+7, 8, 1);
+
+                        break;
+                    }
+
+                    case POST_LEFT:
+                    {
+                        g2d.fillRect(x,   y,   8, 1);
+                        g2d.fillRect(x,   y,   1, 8);
+                        g2d.fillRect(x+6, y+1, 2, 1);
+                        g2d.fillRect(x+6, y+2, 2, 1);
+                        g2d.fillRect(x+5, y+3, 2, 1);
+                        g2d.fillRect(x+4, y+4, 2, 1);
+                        g2d.fillRect(x+3, y+5, 2, 1);
+                        g2d.fillRect(x+1, y+6, 2, 1);
+                        g2d.fillRect(x,   y+7, 2, 1);
+
+                        break;
+                    }
+
+                    case POST_UP:
+                    {
+                        g2d.fillRect(x,   y,   8, 1);
+                        g2d.fillRect(x,   y+1, 2, 1);
+                        g2d.fillRect(x+1, y+2, 1, 1);
+                        g2d.fillRect(x+1, y+3, 2, 1);
+                        g2d.fillRect(x+2, y+4, 2, 1);
+                        g2d.fillRect(x+3, y+5, 2, 1);
+                        g2d.fillRect(x+4, y+6, 3, 1);
+                        g2d.fillRect(x+6, y+7, 2, 1);
+                        g2d.fillRect(x+7, y,   1, 8);
+
+                        break;
+                    }
+
+                    default:
+                    {
+                        g2d.drawLine(x+2, y,   x+5, y);
+                        g2d.drawLine(x,   y+2, x,   y+5);
+                        g2d.drawLine(x+7, y+2, x+7, y+5);
+                        g2d.drawLine(x+2, y+7, x+5, y+7);
+
+                        g2d.fillRect(x+1, y+1, 6, 6);
+
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                switch (SIGNAL_TYPE)
+                {
+                    case POST_DOWN:
+                    {
+                        g2d.fillRect(x,   y,   2, 8);
+                        g2d.fillRect(x+2, y+1, 2, 7);
+                        g2d.fillRect(x+4, y+2, 1, 6);
+                        g2d.fillRect(x+5, y+3, 1, 5);
+                        g2d.fillRect(x+6, y+4, 1, 4);
+                        g2d.fillRect(x+7, y+6, 1, 2);
+
+                        break;
+                    }
+
+                    case POST_RIGHT:
+                    {
+                        g2d.fillRect(x,   y+6, 1, 2);
+                        g2d.fillRect(x+1, y+4, 1, 4);
+                        g2d.fillRect(x+2, y+3, 1, 5);
+                        g2d.fillRect(x+3, y+2, 1, 6);
+                        g2d.fillRect(x+4, y+1, 2, 7);
+                        g2d.fillRect(x+6, y,   2, 8);
+
+                        break;
+                    }
+
+                    case POST_LEFT:
+                    {
+                        g2d.fillRect(x,   y, 2, 8);
+                        g2d.fillRect(x+2, y, 2, 7);
+                        g2d.fillRect(x+4, y, 1, 6);
+                        g2d.fillRect(x+5, y, 1, 5);
+                        g2d.fillRect(x+6, y, 1, 4);
+                        g2d.fillRect(x+7, y, 1, 2);
+
+                        break;
+                    }
+
+                    case POST_UP:
+                    {
+                        g2d.fillRect(x,   y,   8, 2);
+                        g2d.fillRect(x+1, y+2, 7, 2);
+                        g2d.fillRect(x+2, y+4, 6, 1);
+                        g2d.fillRect(x+3, y+5, 5, 1);
+                        g2d.fillRect(x+4, y+6, 4, 1);
+                        g2d.fillRect(x+6, y+7, 2, 1);
+
+                        break;
+                    }
+
+                    default:
+                    {
+                        g2d.drawLine(x+2, y,   x+5, y);
+                        g2d.drawLine(x,   y+2, x,   y+5);
+                        g2d.drawLine(x+7, y+2, x+7, y+5);
+                        g2d.drawLine(x+2, y+7, x+5, y+7);
+
+                        g2d.fillRect(x+1, y+1, 6, 6);
+
+                        break;
+                    }
+                }
+            }
         }
-        else if (isShunt)
+        else
         {
-            if (SIGNAL_TYPE == SignalType.POST_DOWN)
+            if (currentState == STATE_BLANK)
             {
-                g2d.fillRect(x,   y,   2, 8);
-                g2d.fillRect(x+2, y+1, 2, 7);
-                g2d.fillRect(x+4, y+2, 1, 6);
-                g2d.fillRect(x+5, y+3, 1, 5);
-                g2d.fillRect(x+6, y+4, 1, 4);
-                g2d.fillRect(x+7, y+6, 1, 2);
-            }
-            else if (SIGNAL_TYPE == SignalType.POST_RIGHT)
-            {
-                g2d.fillRect(x,   y+6, 1, 2);
-                g2d.fillRect(x+1, y+4, 1, 4);
-                g2d.fillRect(x+2, y+3, 1, 5);
-                g2d.fillRect(x+3, y+2, 1, 6);
-                g2d.fillRect(x+4, y+1, 2, 7);
-                g2d.fillRect(x+6, y,   2, 8);
-            }
-            else if (SIGNAL_TYPE == SignalType.POST_LEFT)
-            {
-                g2d.fillRect(x,   y, 2, 8);
-                g2d.fillRect(x+2, y, 2, 7);
-                g2d.fillRect(x+4, y, 1, 6);
-                g2d.fillRect(x+5, y, 1, 5);
-                g2d.fillRect(x+6, y, 1, 4);
-                g2d.fillRect(x+7, y, 1, 2);
-            }
-            else if (SIGNAL_TYPE == SignalType.POST_UP)
-            {
-                g2d.fillRect(x,   y,   8, 2);
-                g2d.fillRect(x+1, y+2, 7, 2);
-                g2d.fillRect(x+2, y+4, 6, 1);
-                g2d.fillRect(x+3, y+5, 5, 1);
-                g2d.fillRect(x+4, y+6, 4, 1);
-                g2d.fillRect(x+6, y+7, 2, 1);
+                g2d.drawLine(x+2, y,   x+5, y);
+                g2d.drawLine(x,   y+2, x,   y+5);
+                g2d.drawLine(x+2, y+7, x+5, y+7);
+                g2d.drawLine(x+7, y+2, x+7, y+5);
+
+                g2d.fillRect(x+1, y+1, 1, 1);
+                g2d.fillRect(x+6, y+1, 1, 1);
+                g2d.fillRect(x+1, y+6, 1, 1);
+                g2d.fillRect(x+6, y+6, 1, 1);
             }
             else
             {
@@ -347,21 +455,11 @@ public class Signal extends JComponent
                 g2d.fillRect(x+1, y+1, 6, 6);
             }
         }
-        else
-        {
-            g2d.drawLine(x+2, y,   x+5, y);
-            g2d.drawLine(x,   y+2, x,   y+5);
-            g2d.drawLine(x+7, y+2, x+7, y+5);
-            g2d.drawLine(x+2, y+7, x+5, y+7);
-
-            g2d.fillRect(x+1, y+1, 6, 6);
-
-        }
     }
 
     @Override
     public String toString()
     {
-        return "eastangliamap.Signal=[signalId=" + SIGNAL_ID + ",dataId=" + DATA_ID + ",currentState=" + currentState + "]";
+        return String.format("eastangliamap.Signal=[signalId=&s,dataId=%s,currentState=%s,signalType=%s,isShunt=%s,text0=%s,text1=%s]", SIGNAL_ID, DATA_ID, currentState, SIGNAL_TYPE, isShunt, TEXT_0, TEXT_1);
     }
 }
