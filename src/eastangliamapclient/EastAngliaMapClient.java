@@ -1,6 +1,6 @@
 package eastangliamapclient;
 
-import eastangliamapclient.gui.SignalMap;
+import eastangliamapclient.gui.SignalMapGui;
 import eastangliamapclient.gui.SysTrayHandler;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -53,7 +53,7 @@ public class EastAngliaMapClient
     public static boolean berthsVisible    = true;
     public static boolean signalsVisible   = true;
 
-    public static SignalMap frameSignalMap;
+    public static SignalMapGui frameSignalMap;
     public static String    clientName;
     public static boolean   connected = false;
     public static boolean   kicked = false;
@@ -109,11 +109,11 @@ public class EastAngliaMapClient
 
             try
             {
-                windowSize = new Dimension(Math.min(Math.max((int) Double.parseDouble(sizeStr[0].trim()), 800), SignalMap.DEFAULT_WIDTH), Math.min(Math.max((int) Double.parseDouble(sizeStr[1].trim()), 600), SignalMap.DEFAULT_HEIGHT));
+                windowSize = new Dimension(Math.min(Math.max((int) Double.parseDouble(sizeStr[0].trim()), 800), SignalMapGui.DEFAULT_WIDTH), Math.min(Math.max((int) Double.parseDouble(sizeStr[1].trim()), 600), SignalMapGui.DEFAULT_HEIGHT));
             }
             catch (IndexOutOfBoundsException e)
             {
-                windowSize = new Dimension(SignalMap.DEFAULT_WIDTH, SignalMap.DEFAULT_HEIGHT);
+                windowSize = new Dimension(SignalMapGui.DEFAULT_WIDTH, SignalMapGui.DEFAULT_HEIGHT);
             }
 
             preferences.setProperty("clientName",        clientName);
@@ -153,7 +153,7 @@ public class EastAngliaMapClient
                 printThrowable(e, "Startup - Font");
             }
 
-            frameSignalMap = new SignalMap(windowSize);
+            frameSignalMap = new SignalMapGui(windowSize);
 
             SysTrayHandler.initSysTray();
 

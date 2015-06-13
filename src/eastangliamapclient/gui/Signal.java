@@ -1,7 +1,9 @@
-package eastangliamapclient;
+package eastangliamapclient.gui;
 
-import eastangliamapclient.Signals.SignalType;
-import eastangliamapclient.gui.SignalMap;
+import eastangliamapclient.EastAngliaMapClient;
+import eastangliamapclient.ScreencapManager;
+import eastangliamapclient.gui.Signals.SignalType;
+import eastangliamapclient.gui.SignalMapGui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -37,7 +39,7 @@ public class Signal extends JComponent
 
     private int currentState = STATE_UNKNOWN;
 
-    public Signal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType type)
+    public Signal(SignalMapGui.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType type)
     {
         SIGNAL_ID = description;
         DATA_ID = dataId;
@@ -48,7 +50,7 @@ public class Signal extends JComponent
         setFont(EastAngliaMapClient.TD_FONT.deriveFont(8f));
 
         if (pnl != null)
-            pnl.add(this, SignalMap.LAYER_SIGNALS);
+            pnl.add(this, SignalMapGui.LAYER_SIGNALS);
 
         if (dataId.endsWith("PRED"))
             currentState = STATE_0;

@@ -1,7 +1,9 @@
-package eastangliamapclient;
+package eastangliamapclient.gui;
 
+import eastangliamapclient.EastAngliaMapClient;
+import eastangliamapclient.ScreencapManager;
 import eastangliamapclient.gui.BerthContextMenu;
-import eastangliamapclient.gui.SignalMap;
+import eastangliamapclient.gui.SignalMapGui;
 import java.awt.Desktop;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -26,7 +28,7 @@ public class Berth extends JComponent
     private       boolean  hasBorder  = false;
     private       boolean  isOpaque   = false;
 
-    public Berth(SignalMap.BackgroundPanel pnl, int x, int y, String... berthIds)
+    public Berth(SignalMapGui.BackgroundPanel pnl, int x, int y, String... berthIds)
     {
         this.BERTH_IDs = berthIds;
 
@@ -117,7 +119,7 @@ public class Berth extends JComponent
         return BERTH_DESCRIPTION;
     }
 
-    private void initComponent(SignalMap.BackgroundPanel pnl, int x, int y)
+    private void initComponent(SignalMapGui.BackgroundPanel pnl, int x, int y)
     {
         setFocusable(false);
         setBounds(x, y, 48, 16);
@@ -198,7 +200,7 @@ public class Berth extends JComponent
 
         setToolTipText(tooltip.toString());
 
-        pnl.add(this, SignalMap.LAYER_BERTHS);
+        pnl.add(this, SignalMapGui.LAYER_BERTHS);
     }
 
     /*public boolean setProblematicBerth(boolean isProblematic)

@@ -1,10 +1,8 @@
 package eastangliamapclient.gui;
 
-import eastangliamapclient.Berths;
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.MessageHandler;
 import eastangliamapclient.ScreencapManager;
-import eastangliamapclient.Signals;
 import java.awt.Component;
 import java.awt.event.ActionListener;
 import javax.swing.JCheckBoxMenuItem;

@@ -1,7 +1,5 @@
 package eastangliamapclient.gui;
 
-import eastangliamapclient.Berth;
-import eastangliamapclient.Berths;
 import eastangliamapclient.EastAngliaMapClient;
 import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;

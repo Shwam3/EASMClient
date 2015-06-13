@@ -1,6 +1,6 @@
 package eastangliamapclient;
 
-import eastangliamapclient.gui.SignalMap;
+import eastangliamapclient.gui.SignalMapGui;
 import eastangliamapclient.gui.SysTrayHandler;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -136,7 +136,7 @@ public class ScreencapManager
                 names.add(bp.getName().replace("/", " + "));
 
                 Graphics2D g2d = image.createGraphics();
-                g2d.clearRect(0, 0, SignalMap.BackgroundPanel.BP_DEFAULT_WIDTH, SignalMap.BackgroundPanel.BP_DEFAULT_HEIGHT);
+                g2d.clearRect(0, 0, SignalMapGui.BackgroundPanel.BP_DEFAULT_WIDTH, SignalMapGui.BackgroundPanel.BP_DEFAULT_HEIGHT);
                 bp.invalidate();
                 bp.paint(g2d);
 
@@ -155,8 +155,8 @@ public class ScreencapManager
         new Thread(() ->
         {
             File screencapPath = new File(EastAngliaMapClient.storageDir, "images");
-            int width  = SignalMap.BackgroundPanel.BP_DEFAULT_WIDTH + 2;
-            int height = SignalMap.BackgroundPanel.BP_DEFAULT_HEIGHT + 2;
+            int width  = SignalMapGui.BackgroundPanel.BP_DEFAULT_WIDTH + 2;
+            int height = SignalMapGui.BackgroundPanel.BP_DEFAULT_HEIGHT + 2;
 
             try
             {

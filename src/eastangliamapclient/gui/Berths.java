@@ -1,6 +1,7 @@
-package eastangliamapclient;
+package eastangliamapclient.gui;
 
-import eastangliamapclient.gui.SignalMap;
+import eastangliamapclient.EastAngliaMapClient;
+import eastangliamapclient.gui.SignalMapGui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,13 +16,13 @@ public class Berths
     private static Map<String, Berth> berthMap = new HashMap<>();
     private static Berth OPAQUE_BERTH = null;
 
-    public static Berth getOrCreateBerth(SignalMap.BackgroundPanel pnl, int x, int y, String... berthIds)
+    public static Berth getOrCreateBerth(SignalMapGui.BackgroundPanel pnl, int x, int y, String... berthIds)
     {
         Berth berth = berthMap.get(berthIds[0]);
         if (berth != null)
         {
             if (berth.getParent() != pnl)
-                pnl.add(berth, SignalMap.LAYER_BERTHS);
+                pnl.add(berth, SignalMapGui.LAYER_BERTHS);
 
             berth.setLocation(x, y);
             return berth;

@@ -1,6 +1,7 @@
-package eastangliamapclient;
+package eastangliamapclient.gui;
 
-import eastangliamapclient.gui.SignalMap;
+import eastangliamapclient.EastAngliaMapClient;
+import eastangliamapclient.gui.SignalMapGui;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,13 +9,13 @@ public class Signals
 {
     private static Map<String, Signal> signalMap = new HashMap<>();
 
-    public static Signal getOrCreateSignal(SignalMap.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType type)
+    public static Signal getOrCreateSignal(SignalMapGui.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType type)
     {
         Signal signal = signalMap.get(dataId);
         if (signal != null)
         {
             if (signal.getParent() != pnl)
-                pnl.add(signal, SignalMap.LAYER_SIGNALS);
+                pnl.add(signal, SignalMapGui.LAYER_SIGNALS);
 
             signal.setLocation(x, y);
             return signal;

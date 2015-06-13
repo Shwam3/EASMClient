@@ -1,14 +1,10 @@
 package eastangliamapclient.gui;
 
-import eastangliamapclient.Berth;
-import eastangliamapclient.Berths;
 import eastangliamapclient.EastAngliaMapClient;
 import static eastangliamapclient.EastAngliaMapClient.newFile;
 import static eastangliamapclient.EastAngliaMapClient.storageDir;
 import eastangliamapclient.MessageHandler;
-import eastangliamapclient.Signal;
-import eastangliamapclient.Signals;
-import eastangliamapclient.Signals.SignalType;
+import eastangliamapclient.gui.Signals.SignalType;
 import eastangliamapclient.json.JSONParser;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
@@ -67,7 +63,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
-public class SignalMap
+public class SignalMapGui
 {
     public JFrame frame;
 
@@ -90,12 +86,12 @@ public class SignalMap
     public static final int LAYER_LABELS  = 3;
     public static final int LAYER_TOP     = 4;
 
-    public SignalMap()
+    public SignalMapGui()
     {
         this(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
     }
 
-    public SignalMap(Dimension dim)
+    public SignalMapGui(Dimension dim)
     {
         frame = new JFrame("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
         TabBar = new JTabbedPane();
@@ -349,7 +345,7 @@ public class SignalMap
         //    Signals.reset();
         //    Berths.reset();
 
-        //    EastAngliaMapClient.frameSignalMap = new SignalMap();
+        //    EastAngliaMapClient.frameSignalMap = new SignalMapGui();
 
         //    KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(dispatcher);
         //    frame.getContentPane().setCursor(origCursor);

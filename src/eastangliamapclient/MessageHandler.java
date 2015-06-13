@@ -1,5 +1,6 @@
 package eastangliamapclient;
 
+import eastangliamapclient.gui.Berths;
 import eastangliamapclient.gui.ListDialog;
 import eastangliamapclient.gui.SysTrayHandler;
 import eastangliamapclient.json.JSONParser;
