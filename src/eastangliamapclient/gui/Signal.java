@@ -178,14 +178,7 @@ public class Signal extends JComponent
         {
             Graphics2D g2d = (Graphics2D) g.create();
 
-            //if (EastAngliaMapClient.opaque)
-            //{
-            //    Color c = g2d.getColor();
-            //    g2d.setColor(EastAngliaMapClient.GREY);
-            //    g2d.fillRect(0, 0, getWidth(), getHeight());
-            //    g2d.setColor(c);
-            //}
-            /*else*/ if (SIGNAL_TYPE != SignalType.TEXT)
+            if (SIGNAL_TYPE != SignalType.TEXT)
             {
                 Color c = g2d.getColor();
                 g2d.setColor(COLOUR_BACKGROUND);
@@ -218,11 +211,8 @@ public class Signal extends JComponent
 
                     if (toDraw != null && !toDraw.trim().isEmpty())
                     {
-                        //if (!EastAngliaMapClient.opaque)
-                        //{
-                              g2d.setColor(COLOUR_BACKGROUND);
-                              g2d.fillRect(0, 0, getWidth(), getHeight());
-                        //}
+                        g2d.setColor(COLOUR_BACKGROUND);
+                        g2d.fillRect(0, 0, getWidth(), getHeight());
 
                         g2d.setColor(colour);
                         g2d.drawString(toDraw, 0, 8);

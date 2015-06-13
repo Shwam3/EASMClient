@@ -22,8 +22,8 @@ public class OptionContexMenu extends JPopupMenu
     JMenuItem trainHistory;
 
     JMenuItem changeName;
-    JCheckBoxMenuItem screencap; //TODO: Remove for release
-    JMenuItem takeScreencaps; //TODO: Remove for release
+    JCheckBoxMenuItem screencap;
+    JMenuItem takeScreencaps;
 
     JCheckBoxMenuItem preventSleep;
     JCheckBoxMenuItem minToSysTray;

@@ -34,7 +34,7 @@ public class VersionChecker
     static void checkVersion()
     {
         checkClientVersion();
-        checkMapVersion();
+        checkDataVersion();
     }
 
     private static void checkClientVersion()
@@ -52,14 +52,14 @@ public class VersionChecker
             }
             catch (MalformedURLException | NumberFormatException e) {}
 
-            downloadLocation = (downloadLocation == null ? new URL("http://easignalmap.altervista.org/downloads/http://easignalmap.altervista.org/downloads/EastAngliaMapClient-v" + remoteVersion + ".exe") : downloadLocation);
+            downloadLocation = (downloadLocation == null ? new URL("http://easignalmap.altervista.org/downloads/EastAngliaMapClient-v" + remoteVersion + ".exe") : downloadLocation);
 
             if (remoteVersion > localVersion)
             {
                 EastAngliaMapClient.printStartup("New version available", false);
                 if (JOptionPane.showConfirmDialog(null, "A new version of the client (v" + remoteVersion + ") is available\nDownload now?", "Updater", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
                 {
-                    File newFile = downloadFile(downloadLocation, new File(EastAngliaMapClient.class.getProtectionDomain().getCodeSource().getLocation().getPath()), false);
+                    File newFile = downloadFile(downloadLocation, EastAngliaMapClient.storageDir, false);
 
                     if (newFile == null || !newFile.exists())
                     {
@@ -95,22 +95,22 @@ public class VersionChecker
         catch (IOException e) { EastAngliaMapClient.printStartup("Error reading remote version file", true); }
     }
 
-    private static void checkMapVersion()
+    private static void checkDataVersion()
     {
         int newVersion = 0;
 
         try
         {
-            File mapFile = new File(EastAngliaMapClient.storageDir, "data" + File.separator + "signalmap.json");
+            File dataFile = new File(EastAngliaMapClient.storageDir, "data" + File.separator + "signalmap.json");
             URL archiveLocation = null;
 
             int versionLocal = -1;
             int versionRemote = -1;
 
-            if (mapFile.exists())
+            if (dataFile.exists())
             {
                 StringBuilder jsonString = new StringBuilder();
-                try (BufferedReader br = new BufferedReader(new FileReader(mapFile)))
+                try (BufferedReader br = new BufferedReader(new FileReader(dataFile)))
                 {
                     String line;
                     while ((line = br.readLine()) != null)
@@ -135,13 +135,13 @@ public class VersionChecker
 
             if (versionRemote > versionLocal)
             {
-                File dataFolder = mapFile.getParentFile();
+                File dataFolder = dataFile.getParentFile();
 
-                EastAngliaMapClient.printStartup("Map update available (v" + versionRemote + ")", false);
+                EastAngliaMapClient.printStartup("Data update available (v" + versionRemote + ")", false);
 
-                if (JOptionPane.showConfirmDialog(null, "A new version of the map files (v" + versionRemote+ ") is available\nDownload now?", "Updater", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+                if (JOptionPane.showConfirmDialog(null, "A new version of the data files is available (v" + versionRemote+ ")\nDownload now?", "Updater", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
                 {
-                    File updateArchive = downloadFile(archiveLocation, mapFile.getParentFile(), true);
+                    File updateArchive = downloadFile(archiveLocation, dataFile.getParentFile(), true);
 
                     if (updateArchive != null && updateArchive.exists())
                     {
@@ -171,26 +171,26 @@ public class VersionChecker
 
                         updateArchive.delete();
 
-                        EastAngliaMapClient.printStartup("Downloaded new map files (v" + versionRemote + ")", false);
+                        EastAngliaMapClient.printStartup("Downloaded new data files (v" + versionRemote + ")", false);
                     }
                     else
                     {
-                        EastAngliaMapClient.printStartup("Unable to download map files (file = " + String.valueOf(updateArchive) + ")", true);
+                        EastAngliaMapClient.printStartup("Unable to download data files (file = " + String.valueOf(updateArchive) + ")", true);
                     }
 
                     newVersion = versionRemote;
                 }
 
-                if (!mapFile.exists())
-                    JOptionPane.showMessageDialog(null, "Unable to download map files.\nPlease go to \"" + archiveLocation.toExternalForm() + "\"\n and extract the files into \"" + dataFolder + "\".", "Updater", JOptionPane.ERROR_MESSAGE);
+                if (!dataFile.exists())
+                    JOptionPane.showMessageDialog(null, "Unable to download data files.\nPlease go to \"" + archiveLocation.toExternalForm() + "\"\n and extract the files into \"" + dataFolder + "\".", "Updater", JOptionPane.ERROR_MESSAGE);
             }
             else
-                EastAngliaMapClient.printStartup("Map files up to date", false);
+                EastAngliaMapClient.printStartup("Data files up to date", false);
         }
         catch (Exception e)
         {
             EastAngliaMapClient.printThrowable(e, "Updater");
-            JOptionPane.showMessageDialog(null, "Unable to update map files\n" + e.toString(), "Updater", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Unable to update data files\n" + e.toString(), "Updater", JOptionPane.ERROR_MESSAGE);
         }
 
         EastAngliaMapClient.DATA_VERSION = Integer.toString(newVersion);

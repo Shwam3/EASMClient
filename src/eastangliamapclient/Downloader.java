@@ -61,7 +61,7 @@ public class Downloader
             }
             catch (IOException e)
             {
-                JOptionPane.showMessageDialog(null, "Unable to create new file\n" + e.toString(), "Downloader", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Unable to create new file\n" + e.toString() + "\n" + destination.getAbsolutePath(), "Downloader", JOptionPane.ERROR_MESSAGE);
                 EastAngliaMapClient.printThrowable(e, "Downloader");
             }
         }
