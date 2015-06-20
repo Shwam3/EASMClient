@@ -556,7 +556,7 @@ public class SignalMapGui
             public void mouseClicked(MouseEvent evt)
             {
                 if (SwingUtilities.isLeftMouseButton(evt))
-                    new OptionContexMenu(evt.getComponent());
+                    new OptionContextMenu(evt.getComponent());
             }
         });
         bp.add(menu, LAYER_TOP);

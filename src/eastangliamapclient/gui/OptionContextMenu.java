@@ -10,7 +10,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
-public class OptionContexMenu extends JPopupMenu
+public class OptionContextMenu extends JPopupMenu
 {
     JCheckBoxMenuItem toggleOpacity;
     JCheckBoxMenuItem toggleDescriptions;
@@ -89,7 +89,7 @@ public class OptionContexMenu extends JPopupMenu
         }
     };
 
-    public OptionContexMenu(Component invoker)
+    public OptionContextMenu(Component invoker)
     {
         super();
 
