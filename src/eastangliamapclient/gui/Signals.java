@@ -1,13 +1,12 @@
 package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
-import eastangliamapclient.gui.SignalMapGui;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Signals
 {
-    private static Map<String, Signal> signalMap = new HashMap<>();
+    private static final Map<String, Signal> signalMap = new HashMap<>();
 
     public static Signal getOrCreateSignal(SignalMapGui.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType type)
     {

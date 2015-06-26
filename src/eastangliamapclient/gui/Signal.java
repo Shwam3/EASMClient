@@ -40,9 +40,12 @@ public class Signal extends JComponent
 
     public Signal(SignalMapGui.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType type)
     {
+        if (description == null || description.trim().equals(""))
+            description = "Unnamed";
+
         SIGNAL_ID = description;
-        DATA_ID = dataId;
-        LOCATION = new Point(x, y);
+        DATA_ID   = dataId;
+        LOCATION  = new Point(x, y);
 
         setType(type);
         setOpaque(false);
@@ -63,10 +66,7 @@ public class Signal extends JComponent
 
         setForeground(currentState == STATE_0 ? COLOUR_STATE_ON : (currentState == STATE_1 ? COLOUR_STATE_OFF : (currentState == STATE_UNKNOWN ? COLOUR_STATE_UNKNOWN : COLOUR_STATE_BLANK)));
 
-        if (description == null || description.trim().equals(""))
-            description = "Unnamed";
-
-        setToolTipText(description + " (" + DATA_ID + ")");
+        setToolTipText(SIGNAL_ID + " (" + DATA_ID + ")");
 
         setVisible(true);
     }

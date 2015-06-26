@@ -36,6 +36,12 @@ public class MessageHandler
     {
         startTimeoutTimer();
 
+        if (EastAngliaMapClient.serverSocket == null)
+        {
+            printMsgHandler("Cannot start Message Handler", true);
+            return;
+        }
+
         try { in = new BufferedReader(new InputStreamReader(EastAngliaMapClient.serverSocket.getInputStream())); }
         catch (IOException e) { EastAngliaMapClient.printThrowable(e, "MessageHandler"); }
         try { out = new BufferedWriter(new OutputStreamWriter(EastAngliaMapClient.serverSocket.getOutputStream())); }

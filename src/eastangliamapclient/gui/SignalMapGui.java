@@ -674,12 +674,11 @@ public class SignalMapGui
                 }
 
                 Berth berth = Berths.getBerth(pairs.getKey().toUpperCase());
-                Signal signal = Signals.getSignal(pairs.getKey().toUpperCase());
-
                 if (berth != null)
                     if (!pairs.getValue().equals("") || pairs.getKey().toUpperCase().equals(berth.getCurrentId(false)))
                         berth.interpose(pairs.getValue(), pairs.getKey().toUpperCase());
 
+                Signal signal = Signals.getSignal(pairs.getKey().toUpperCase());
                 if (signal != null)
                     signal.setState(String.valueOf(pairs.getValue()).equals("0") ? 0 : (String.valueOf(pairs.getValue()).equals("1") ? 1 : 2));
             }

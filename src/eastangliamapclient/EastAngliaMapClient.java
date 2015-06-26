@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -60,6 +61,7 @@ public class EastAngliaMapClient
     public static boolean   minimiseToSysTray = false;
     public static Dimension windowSize = new Dimension();
     public static String    ftpBaseUrl = "";
+    public static PrintStream logStream;
 
     public static SimpleDateFormat sdf      = new SimpleDateFormat("dd/MM/YY HH:mm:ss");
     public static SimpleDateFormat clockSDF = new SimpleDateFormat("HH:mm:ss");
@@ -87,9 +89,24 @@ public class EastAngliaMapClient
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {}
 
+        try
+        {
+            File logFile = new File(storageDir, "Logs" + File.separator + "EastAngliaSignalMapClient" + File.separator + sdf.format(new Date()).replace("/", "-").replace(":", ".") + ".log");
+            if (logFile.exists())
+                logFile =  new File(storageDir, "Logs" + File.separator + "EastAngliaSignalMapClient" + File.separator + sdf.format(new Date()).replace("/", "-").replace(":", ".") + "-" + new Random().nextInt(9) + ".log");
+
+            logFile.getParentFile().mkdirs();
+            logFile.createNewFile();
+
+            try { logStream = new PrintStream(new FileOutputStream(logFile), true); }
+            catch (FileNotFoundException e) { EastAngliaMapClient.printThrowable(e, "LogFile"); }
+        }
+        catch (IOException e) { EastAngliaMapClient.printThrowable(e, "LogFile"); }
+
         VersionChecker.checkVersion();
 
         System.setProperty("args", Arrays.deepToString(args));
+
 
         // User preferences
         try
@@ -327,7 +344,14 @@ public class EastAngliaMapClient
 
     private static synchronized void print(String message, PrintStream stream)
     {
-        stream.println(message);
+        if (message != null)
+        {
+            if (stream != null)
+                stream.println(message);
+
+            if (logStream != null)
+                logStream.println(message);
+        }
     }
     //</editor-fold>
 
