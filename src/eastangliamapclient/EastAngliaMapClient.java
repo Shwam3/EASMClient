@@ -36,7 +36,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class EastAngliaMapClient
 {
-    public static final String CLIENT_VERSION = "16";
+    public static final String CLIENT_VERSION = "17";
     public static       String DATA_VERSION   = "0";
 
     public static final String host = "shwam3.ddns.net";
@@ -55,13 +55,13 @@ public class EastAngliaMapClient
     public static boolean signalsVisible   = true;
 
     public static SignalMapGui frameSignalMap;
-    public static String    clientName;
-    public static boolean   connected = false;
-    public static boolean   kicked = false;
-    public static boolean   minimiseToSysTray = false;
-    public static Dimension windowSize = new Dimension();
-    public static String    ftpBaseUrl = "";
-    public static PrintStream logStream;
+    public static String       clientName;
+    public static boolean      connected = false;
+    public static boolean      kicked = false;
+    public static boolean      minimiseToSysTray = false;
+    public static Dimension    windowSize = new Dimension();
+    public static String       ftpBaseUrl = "";
+    public static PrintStream  logStream = null;
 
     public static SimpleDateFormat sdf      = new SimpleDateFormat("dd/MM/YY HH:mm:ss");
     public static SimpleDateFormat clockSDF = new SimpleDateFormat("HH:mm:ss");
@@ -89,24 +89,28 @@ public class EastAngliaMapClient
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {}
 
-        try
-        {
-            File logFile = new File(storageDir, "Logs" + File.separator + "EastAngliaSignalMapClient" + File.separator + sdf.format(new Date()).replace("/", "-").replace(":", ".") + ".log");
-            if (logFile.exists())
-                logFile =  new File(storageDir, "Logs" + File.separator + "EastAngliaSignalMapClient" + File.separator + sdf.format(new Date()).replace("/", "-").replace(":", ".") + "-" + new Random().nextInt(9) + ".log");
-
-            logFile.getParentFile().mkdirs();
-            logFile.createNewFile();
-
-            try { logStream = new PrintStream(new FileOutputStream(logFile), true); }
-            catch (FileNotFoundException e) { EastAngliaMapClient.printThrowable(e, "LogFile"); }
-        }
-        catch (IOException e) { EastAngliaMapClient.printThrowable(e, "LogFile"); }
-
-        VersionChecker.checkVersion();
-
         System.setProperty("args", Arrays.deepToString(args));
 
+        if (!System.getProperty("args").contains("-disablelogfile"))
+        {
+            try
+            {
+                File logFile = new File(storageDir, "Logs" + File.separator + "EastAngliaSignalMapClient" + File.separator + sdf.format(new Date()).replace("/", "-").replace(":", ".") + ".log");
+                if (logFile.exists())
+                    logFile =  new File(storageDir, "Logs" + File.separator + "EastAngliaSignalMapClient" + File.separator + sdf.format(new Date()).replace("/", "-").replace(":", ".") + "-" + new Random().nextInt(9) + ".log");
+
+                logFile.getParentFile().mkdirs();
+                logFile.createNewFile();
+
+                try { logStream = new PrintStream(new FileOutputStream(logFile), true); }
+                catch (FileNotFoundException e) { EastAngliaMapClient.printThrowable(e, "LogFile"); }
+            }
+            catch (IOException e) { EastAngliaMapClient.printThrowable(e, "LogFile"); }
+        }
+        else
+            printStartup("Log file disabled", false);
+
+        VersionChecker.checkVersion();
 
         // User preferences
         try

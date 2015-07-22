@@ -132,7 +132,7 @@ public class ScreencapManager
 
             EastAngliaMapClient.frameSignalMap.getPanels().stream().forEachOrdered(bp ->
             {
-                BufferedImage image = bp.getBufferedImage();
+                BufferedImage image = new BufferedImage(SignalMapGui.BackgroundPanel.BP_DEFAULT_WIDTH, SignalMapGui.BackgroundPanel.BP_DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
                 names.add(bp.getName().replace("/", " + "));
 
                 Graphics2D g2d = image.createGraphics();

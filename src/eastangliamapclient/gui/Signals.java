@@ -20,7 +20,7 @@ public class Signals
             return signal;
         }
         else
-            return new Signal(pnl, x, y, description == null ? "" : description, dataId, type == null ? SignalType.POST_NONE_HIDDEN : type);
+            return new Signal(pnl, x, y, description == null ? "" : description, dataId, type == null ? SignalType.HIDDEN : type);
     }
 
     public static boolean signalExists(String signalId)
@@ -60,20 +60,20 @@ public class Signals
 
     public static enum SignalType
     {
-        TEXT          ("text"),
-        TRTS          ("trts"),
-        TRACK_CIRCUIT ("tc"),
-        POST_LEFT     ("left"),
-        POST_RIGHT    ("right"),
-        POST_UP       ("up"),
-        POST_DOWN     ("down"),
-        POST_NONE     ("none"),
-        POST_NONE_HIDDEN     ("text");
+        TEXT         ("text"),
+        TRTS         ("trts"),
+        TRACK_CIRCUIT("tc"),
+        POST_LEFT    ("left"),
+        POST_RIGHT   ("right"),
+        POST_UP      ("up"),
+        POST_DOWN    ("down"),
+        POST_NONE    ("none"),
+        HIDDEN       ("test");
 
-        private final String code;
+        private final String id;
 
-        private SignalType(String code) { this.code = code; }
-        public String getCode() { return code; }
+        private SignalType(String code) { this.id = code; }
+        public String getId() { return id; }
 
         public static SignalType getType(Object obj)
         {
@@ -81,9 +81,9 @@ public class Signals
                 return (SignalType) obj;
 
             for (SignalType type : values())
-                if (type.getCode().equals(String.valueOf(obj).toLowerCase()))
+                if (type.getId().equals(String.valueOf(obj).toLowerCase()))
                     return type;
-            return null;
+            return HIDDEN;
         }
     }
 }

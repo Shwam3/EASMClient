@@ -9,18 +9,19 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JComponent;
 
 public class Signal extends JComponent
 {
-    //private static final Color TEXT_COLOUR          = Color.LIGHT_GRAY;
-    private static final Color COLOUR_STATE_BLANK   = new Color(64, 64, 64); // blank - grey (border)
-    private static final Color COLOUR_STATE_UNKNOWN = new Color(64, 64, 64); // unknown - grey (solid)
-    private static final Color COLOUR_STATE_ON      = new Color(153,  0, 0); // on - red
-    private static final Color COLOUR_STATE_OFF     = new Color(0,  153, 0); // off - green
-    private static final Color COLOUR_BACKGROUND    = new Color(0, 0, 0, 64);
-
-    private static final Color SIGNAL_POST_COLOUR = Color.WHITE;
+    private static final Color COLOUR_STATE_BLANK     = new Color(64,  64,  64);  // blank - grey (border)
+    private static final Color COLOUR_STATE_UNKNOWN   = new Color(64,  64,  64);  // unknown - grey (solid)
+    private static final Color COLOUR_STATE_ON        = new Color(153, 0,   0);   // on - red
+    private static final Color COLOUR_STATE_OFF       = new Color(0,   153, 0);   // off - green
+    private static final Color COLOUR_STATE_RTE_SET   = new Color(255, 255, 255); // white
+    private static final Color COLOUR_STATE_RTE_UNSET = new Color(140, 140, 140); // grey
+    private static final Color COLOUR_BACKGROUND      = new Color(0, 0, 0, 64);   // Transparent black
 
     private static final int STATE_BLANK   = -1;
     private static final int STATE_0       = 0;
@@ -28,13 +29,15 @@ public class Signal extends JComponent
     private static final int STATE_UNKNOWN = 2;
 
     private boolean isShunt = false;
+    private boolean isSubs  = false;
     private String TEXT_0 = null;
     private String TEXT_1 = null;
 
-    private final String     SIGNAL_ID;
-    private final String     DATA_ID;
-    private       SignalType SIGNAL_TYPE;
-    private       Point      LOCATION;
+    private       List<String> ROUTE_IDs = null;
+    private final String       SIGNAL_ID;
+    private final String       DATA_ID;
+    private       SignalType   SIGNAL_TYPE;
+    private       Point        LOCATION;
 
     private int currentState = STATE_UNKNOWN;
 
@@ -71,9 +74,12 @@ public class Signal extends JComponent
         setVisible(true);
     }
 
-    public void isShunt() { isShunt = true; }
+    public void isShunt() { isShunt = !isSubs; }
+    public void isSubs()  { isSubs  = true; isShunt = false; }
     public void set0Text(String text) { TEXT_0 = text; setType(SIGNAL_TYPE); }
     public void set1Text(String text) { TEXT_1 = text; setType(SIGNAL_TYPE); }
+    public void addRoutes(String route) { ROUTE_IDs = (ROUTE_IDs == null ? new ArrayList<>() : ROUTE_IDs); ROUTE_IDs.add(route); }
+    public void setRoutes(List<String> routes) { ROUTE_IDs = routes; }
 
     public void setType(SignalType direction)
     {
@@ -104,7 +110,7 @@ public class Signal extends JComponent
                 break;
 
             case POST_NONE:
-            case POST_NONE_HIDDEN:
+            case HIDDEN:
                 setBounds(x - 4, y - 4, 8, 8);
                 break;
 
@@ -158,7 +164,7 @@ public class Signal extends JComponent
 
             currentState = state;
 
-            setForeground(currentState == STATE_0 ? COLOUR_STATE_ON : (currentState == STATE_1 ? (isShunt ? Color.WHITE : COLOUR_STATE_OFF) : (currentState == STATE_UNKNOWN ? COLOUR_STATE_UNKNOWN : COLOUR_STATE_BLANK)));
+            setForeground(currentState == STATE_0 ? (isSubs ? COLOUR_STATE_BLANK : COLOUR_STATE_ON) : (currentState == STATE_1 ? (isShunt || isSubs ? Color.WHITE : COLOUR_STATE_OFF) : (currentState == STATE_UNKNOWN ? COLOUR_STATE_UNKNOWN : COLOUR_STATE_BLANK)));
         }
 
         setVisible(true);
@@ -171,7 +177,7 @@ public class Signal extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
-        if (ScreencapManager.isScreencapping && SIGNAL_TYPE == SignalType.POST_NONE_HIDDEN)
+        if (ScreencapManager.isScreencapping && SIGNAL_TYPE == SignalType.HIDDEN)
             return;
 
         if (EastAngliaMapClient.signalsVisible || ScreencapManager.isScreencapping)
@@ -240,28 +246,36 @@ public class Signal extends JComponent
                 case POST_RIGHT:
                     drawSignal(0, 0, g2d);
 
-                    g2d.setColor(SIGNAL_POST_COLOUR);
+                    g2d.setColor(COLOUR_STATE_RTE_UNSET);
+                    if (ROUTE_IDs == null || ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
+                        g2d.setColor(COLOUR_STATE_RTE_SET);
                     g2d.fillRect(8, 3, 6, 2);
                     break;
 
                 case POST_LEFT:
                     drawSignal(6, 0, g2d);
 
-                    g2d.setColor(SIGNAL_POST_COLOUR);
+                    g2d.setColor(COLOUR_STATE_RTE_UNSET);
+                    if (ROUTE_IDs == null || ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
+                        g2d.setColor(COLOUR_STATE_RTE_SET);
                     g2d.fillRect(0, 3, 6, 2);
                     break;
 
                 case POST_UP:
                     drawSignal(0, 6, g2d);
 
-                    g2d.setColor(SIGNAL_POST_COLOUR);
+                    g2d.setColor(COLOUR_STATE_RTE_UNSET);
+                    if (ROUTE_IDs == null || ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
+                        g2d.setColor(COLOUR_STATE_RTE_SET);
                     g2d.fillRect(3, 0, 2, 6);
                     break;
 
                 case POST_DOWN:
                     drawSignal(0, 0, g2d);
 
-                    g2d.setColor(SIGNAL_POST_COLOUR);
+                    g2d.setColor(COLOUR_STATE_RTE_UNSET);
+                    if (ROUTE_IDs == null || ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
+                        g2d.setColor(COLOUR_STATE_RTE_SET);
                     g2d.fillRect(3, 8, 2, 6);
                     break;
 
@@ -276,7 +290,7 @@ public class Signal extends JComponent
 
     private void drawSignal(int x, int y, Graphics2D g2d)
     {
-        if (isShunt)
+        if (isShunt || isSubs)
         {
             if (currentState == STATE_BLANK)
             {
@@ -450,6 +464,6 @@ public class Signal extends JComponent
     @Override
     public String toString()
     {
-        return String.format("eastangliamap.Signal=[signalId=&s,dataId=%s,currentState=%s,signalType=%s,isShunt=%s,text0=%s,text1=%s]", SIGNAL_ID, DATA_ID, currentState, SIGNAL_TYPE, isShunt, TEXT_0, TEXT_1);
+        return String.format("eastangliamap.Signal=[signalId=%s,dataId=%s,currentState=%s,signalType=%s,isShunt=%s,isSubs=%s,text0=%s,text1=%s]", SIGNAL_ID, DATA_ID, currentState, SIGNAL_TYPE, isShunt, isSubs, TEXT_0, TEXT_1);
     }
 }

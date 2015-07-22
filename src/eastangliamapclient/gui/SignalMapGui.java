@@ -179,6 +179,11 @@ public class SignalMapGui
 
             panelsJson.stream().forEachOrdered(panel ->
             {
+                if (!panel.containsKey("panelId") || !panel.containsKey("panelName") || !panel.containsKey("imageName") || !panel.containsKey("panelDescription") ||
+                        !panel.containsKey("berths") || !panel.containsKey("signals") || /*!panel.containsKey("points") ||*/ !panel.containsKey("stations") || !panel.containsKey("navButtons"))
+                {
+                    JOptionPane.showMessageDialog(frame, "Error in data files\nData not complete for \"" + String.valueOf(panel.get("panelName")) + "\"", "Error", JOptionPane.ERROR_MESSAGE);
+                }
                 String name = panel.get("panelId") + ". " + panel.get("panelName");
 
                 BackgroundPanel bp = new BackgroundPanel((String) panel.get("imageName"));
@@ -189,72 +194,95 @@ public class SignalMapGui
                 TabBar.addTab(name, null, new SideScrollPane(bp), "<html>" + panel.get("panelDescription") + "</html>");
 
                 //<editor-fold defaultstate="collapsed" desc="Berths">
-                ((List<Map<String, Object>>) panel.get("berths")).parallelStream().forEach(berthData ->
-                {
-                    Berth berth = Berths.getOrCreateBerth(bp,
-                            (int) ((long) berthData.get("posX")),
-                            (int) ((long) berthData.get("posY")),
-                            ((List<String>) berthData.get("berthIds")).toArray(new String[0]));
+                if (panel.containsKey("berths"))
+                    ((List<Map<String, Object>>) panel.get("berths")).stream().forEachOrdered(berthData ->
+                    {
+                        Berth berth = Berths.getOrCreateBerth(bp,
+                                (int) ((long) berthData.get("posX")),
+                                (int) ((long) berthData.get("posY")),
+                                ((List<String>) berthData.get("berthIds")).toArray(new String[0]));
 
-                    if (berthData.containsKey("hasBorder") && (Boolean) berthData.get("hasBorder"))
-                        berth.hasBorder();
-                });
+                        if (berthData.containsKey("hasBorder") && (Boolean) berthData.get("hasBorder"))
+                            berth.hasBorder();
+                    });
                 //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Signals">
-                ((List<Map<String, Object>>) panel.get("signals")).parallelStream().forEach(signalData ->
-                {
-                    Signal signal = Signals.getOrCreateSignal(bp,
-                            (int) ((long) signalData.get("posX")),
-                            (int) ((long) signalData.get("posY")),
-                            (String) signalData.get("signalId"),
-                            (String) signalData.get("dataId"),
-                            SignalType.getType(signalData.get("direction")));
+                if (panel.containsKey("signals"))
+                    ((List<Map<String, Object>>) panel.get("signals")).stream().forEachOrdered(signalData ->
+                    {
+                        Signal signal = Signals.getOrCreateSignal(bp,
+                                (int) ((long) signalData.get("posX")),
+                                (int) ((long) signalData.get("posY")),
+                                (String) signalData.get("signalId"),
+                                (String) signalData.get("dataId"),
+                                SignalType.getType(signalData.get("direction")));
 
-                    if (signalData.containsKey("isShunt") && (Boolean) signalData.get("isShunt"))
-                        signal.isShunt();
-                    if (signalData.containsKey("text0"))
-                        signal.set0Text(String.valueOf(signalData.get("text0")));
-                    if (signalData.containsKey("text1"))
-                        signal.set1Text(String.valueOf(signalData.get("text1")));
-                  //if (signalData.containsKey("width"))
-                  //    signal.set0Text(String.valueOf(signalData.get("width")));
-                  //if (signalData.containsKey("height"))
-                  //    signal.set1Text(String.valueOf(signalData.get("height")));
-                });
+                        if (signalData.containsKey("isShunt") && (Boolean) signalData.get("isShunt"))
+                            signal.isShunt();
+                        if (signalData.containsKey("isSubs") && (Boolean) signalData.get("isSubs"))
+                            signal.isSubs();
+                        if (signalData.containsKey("text0"))
+                            signal.set0Text(String.valueOf(signalData.get("text0")));
+                        if (signalData.containsKey("text1"))
+                            signal.set1Text(String.valueOf(signalData.get("text1")));
+                        if (signalData.containsKey("routes"))
+                            signal.setRoutes((ArrayList<String>) signalData.get("routes"));
+                      //if (signalData.containsKey("width"))
+                      //    signal.set0Text(String.valueOf(signalData.get("width")));
+                      //if (signalData.containsKey("height"))
+                      //    signal.set1Text(String.valueOf(signalData.get("height")));
+                    });
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Points / Routes">
+                if (panel.containsKey("points"))
+                    ((List<Map<String, Object>>) panel.get("points")).stream().forEachOrdered(pointData ->
+                    {
+                        Points.getOrCreatePoint(bp,
+                                (int) ((long) pointData.get("posX")),
+                                (int) ((long) pointData.get("posY")),
+                                (String) pointData.get("description"),
+                                (List<String>) pointData.get("dataIds"),
+                                Points.PointType.getType(String.valueOf(pointData.get("type0"))),
+                                Points.PointType.getType(String.valueOf(pointData.get("type1")))
+                        );
+                    });
                 //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Stations">
-                ((List<Map<String, Object>>) panel.get("stations")).parallelStream().forEach(stationData ->
-                {
-                    if (stationData.containsKey("isLarge") && (Boolean) stationData.get("isLarge"))
+                if (panel.containsKey("stations"))
+                    ((List<Map<String, Object>>) panel.get("stations")).stream().forEachOrdered(stationData ->
                     {
-                        largeStation(bp,
-                                (int) ((long) stationData.get("posX")),
-                                (int) ((long) stationData.get("posY")),
-                                (String) stationData.get("name"),
-                                (String) stationData.get("url"));
-                    }
-                    else
-                    {
-                        smallStation(bp,
-                                (int) ((long) stationData.get("posX")),
-                                (int) ((long) stationData.get("posY")),
-                                (String) stationData.get("name"),
-                                (String) stationData.get("url"));
-                    }
-                });
+                        if (stationData.containsKey("isLarge") && (Boolean) stationData.get("isLarge"))
+                        {
+                            largeStation(bp,
+                                    (int) ((long) stationData.get("posX")),
+                                    (int) ((long) stationData.get("posY")),
+                                    (String) stationData.get("name"),
+                                    (String) stationData.get("url"));
+                        }
+                        else
+                        {
+                            smallStation(bp,
+                                    (int) ((long) stationData.get("posX")),
+                                    (int) ((long) stationData.get("posY")),
+                                    (String) stationData.get("name"),
+                                    (String) stationData.get("url"));
+                        }
+                    });
                 //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Nav Buttons">
-                ((List<Map<String, Object>>) panel.get("navButtons")).parallelStream().forEach(navButtonData ->
-                {
-                    makeNavButton(bp,
-                            (int) ((long) navButtonData.get("posX")),
-                            (int) ((long) navButtonData.get("posY")),
-                            (String) navButtonData.get("name"),
-                            (int) ((long) navButtonData.get("linkedPanel")));
-                });
+                if (panel.containsKey("navButtons"))
+                    ((List<Map<String, Object>>) panel.get("navButtons")).stream().forEachOrdered(navButtonData ->
+                    {
+                        makeNavButton(bp,
+                                (int) ((long) navButtonData.get("posX")),
+                                (int) ((long) navButtonData.get("posY")),
+                                (String) navButtonData.get("name"),
+                                (int) ((long) navButtonData.get("linkedPanel")));
+                    });
                 //</editor-fold>
             });
         }
@@ -335,6 +363,7 @@ public class SignalMapGui
         {
             EastAngliaMapClient.blockKeyInput = false;
             EastAngliaMapClient.clean();
+            EastAngliaMapClient.frameSignalMap.frame.repaint();
         }, KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
         //frame.getRootPane().registerKeyboardAction(e ->
         //{
@@ -681,6 +710,12 @@ public class SignalMapGui
                 Signal signal = Signals.getSignal(pairs.getKey().toUpperCase());
                 if (signal != null)
                     signal.setState(String.valueOf(pairs.getValue()).equals("0") ? 0 : (String.valueOf(pairs.getValue()).equals("1") ? 1 : 2));
+
+                List<Point> points = Points.getPoints(pairs.getKey().toUpperCase());
+                if (points != null)
+                    points.parallelStream().filter(p -> p != null).forEach(point ->
+                        point.setState(String.valueOf(pairs.getValue()).equals("0") ? 0 : (String.valueOf(pairs.getValue()).equals("1") ? 1 : 2), pairs.getKey().toUpperCase())
+                    );
             }
             catch (Exception e) { EastAngliaMapClient.printThrowable(e, "Handler"); }
         }
@@ -730,7 +765,6 @@ public class SignalMapGui
     public class BackgroundPanel extends JLayeredPane
     {
         private BufferedImage image;
-        private BufferedImage bufferedImage;
 
         public final static int BP_DEFAULT_WIDTH  = DEFAULT_WIDTH - 23;
         public final static int BP_DEFAULT_HEIGHT = DEFAULT_HEIGHT - 68;
@@ -770,8 +804,6 @@ public class SignalMapGui
             {
                 EastAngliaMapClient.printErr("Unable to read image file: \"" + imageFile.getAbsolutePath() + "\"");
             }
-
-            bufferedImage = new BufferedImage(BP_DEFAULT_WIDTH, BP_DEFAULT_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         }
 
         @Override
@@ -779,12 +811,8 @@ public class SignalMapGui
         {
             Graphics2D g2d = (Graphics2D) g.create();
 
-            g2d.clearRect(0, 0, Math.max(g.getClipBounds().width, BP_DEFAULT_WIDTH), Math.max(g.getClipBounds().height, BP_DEFAULT_HEIGHT));
-            if (isOpaque())
-            {
-                g2d.setColor(EastAngliaMapClient.BLACK);
-                g2d.fillRect(0, 0, Math.max(g.getClipBounds().width, BP_DEFAULT_WIDTH), Math.max(g.getClipBounds().height, BP_DEFAULT_HEIGHT));
-            }
+            g2d.setColor(EastAngliaMapClient.BLACK);
+            g2d.fillRect(0, 0, Math.max(g.getClipBounds().width, BP_DEFAULT_WIDTH), Math.max(g.getClipBounds().height, BP_DEFAULT_HEIGHT));
 
             g2d.drawImage(image, 0, 0, BP_DEFAULT_WIDTH, BP_DEFAULT_HEIGHT, null);
 
@@ -799,12 +827,7 @@ public class SignalMapGui
             g2d.dispose();
         }
 
-        public BufferedImage getBufferedImage()
-        {
-            return bufferedImage;
-        }
-
-        public Component add(Component comp) { return super.add(comp); }
+        public Component add(Component comp) { return super.add(comp, LAYER_TOP); }
         public Component add(Component comp, int index) { return super.add(comp, index); }
     }
 }
