@@ -1,13 +1,13 @@
 package eastangliamapclient.gui;
 
-import eastangliamapclient.gui.mapelements.Berths;
-import eastangliamapclient.gui.mapelements.Points;
-import eastangliamapclient.gui.mapelements.Signals;
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.MessageHandler;
 import eastangliamapclient.ScreencapManager;
 import static eastangliamapclient.gui.SignalMapGui.DEFAULT_HEIGHT;
 import static eastangliamapclient.gui.SignalMapGui.DEFAULT_WIDTH;
+import eastangliamapclient.gui.mapelements.Berths;
+import eastangliamapclient.gui.mapelements.Points;
+import eastangliamapclient.gui.mapelements.Signals;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import javax.swing.JCheckBoxMenuItem;
@@ -20,39 +20,40 @@ public class SignalMapMenuBar extends JMenuBar
 {
     private static SignalMapMenuBar instance;
 
-    private /*final*/ JMenu menuFile;
-    private /*final*/ JMenu menuView;
-    private /*final*/ JMenu menuConnection;
-    private /*final*/ JMenu menuScreencap;
-    private /*final*/ JMenu menuWindow;
-    private /*final*/ JMenu menuHelp;
+    private JMenu menuFile;
+    private JMenu menuView;
+    private JMenu menuConnection;
+    private JMenu menuScreencap;
+    private JMenu menuWindow;
+    private JMenu menuHelp;
 
-    private /*final*/ JMenuItem fileTrainHistory;
-    private /*final*/ JCheckBoxMenuItem filePreventSleep;
-    private /*final*/ JCheckBoxMenuItem fileMinToSysTray;
-    private /*final*/ JMenuItem fileExit;
+    private JMenuItem fileTrainHistory;
+    private JCheckBoxMenuItem filePreventSleep;
+    private JCheckBoxMenuItem fileMinToSysTray;
+    private JMenuItem fileExit;
 
-    private /*final*/ JCheckBoxMenuItem viewVisibleBerths;
-    private /*final*/ JCheckBoxMenuItem viewVisibleSignals;
-    private /*final*/ JCheckBoxMenuItem viewVisiblePoints;
-    private /*final*/ JCheckBoxMenuItem viewBerthOpacity;
-    private /*final*/ JCheckBoxMenuItem viewBerthIDs;
+    private JCheckBoxMenuItem viewVisibleBerths;
+    private JCheckBoxMenuItem viewVisibleSignals;
+    private JCheckBoxMenuItem viewVisiblePoints;
+    private JCheckBoxMenuItem viewBerthOpacity;
+    private JCheckBoxMenuItem viewBerthIDs;
 
-    private /*final*/ JMenuItem connectionChangeName;
-    private /*final*/ JMenuItem connectionRefresh;
-    private /*final*/ JMenuItem connectionReconnect;
+    private JMenuItem connectionChangeName;
+    private JMenuItem connectionViewData;
+    private JMenuItem connectionRefresh;
+    private JMenuItem connectionReconnect;
 
-    private /*final*/ JMenuItem screencapTakeScreencaps;
-    private /*final*/ JCheckBoxMenuItem screencapAutoScreencap;
+    private JMenuItem screencapTakeScreencaps;
+    private JCheckBoxMenuItem screencapAutoScreencap;
 
-    private /*final*/ JMenuItem windowResize;
-    private /*final*/ JMenuItem windowReposition;
-    private /*final*/ JMenuItem windowReset;
+    private JMenuItem windowResize;
+    private JMenuItem windowReposition;
+    private JMenuItem windowReset;
 
-    private /*final*/ JMenuItem helpAbout;
-    private /*final*/ JMenuItem helpHelp;
+    private JMenuItem helpAbout;
+    private JMenuItem helpHelp;
 
-    private /*final*/ ActionListener listenerFile = evt ->
+    private ActionListener listenerFile = evt ->
     {
         Object src = evt.getSource();
         if (src == null)
@@ -82,11 +83,13 @@ public class SignalMapMenuBar extends JMenuBar
         {
             EastAngliaMapClient.writeSetting("windowSize", ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getWidth()) + "," + ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getHeight()));
             EastAngliaMapClient.writeSetting("lastTab", Integer.toString(EastAngliaMapClient.frameSignalMap.TabBar.getSelectedIndex()));
+            
+            EastAngliaMapClient.frameSignalMap.setVisible(false);
 
             System.exit(0);
         }
     };
-    private /*final*/ ActionListener listenerView = evt ->
+    private ActionListener listenerView = evt ->
     {
         Object src = evt.getSource();
         if (src == null)
@@ -103,7 +106,7 @@ public class SignalMapMenuBar extends JMenuBar
         else if (src == viewBerthIDs)
             Berths.toggleBerthDescriptions();
     };
-    private /*final*/ ActionListener listenerConnection = evt ->
+    private ActionListener listenerConnection = evt ->
     {
         Object src = evt.getSource();
         if (src == null)
@@ -121,12 +124,14 @@ public class SignalMapMenuBar extends JMenuBar
             }
             EastAngliaMapClient.blockKeyInput = false;
         }
+        else if (src == connectionViewData)
+            EastAngliaMapClient.frameDataViewer.setVisible0(true);
         else if (src == connectionRefresh)
             MessageHandler.requestAll();
         else if (src == connectionReconnect)
             EastAngliaMapClient.reconnect(true);
     };
-    private /*final*/ ActionListener listenerScreencap = evt ->
+    private ActionListener listenerScreencap = evt ->
     {
         Object src = evt.getSource();
         if (src == null)
@@ -138,7 +143,7 @@ public class SignalMapMenuBar extends JMenuBar
             ScreencapManager.autoScreencap();
 
     };
-    private /*final*/ ActionListener listenerWindow = evt ->
+    private ActionListener listenerWindow = evt ->
     {
         Object src = evt.getSource();
         if (src == null)
@@ -158,7 +163,7 @@ public class SignalMapMenuBar extends JMenuBar
             EastAngliaMapClient.frameSignalMap.frame.setLocationRelativeTo(null);
         }
     };
-    private /*final*/ ActionListener listenerHelp = evt ->
+    private ActionListener listenerHelp = evt ->
     {
         Object src = evt.getSource();
         if (src == null)
@@ -196,7 +201,8 @@ public class SignalMapMenuBar extends JMenuBar
         viewBerthOpacity   = new JCheckBoxMenuItem("Opaque Berth Mode");
         viewBerthIDs       = new JCheckBoxMenuItem("Show Berth IDs");
 
-        connectionChangeName = new JMenuItem("Change Client Name");
+        connectionChangeName = new JMenuItem("Change Client Name...");
+        connectionViewData   = new JMenuItem("View Data...");
         connectionRefresh    = new JMenuItem("Refresh Data");
         connectionReconnect  = new JMenuItem("Reconnect");
 
@@ -207,8 +213,8 @@ public class SignalMapMenuBar extends JMenuBar
         windowReposition = new JMenuItem("Reset Position");
         windowReset      = new JMenuItem("Reset All");
 
-        helpAbout = new JMenuItem("About");
-        helpHelp  = new JMenuItem("Help");
+        helpAbout = new JMenuItem("About...");
+        helpHelp  = new JMenuItem("Help...");
 
         menuFile.add(fileTrainHistory).addActionListener(listenerFile);
         menuFile.addSeparator();
@@ -225,6 +231,8 @@ public class SignalMapMenuBar extends JMenuBar
         menuView.add(viewBerthOpacity).addActionListener(listenerView);
 
         menuConnection.add(connectionChangeName).addActionListener(listenerConnection);
+        menuConnection.addSeparator();
+        menuConnection.add(connectionViewData).addActionListener(listenerConnection);
         menuConnection.addSeparator();
         menuConnection.add(connectionRefresh).addActionListener(listenerConnection);
         menuConnection.add(connectionReconnect).addActionListener(listenerConnection);

@@ -1,8 +1,8 @@
 package eastangliamapclient;
 
-import eastangliamapclient.gui.mapelements.Berths;
 import eastangliamapclient.gui.ListDialog;
 import eastangliamapclient.gui.SysTrayHandler;
+import eastangliamapclient.gui.mapelements.Berths;
 import eastangliamapclient.json.JSONParser;
 import java.awt.TrayIcon;
 import java.io.BufferedReader;
@@ -154,6 +154,8 @@ public class MessageHandler
                             break;
                     }
                 }
+
+                EastAngliaMapClient.frameDataViewer.updateData();
             }
             catch (EOFException | StreamCorruptedException | NullPointerException e) { errors++; }
             catch (SocketException e)

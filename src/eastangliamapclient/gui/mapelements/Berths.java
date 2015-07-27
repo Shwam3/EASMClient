@@ -32,14 +32,14 @@ public class Berths
             return new Berth(pnl, x, y, berthIds);
     }
 
-    public static boolean containsBerth(String berthId)
+    public static boolean berthExists(String berthId)
     {
         return berthMap.containsKey(berthId);
     }
 
     public static void putBerth(String berthId, Berth berth)
     {
-        if (!containsBerth(berthId))
+        if (!berthExists(berthId))
             berthMap.put(berthId, berth);
     }
 

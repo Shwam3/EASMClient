@@ -1,5 +1,6 @@
 package eastangliamapclient;
 
+import eastangliamapclient.gui.SignalMapDataViewer;
 import eastangliamapclient.gui.SignalMapGui;
 import eastangliamapclient.gui.SysTrayHandler;
 import java.awt.Color;
@@ -55,7 +56,9 @@ public class EastAngliaMapClient
     public static boolean signalsVisible   = true;
     public static boolean pointsVisible    = true;
 
-    public static SignalMapGui frameSignalMap;
+    public static SignalMapGui        frameSignalMap;
+    public static SignalMapDataViewer frameDataViewer;
+
     public static String       clientName;
     public static boolean      connected = false;
     public static boolean      kicked = false;
@@ -176,6 +179,8 @@ public class EastAngliaMapClient
             }
 
             frameSignalMap = new SignalMapGui(windowSize);
+            frameDataViewer = new SignalMapDataViewer();
+            frameDataViewer.updateData();
 
             SysTrayHandler.initSysTray();
 

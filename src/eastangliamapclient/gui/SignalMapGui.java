@@ -1,15 +1,15 @@
 package eastangliamapclient.gui;
 
-import eastangliamapclient.gui.mapelements.Berths;
-import eastangliamapclient.gui.mapelements.Points;
-import eastangliamapclient.gui.mapelements.Berth;
-import eastangliamapclient.gui.mapelements.Signal;
-import eastangliamapclient.gui.mapelements.Point;
-import eastangliamapclient.gui.mapelements.Signals;
 import eastangliamapclient.EastAngliaMapClient;
 import static eastangliamapclient.EastAngliaMapClient.newFile;
 import static eastangliamapclient.EastAngliaMapClient.storageDir;
 import eastangliamapclient.MessageHandler;
+import eastangliamapclient.gui.mapelements.Berth;
+import eastangliamapclient.gui.mapelements.Berths;
+import eastangliamapclient.gui.mapelements.Point;
+import eastangliamapclient.gui.mapelements.Points;
+import eastangliamapclient.gui.mapelements.Signal;
+import eastangliamapclient.gui.mapelements.Signals;
 import eastangliamapclient.gui.mapelements.Signals.SignalType;
 import eastangliamapclient.json.JSONParser;
 import java.awt.AWTException;
@@ -72,7 +72,6 @@ public class SignalMapGui
 {
     public JFrame frame;
 
-    //private final List<JButton>                buttons   = new ArrayList<>();
     private final List<JScrollPane>            motdPanes = new ArrayList<>();
     private final List<BackgroundPanel>        panelList = new ArrayList<>();
     private final Map<String, BackgroundPanel> panelMap  = new HashMap<>();
@@ -587,38 +586,6 @@ public class SignalMapGui
 
     private void placeTopBits(final BackgroundPanel bp)
     {
-        //JButton menu = new JButton("▼");
-        //menu.setToolTipText("Options");
-        //menu.setFocusable(false);
-        //menu.setOpaque(false);
-        //menu.setBounds(70, 10, 43, 23);
-        //menu.addMouseListener(new MouseAdapter()
-        //{
-        //    @Override
-        //    public void mouseClicked(MouseEvent evt)
-        //    {
-        //        if (SwingUtilities.isLeftMouseButton(evt))
-        //            new OptionContextMenu(evt.getComponent());
-        //    }
-        //});
-        //bp.add(menu, LAYER_TOP);
-
-        //JButton help = new JButton("?");
-        //help.setToolTipText("Help");
-        //help.setFocusable(false);
-        //help.setOpaque(false);
-        //help.setBounds(123, 10, 37, 23);
-        //help.addMouseListener(new MouseAdapter()
-        //{
-        //    @Override
-        //    public void mouseClicked(MouseEvent evt)
-        //    {
-        //        if (SwingUtilities.isLeftMouseButton(evt))
-        //            new HelpDialog();
-        //    }
-        //});
-        //bp.add(help, LAYER_TOP);
-
         JLabel motd = new JLabel();
         motd.setText("XXMOTD");
         motd.setFocusable(false);
