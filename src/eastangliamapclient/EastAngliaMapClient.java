@@ -48,11 +48,12 @@ public class EastAngliaMapClient
 
     public static Map<String, String> DataMap = new HashMap<>();
 
-    public static boolean screencap        = false;
+    public static boolean autoScreencap    = false;
     public static boolean opaque           = false;
     public static boolean showDescriptions = false; // not headcodes
     public static boolean berthsVisible    = true;
     public static boolean signalsVisible   = true;
+    public static boolean pointsVisible    = true;
 
     public static SignalMapGui frameSignalMap;
     public static String       clientName;
@@ -232,7 +233,7 @@ public class EastAngliaMapClient
 
             EventQueue.invokeLater(() ->
             {
-                ScreencapManager.screencap();
+                ScreencapManager.autoScreencap();
                 ScreencapManager.takeScreencaps();
             });
         }

@@ -3,16 +3,12 @@ package eastangliamapclient.gui;
 import eastangliamapclient.EastAngliaMapClient;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -23,20 +19,20 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
-public class HelpDialog extends JDialog
+public class AboutDialog extends JDialog
 {
-    public HelpDialog()
+    public AboutDialog()
     {
-        setTitle("Help");
-        setPreferredSize(new Dimension(800, 458));
+        setTitle("About");
+        setPreferredSize(new Dimension(600, 458));
         setResizable(false);
         setLayout(new BorderLayout());
         setLocationByPlatform(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setModalityType(ModalityType.APPLICATION_MODAL);
 
-        JLabel mainText = new JLabel(
-                "<html>"
+        JLabel mainText = new JLabel("");
+                /*"<html>"
                     + "<p><b>Navigation:</b></p>"
                     + "<p>Use the <i>function</i> keys (F1, F2 ...) (CTRL 13-24 SHIFT 25-36 CTRL+SHIFT 36-48) to change the tabs as well as the arrow keys.</p>"
                     + "<br>"
@@ -45,10 +41,9 @@ public class HelpDialog extends JDialog
                     + "<br>"
                     + "<p><b>Key Bindings:</b></p>"
                     + "<p>'O' - Toggle berth opacity mode</p>"
-                    + "<p>'D' - Show berth id's</p>"
+                    + "<p>'D' - Toggle berth id's</p>"
                     + "<p>'B' - Toggle berth visibility</p>"
                     + "<p>'S' - Toggle signals visibility</p>"
-                    + "<p>'P' - Toggle points visibility</p>"
                     + "<p>'H' - Opens this dialog</p>"
                     + "<br>"
                     + "<p>Note: This program may regularly disconnect/be unavailable as the server program is run on my local PC which may not always "
@@ -57,7 +52,7 @@ public class HelpDialog extends JDialog
                     + "<p>The source code is available at http://www.github.com/Shwam3/EastAngliaSignalMapClient"
                     +    " and http://www.github.com/Shwam3/EastAngliaSignalMapServer</p>"
                     + "<p>&copy; Cameron Bird 2014</p>"
-                + "</html>");
+                + "</html>");*/
 
         mainText.setOpaque(true);
         mainText.setFont(new Font(Font.MONOSPACED, Font.TRUETYPE_FONT, 12));
@@ -72,18 +67,18 @@ public class HelpDialog extends JDialog
         okButton.setPreferredSize(new Dimension(73, 23));
         okButton.setOpaque(false);
 
-        JButton gitButton = new JButton("GitHub...");
-        gitButton.addActionListener(evt ->
-        {
-            try { Desktop.getDesktop().browse(new URI("https://www.github.com/Shwam3/")); }
-            catch (URISyntaxException | IOException e) { EastAngliaMapClient.printThrowable(e, "HelpDialog"); }
-        });
-        gitButton.setPreferredSize(new Dimension(76, 23));
-        gitButton.setOpaque(false);
+        //JButton gitButton = new JButton("GitHub...");
+        //gitButton.addActionListener(evt ->
+        //{
+        //    try { Desktop.getDesktop().browse(new URI("https://www.github.com/Shwam3/")); }
+        //    catch (URISyntaxException | IOException e) { EastAngliaMapClient.printThrowable(e, "HelpDialog"); }
+        //});
+        //gitButton.setPreferredSize(new Dimension(76, 23));
+        //gitButton.setOpaque(false);
 
         JPanel buttonPnl = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
         buttonPnl.add(okButton);
-        buttonPnl.add(gitButton);
+        //buttonPnl.add(gitButton);
         buttonPnl.setOpaque(false);
         add(buttonPnl, BorderLayout.SOUTH);
 

@@ -1,8 +1,9 @@
-package eastangliamapclient.gui;
+package eastangliamapclient.gui.mapelements;
 
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.ScreencapManager;
-import eastangliamapclient.gui.Points.PointType;
+import eastangliamapclient.gui.mapelements.Points.PointType;
+import eastangliamapclient.gui.SignalMapGui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -71,7 +72,7 @@ public class Point extends JComponent
         //if (DATA_IDs.values().stream().filter(val -> val >= 0).count() == STATE_UNKNOWN || (!EastAngliaMapClient.signalsVisible && !ScreencapManager.isScreencapping))
         //    return;
 
-        if(!EastAngliaMapClient.signalsVisible && !ScreencapManager.isScreencapping)
+        if(!EastAngliaMapClient.pointsVisible && !ScreencapManager.isScreencapping)
             return;
 
         Graphics2D g2d = (Graphics2D) g.create();

@@ -1,8 +1,9 @@
-package eastangliamapclient.gui;
+package eastangliamapclient.gui.mapelements;
 
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.ScreencapManager;
-import eastangliamapclient.gui.Signals.SignalType;
+import eastangliamapclient.gui.SignalMapGui;
+import eastangliamapclient.gui.mapelements.Signals.SignalType;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;

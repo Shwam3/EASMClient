@@ -1,10 +1,16 @@
 package eastangliamapclient.gui;
 
+import eastangliamapclient.gui.mapelements.Berths;
+import eastangliamapclient.gui.mapelements.Points;
+import eastangliamapclient.gui.mapelements.Berth;
+import eastangliamapclient.gui.mapelements.Signal;
+import eastangliamapclient.gui.mapelements.Point;
+import eastangliamapclient.gui.mapelements.Signals;
 import eastangliamapclient.EastAngliaMapClient;
 import static eastangliamapclient.EastAngliaMapClient.newFile;
 import static eastangliamapclient.EastAngliaMapClient.storageDir;
 import eastangliamapclient.MessageHandler;
-import eastangliamapclient.gui.Signals.SignalType;
+import eastangliamapclient.gui.mapelements.Signals.SignalType;
 import eastangliamapclient.json.JSONParser;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
@@ -49,7 +55,6 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.imageio.ImageIO;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -67,7 +72,7 @@ public class SignalMapGui
 {
     public JFrame frame;
 
-    private final List<JButton>                buttons   = new ArrayList<>();
+    //private final List<JButton>                buttons   = new ArrayList<>();
     private final List<JScrollPane>            motdPanes = new ArrayList<>();
     private final List<BackgroundPanel>        panelList = new ArrayList<>();
     private final Map<String, BackgroundPanel> panelMap  = new HashMap<>();
@@ -78,7 +83,7 @@ public class SignalMapGui
     private static final Font CLOCK_FONT = EastAngliaMapClient.TD_FONT.deriveFont(45f);
 
     public static final int DEFAULT_WIDTH  = 1877;
-    public static final int DEFAULT_HEIGHT = 928;
+    public static final int DEFAULT_HEIGHT = 928 + 21;
 
     public static final int LAYER_IMAGES  = 0;
     public static final int LAYER_SIGNALS = 1;
@@ -93,7 +98,7 @@ public class SignalMapGui
 
     public SignalMapGui(Dimension dim)
     {
-        frame = new JFrame("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
+        frame = new JFrame("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.autoScreencap ? " - Screencapping" : ""));
         TabBar = new JTabbedPane();
 
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -147,6 +152,8 @@ public class SignalMapGui
         frame.setMaximumSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         frame.setLayout(new BorderLayout());
 
+        frame.setJMenuBar(new SignalMapMenuBar());
+
         {
             StringBuilder jsonString = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new FileReader(new File(storageDir, "data" + File.separator + "signalmap.json"))))
@@ -173,7 +180,7 @@ public class SignalMapGui
             Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString.toString());
 
             EastAngliaMapClient.DATA_VERSION = String.valueOf(json.get("version"));
-            frame.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  " / v" + EastAngliaMapClient.DATA_VERSION + ")" + (EastAngliaMapClient.screencap ? " - Screencapping" : ""));
+            frame.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  " / v" + EastAngliaMapClient.DATA_VERSION + ")" + (EastAngliaMapClient.autoScreencap ? " - Screencapping" : ""));
 
             List<Map<String, Object>> panelsJson = (List<Map<String, Object>>) json.get("signalMap");
 
@@ -328,12 +335,17 @@ public class SignalMapGui
         {
             if (!EastAngliaMapClient.blockKeyInput)
             {
-                //frame.setPreferredSize(new Dimension(1877, 928));
+                frame.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
                 frame.pack();
                 frame.setLocationRelativeTo(null);
                 //frame.setPreferredSize(new Dimension(frame.getSize().width, frame.getSize().height));
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        frame.getRootPane().registerKeyboardAction(e ->
+        {
+            if (!EastAngliaMapClient.blockKeyInput)
+                Points.togglePointVisibilities();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         frame.getRootPane().registerKeyboardAction(e ->
         {
             if (!EastAngliaMapClient.blockKeyInput)
@@ -363,6 +375,7 @@ public class SignalMapGui
         {
             EastAngliaMapClient.blockKeyInput = false;
             EastAngliaMapClient.clean();
+            SignalMapMenuBar.instance().updateCheckBoxes();
             EastAngliaMapClient.frameSignalMap.frame.repaint();
         }, KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
         //frame.getRootPane().registerKeyboardAction(e ->
@@ -574,37 +587,37 @@ public class SignalMapGui
 
     private void placeTopBits(final BackgroundPanel bp)
     {
-        JButton menu = new JButton("▼");
-        menu.setToolTipText("Options");
-        menu.setFocusable(false);
-        menu.setOpaque(false);
-        menu.setBounds(70, 10, 43, 23);
-        menu.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent evt)
-            {
-                if (SwingUtilities.isLeftMouseButton(evt))
-                    new OptionContextMenu(evt.getComponent());
-            }
-        });
-        bp.add(menu, LAYER_TOP);
+        //JButton menu = new JButton("▼");
+        //menu.setToolTipText("Options");
+        //menu.setFocusable(false);
+        //menu.setOpaque(false);
+        //menu.setBounds(70, 10, 43, 23);
+        //menu.addMouseListener(new MouseAdapter()
+        //{
+        //    @Override
+        //    public void mouseClicked(MouseEvent evt)
+        //    {
+        //        if (SwingUtilities.isLeftMouseButton(evt))
+        //            new OptionContextMenu(evt.getComponent());
+        //    }
+        //});
+        //bp.add(menu, LAYER_TOP);
 
-        JButton help = new JButton("?");
-        help.setToolTipText("Help");
-        help.setFocusable(false);
-        help.setOpaque(false);
-        help.setBounds(123, 10, 37, 23);
-        help.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent evt)
-            {
-                if (SwingUtilities.isLeftMouseButton(evt))
-                    new HelpDialog();
-            }
-        });
-        bp.add(help, LAYER_TOP);
+        //JButton help = new JButton("?");
+        //help.setToolTipText("Help");
+        //help.setFocusable(false);
+        //help.setOpaque(false);
+        //help.setBounds(123, 10, 37, 23);
+        //help.addMouseListener(new MouseAdapter()
+        //{
+        //    @Override
+        //    public void mouseClicked(MouseEvent evt)
+        //    {
+        //        if (SwingUtilities.isLeftMouseButton(evt))
+        //            new HelpDialog();
+        //    }
+        //});
+        //bp.add(help, LAYER_TOP);
 
         JLabel motd = new JLabel();
         motd.setText("XXMOTD");
@@ -622,12 +635,12 @@ public class SignalMapGui
 
         JScrollPane spMOTD = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         spMOTD.setViewportView(motd);
-        spMOTD.setBounds(200, 10, 550, 50);
+        spMOTD.setBounds(100, 10, 650, 50);
         bp.add(spMOTD, LAYER_TOP);
         motdPanes.add(spMOTD);
 
-        buttons.add(menu);
-        buttons.add(help);
+        //buttons.add(menu);
+        //buttons.add(help);
     }
 
     //private void placeTestSignals(BackgroundPanel pnl, String areaId, int x, int y, int width, int min, int max)
@@ -728,13 +741,13 @@ public class SignalMapGui
 
     public void prepForScreencap()
     {
-        buttons.stream().forEach(button -> button.setVisible(false));
+        //buttons.stream().forEach(button -> button.setVisible(false));
         motdPanes.stream().forEach(sp -> sp.setVisible(false));
     }
 
     public void finishScreencap()
     {
-        buttons.stream().forEach(button -> button.setVisible(true));
+        //buttons.stream().forEach(button -> button.setVisible(true));
         motdPanes.stream().forEach(sp -> sp.setVisible(true));
     }
 
@@ -752,7 +765,7 @@ public class SignalMapGui
     public void setMOTD(String motd)
     {
         String motdHTML = "<html><body style='width:auto;height:auto'>" + (motd == null || motd.isEmpty() ? "No problems" : motd.trim()) + "</body></html>";
-        int height = (((motdHTML.length() - motdHTML.replace("<br>", "").length()) / 4) + (motdHTML.replaceAll("\\<.*?\\>", "").length() / 30)) * 12 + 12;
+        int height = (int) (Math.ceil(((motdHTML.length() - motdHTML.replace("<br>", "").length()) / 4) + motdHTML.replaceAll("\\<.*?\\>", "").length() / 30) * 16 + 12);
 
         motdPanes.parallelStream().forEach(sp ->
         {

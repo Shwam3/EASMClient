@@ -1,7 +1,9 @@
-package eastangliamapclient.gui;
+package eastangliamapclient.gui.mapelements;
 
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.ScreencapManager;
+import eastangliamapclient.gui.BerthContextMenu;
+import eastangliamapclient.gui.SignalMapGui;
 import java.awt.Desktop;
 import java.awt.Graphics;
 import java.awt.Graphics2D;

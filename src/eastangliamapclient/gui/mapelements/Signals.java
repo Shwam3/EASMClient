@@ -1,6 +1,8 @@
-package eastangliamapclient.gui;
+package eastangliamapclient.gui.mapelements;
 
 import eastangliamapclient.EastAngliaMapClient;
+import eastangliamapclient.gui.SignalMapGui;
+import eastangliamapclient.gui.SignalMapMenuBar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,6 +58,8 @@ public class Signals
 
         EastAngliaMapClient.frameSignalMap.getPanels().parallelStream()
                 .forEach(bp -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));
+
+        SignalMapMenuBar.instance().updateCheckBoxes();
     }
 
     public static enum SignalType

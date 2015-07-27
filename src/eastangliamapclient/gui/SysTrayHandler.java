@@ -58,7 +58,7 @@ public class SysTrayHandler
         final MenuItem exit = new MenuItem("Exit");
         final MenuItem showWindow = new MenuItem("Show window");
         final MenuItem reconnect = new MenuItem("Reconnect");
-        final CheckboxMenuItem screenshot = new CheckboxMenuItem("Auto Screenshot", EastAngliaMapClient.screencap);
+        final CheckboxMenuItem screenshot = new CheckboxMenuItem("Auto Screenshot", EastAngliaMapClient.autoScreencap);
 
         ActionListener menuListener = e ->
         {
@@ -73,7 +73,7 @@ public class SysTrayHandler
 
         showWindow.addActionListener(menuListener);
         reconnect.addActionListener(menuListener);
-        screenshot.addItemListener(e -> ScreencapManager.screencap());
+        screenshot.addItemListener(e -> ScreencapManager.autoScreencap());
         exit.addActionListener(menuListener);
 
         pm.add(showWindow);
