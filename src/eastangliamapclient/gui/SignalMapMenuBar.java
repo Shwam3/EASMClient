@@ -214,13 +214,12 @@ public class SignalMapMenuBar extends JMenuBar
         updateCheckBoxes();
     };
 
-    public SignalMapMenuBar()
+    private SignalMapMenuBar()
     {
         super();
 
         if (instance != null)
             throw new ExceptionInInitializerError("An instance of " + getClass().getCanonicalName() + " already exists.");
-        instance = this;
 
         menuFile       = new JMenu("File");
         menuView       = new JMenu("View");
@@ -304,6 +303,8 @@ public class SignalMapMenuBar extends JMenuBar
 
     public static SignalMapMenuBar instance()
     {
+        if (instance == null)
+            instance = new SignalMapMenuBar();
         return instance;
     }
 

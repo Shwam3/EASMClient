@@ -1,6 +1,7 @@
 package eastangliamapclient;
 
 import eastangliamapclient.gui.SignalMapGui;
+import eastangliamapclient.gui.SignalMapMenuBar;
 import eastangliamapclient.gui.SysTrayHandler;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -269,6 +270,8 @@ public class ScreencapManager
                 + (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")
                 + (EastAngliaMapClient.connected ? "" : " - Not Connected")
             );
+
+        SignalMapMenuBar.instance().updateCheckBoxes();
     }
 
     private static BufferedImage overlayImage(BufferedImage image, String name)

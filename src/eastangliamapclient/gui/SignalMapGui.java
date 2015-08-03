@@ -152,7 +152,7 @@ public class SignalMapGui
         frame.setMaximumSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         frame.setLayout(new BorderLayout());
 
-        frame.setJMenuBar(new SignalMapMenuBar());
+        frame.setJMenuBar(SignalMapMenuBar.instance());
 
         {
             StringBuilder jsonString = new StringBuilder();
@@ -451,6 +451,7 @@ public class SignalMapGui
         }, 30000, 120000);
 
         new javax.swing.Timer(250, e -> panelList.parallelStream().forEach(bp -> bp.repaint(780, 10, 280, 50))).start(); // Clock section only
+        SignalMapMenuBar.instance().updateCheckBoxes();
     }
 
     //<editor-fold defaultstate="collapsed" desc="Util methods">
