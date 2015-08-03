@@ -59,17 +59,18 @@ public class ScreencapManager
                 {
                     try
                     {
+                        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                         // 00:00 to 06:00 images every 5 mins
-                        if (Integer.parseInt(EastAngliaMapClient.getTime().substring(0, 2)) < 6 && Calendar.getInstance(TimeZone.getTimeZone("GMT")).get(Calendar.MINUTE) % 5 != 0)
+                        if (c.get(Calendar.HOUR_OF_DAY) < 6 ? c.get(Calendar.MINUTE) % 5 != 0 : c.get(Calendar.MINUTE) % 2 != 0)
                         {
-                            printScreencap("Not taking screencaps, waiting for time", false);
+                            printScreencap("Not taking screencaps, waiting for correct minute", false);
                         }
-                        else if (Calendar.getInstance(TimeZone.getTimeZone("GMT")).get(Calendar.MINUTE) % 2 != 0)
+                        else
                         {
-                            if (EastAngliaMapClient.serverSocket != null && EastAngliaMapClient.autoScreencap && EastAngliaMapClient.serverSocket.isConnected())
+                            if (EastAngliaMapClient.autoScreencap)
                                 EventQueue.invokeAndWait(() -> takeScreencaps());
                             else
-                                printScreencap("Not taking screencaps, disconnected or turned off", false);
+                                printScreencap("Not taking screencaps, turned off", false);
                         }
                     }
                     catch (Exception e) { isScreencapping = false; }
@@ -119,8 +120,8 @@ public class ScreencapManager
             printScreencap("Already screencapping", true);
             return;
         }
-
         isScreencapping = true;
+
         if (EastAngliaMapClient.frameSignalMap != null)
             EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "")
                 +  " / v" + EastAngliaMapClient.DATA_VERSION + ")"
@@ -169,7 +170,6 @@ public class ScreencapManager
             {
                 BufferedImage bigImage = new BufferedImage(width*3 - 2, height*4 - 2, BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g2d = bigImage.createGraphics();
-              //g2d.clearRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
                 g2d.setColor(EastAngliaMapClient.GREY);
                 g2d.fillRect(0, 0, bigImage.getWidth(), bigImage.getHeight());
 
@@ -236,7 +236,7 @@ public class ScreencapManager
                     File imageFile = new File(screencapPath, names.get(i) + ".png");
                     try (FileInputStream in = new FileInputStream(imageFile); BufferedOutputStream out = new BufferedOutputStream(con.getOutputStream()))
                     {
-                        byte[] buffer = new byte[(int) imageFile.length()];
+                        byte[] buffer = new byte[8192];
                         int read;
                         while ((read = in.read(buffer)) != -1)
                             out.write(buffer, 0, read);
