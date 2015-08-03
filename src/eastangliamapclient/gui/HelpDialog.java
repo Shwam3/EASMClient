@@ -54,8 +54,8 @@ public class HelpDialog extends JDialog
                     + "<p>Note: This program may regularly disconnect/be unavailable as the server program is run on my local PC which may not always "
                     +    "be on/available. In such cases I highly recommend using opentraintimes.com or railcam.org.uk as alternatives.</p>"
                     + "<br>"
-                    + "<p>The source code is available at http://www.github.com/Shwam3/EastAngliaSignalMapClient"
-                    +    " and http://www.github.com/Shwam3/EastAngliaSignalMapServer</p>"
+                    + "<p>The source code is available at www.github.com/Shwam3/EastAngliaSignalMapClient"
+                    +    " and www.github.com/Shwam3/EastAngliaSignalMapServer</p>"
                     + "<p>&copy; Cameron Bird 2014</p>"
                 + "</html>");
 

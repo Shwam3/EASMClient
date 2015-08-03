@@ -31,10 +31,10 @@ import javax.swing.JProgressBar;
 
 public class VersionChecker
 {
-    static void checkVersion()
+    public static boolean checkVersion()
     {
         checkClientVersion();
-        checkDataVersion();
+        return checkDataVersion();
     }
 
     private static void checkClientVersion()
@@ -95,8 +95,9 @@ public class VersionChecker
         catch (IOException e) { EastAngliaMapClient.printStartup("Error reading remote version file", true); }
     }
 
-    private static void checkDataVersion()
+    private static boolean checkDataVersion()
     {
+        boolean hasUpdated = false;
         int newVersion = 0;
 
         try
@@ -172,6 +173,7 @@ public class VersionChecker
                         updateArchive.delete();
 
                         EastAngliaMapClient.printStartup("Downloaded new data files (v" + versionRemote + ")", false);
+                        hasUpdated = true;
                     }
                     else
                     {
@@ -194,6 +196,7 @@ public class VersionChecker
         }
 
         EastAngliaMapClient.DATA_VERSION = Integer.toString(newVersion);
+        return hasUpdated;
     }
 
     private static File downloadFile(URL location, File destinationFolder, boolean forceOverwrite)
@@ -263,7 +266,7 @@ public class VersionChecker
                     if (!progress.isIndeterminate())
                         progress.setValue((int) downloader.getProgress());
 
-                    try { Thread.sleep(5); }
+                    try { Thread.sleep(10); }
                     catch (InterruptedException e) {}
 
                     if (downloader.getStatus() == Downloader.COMPLETE || downloader.getStatus() == Downloader.CANCELLED || downloader.getStatus() == Downloader.ERROR)

@@ -34,7 +34,7 @@ public class Berths
 
     public static boolean berthExists(String berthId)
     {
-        return berthMap.containsKey(berthId);
+        return berthMap.get(berthId) != null;
     }
 
     public static void putBerth(String berthId, Berth berth)
@@ -113,9 +113,9 @@ public class Berths
 
     public static void toggleBerthsOpacities()
     {
-        EastAngliaMapClient.opaque = !EastAngliaMapClient.opaque;
+        EastAngliaMapClient.opaqueBerths = !EastAngliaMapClient.opaqueBerths;
 
-        //Berths.getEntrySet().parallelStream().forEach(pairs -> pairs.getValue().setOpaque(EastAngliaMapClient.opaque));
+        //Berths.getEntrySet().parallelStream().forEach(pairs -> pairs.getValue().setOpaque(EastAngliaMapClient.opaqueBerths));
 
         EastAngliaMapClient.frameSignalMap.getPanels().parallelStream()
                 .forEach(bp -> bp.repaint(0, 0, bp.getWidth(), bp.getHeight()));

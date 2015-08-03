@@ -27,7 +27,7 @@ public class Signals
 
     public static boolean signalExists(String signalId)
     {
-        return signalMap.containsKey(signalId);
+        return signalMap.get(signalId) != null;
     }
 
     public static void putSignal(String signalId, Signal signal)

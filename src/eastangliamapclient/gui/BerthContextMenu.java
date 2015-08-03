@@ -1,11 +1,12 @@
 package eastangliamapclient.gui;
 
-import eastangliamapclient.gui.mapelements.Berths;
-import eastangliamapclient.gui.mapelements.Berth;
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.MessageHandler;
+import eastangliamapclient.gui.mapelements.Berth;
+import eastangliamapclient.gui.mapelements.Berths;
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -30,7 +31,7 @@ public class BerthContextMenu extends JPopupMenu
         {
             try
             {
-                Desktop.getDesktop().browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s%s", berth.getHeadcode(), berth.getHeadcode().matches("[0-9]{3}[A-Z]") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
+                Desktop.getDesktop().browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&search=%s%s", berth.getHeadcode(), (evt.getModifiers() & ActionEvent.SHIFT_MASK) != 0 || berth.getHeadcode().matches("[0-9]{3}[A-Z]") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
             }
             catch (URISyntaxException | IOException e) {}
         }
@@ -89,9 +90,10 @@ public class BerthContextMenu extends JPopupMenu
 
         if (berth.isProperHeadcode())
         {
-            JMenuItem search = new JMenuItem("Search Headcode (RTT)");
+            JMenuItem search = new JMenuItem("<html><b>Search Headcode (RTT)</b></html>");
             search.addActionListener(clickEvent);
             search.addFocusListener(menuFocus);
+            search.setToolTipText("<html>Search for this train on realtimetrains.co.uk<br>Note: Hold <i>Shift</i> if the train doesnt appear first time</html>");
             add(search);
             addSeparator();
         }
@@ -101,6 +103,8 @@ public class BerthContextMenu extends JPopupMenu
             JMenuItem berthHistory = new JMenuItem("Berth\'s History (" + id + ")" + (berth.getIds().length > 1 && !EastAngliaMapClient.DataMap.getOrDefault(id, "").isEmpty() ? " [" + EastAngliaMapClient.DataMap.getOrDefault(id, "") + "]" : ""));
             berthHistory.addActionListener(clickEvent);
             berthHistory.addFocusListener(menuFocus);
+            berthHistory.setEnabled(EastAngliaMapClient.connected);
+            berthHistory.setToolTipText("<html>" + (EastAngliaMapClient.connected ? "" : "Disconnected from Server<br>") + "Show the history of this berth</html>");
             add(berthHistory);
         }
 
@@ -109,6 +113,8 @@ public class BerthContextMenu extends JPopupMenu
             JMenuItem trainHistory = new JMenuItem("Train\'s History (" + berth.getHeadcode() + ")");
             trainHistory.addActionListener(clickEvent);
             trainHistory.addFocusListener(menuFocus);
+            trainHistory.setEnabled(EastAngliaMapClient.connected);
+            trainHistory.setToolTipText("<html>" + (EastAngliaMapClient.connected ? "" : "Disconnected from Server<br>") + "Show the history or this train (unreliable)</html>");
             add(trainHistory);
         }
 

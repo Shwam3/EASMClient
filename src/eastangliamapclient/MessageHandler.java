@@ -62,10 +62,11 @@ public class MessageHandler
                     switch (MessageType.getType(String.valueOf(message.get("type"))))
                     {
                         case SOCKET_CLOSE:
-                            //JOptionPane.showMessageDialog(null, "Connection to the host has been closed.", "Connection closed by host", JOptionPane.WARNING_MESSAGE);
                             EastAngliaMapClient.connected = false;
-                            SysTrayHandler.trayTooltip("Disconnected (Closed" + (message.get("reason") != null ? ", " + message.get("reason") : "") + ")");
-                            SysTrayHandler.popup("Connection closed by host" + (message.get("reason") != null ? "\n" + message.get("reason") : ""), TrayIcon.MessageType.WARNING);
+                            EastAngliaMapClient.disconnectReason = message.get("reason") == null ? (EastAngliaMapClient.disconnectReason == null ? "Closed by Host" : EastAngliaMapClient.disconnectReason) : (String) message.get("reason");
+
+                            SysTrayHandler.updateTrayTooltip();
+                            SysTrayHandler.popup("Connection closed by host" + (EastAngliaMapClient.disconnectReason != null ? "\n" + EastAngliaMapClient.disconnectReason : ""), TrayIcon.MessageType.WARNING);
                             printMsgHandler("Connection to host closed (" + String.valueOf(message.get("reason")) + ")", false);
 
                             if (String.valueOf(message.get("reason")).startsWith("You have been kicked"))
@@ -329,6 +330,7 @@ public class MessageHandler
             sendSocketClose();
 
             EastAngliaMapClient.connected = false;
+            EastAngliaMapClient.disconnectReason = "Stopping...";
             stop = true;
             ready = false;
 
@@ -501,15 +503,16 @@ public class MessageHandler
                     else
                     {
                         EastAngliaMapClient.connected = false;
+                        EastAngliaMapClient.disconnectReason = EastAngliaMapClient.disconnectReason == null || EastAngliaMapClient.disconnectReason.startsWith("Connection timed out ") ? "Connection timed out (" + time / 1000L + "s)" : EastAngliaMapClient.disconnectReason;
 
                         if (!EastAngliaMapClient.kicked)
                         {
                             printMsgHandler("Connection timed out (" + time / 1000L + "s)", true);
 
                             if (time < 120000)
-                                SysTrayHandler.popup("Disconnected from host\nTimed out", TrayIcon.MessageType.ERROR);
+                                SysTrayHandler.popup("Disconnected from host" + (EastAngliaMapClient.disconnectReason == null ? "" : "\n" + EastAngliaMapClient.disconnectReason), TrayIcon.MessageType.ERROR);
 
-                            SysTrayHandler.trayTooltip("Disconnected (Timed out " + time / 1000L + "s)");
+                            SysTrayHandler.updateTrayTooltip();
 
                             EastAngliaMapClient.reconnect(false);
                         }

@@ -50,7 +50,7 @@ public class EastAngliaMapClient
     public static Map<String, String> DataMap = new HashMap<>();
 
     public static boolean autoScreencap    = false;
-    public static boolean opaque           = false;
+    public static boolean opaqueBerths     = false;
     public static boolean showDescriptions = false; // not headcodes
     public static boolean berthsVisible    = true;
     public static boolean signalsVisible   = true;
@@ -61,6 +61,7 @@ public class EastAngliaMapClient
 
     public static String       clientName;
     public static boolean      connected = false;
+    public static String       disconnectReason = null;
     public static boolean      kicked = false;
     public static boolean      minimiseToSysTray = false;
     public static Dimension    windowSize = new Dimension();
@@ -199,31 +200,29 @@ public class EastAngliaMapClient
                 if (serverSocket.isConnected() && MessageHandler.sendName(clientName))
                 {
                     connected = true;
+                    disconnectReason = null;
                     printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
-                    SysTrayHandler.trayTooltip("Connected");
+                    SysTrayHandler.updateTrayTooltip();
                 }
                 else
                 {
                     connected = false;
+                    disconnectReason = disconnectReason == null ? "Unable to connect" : disconnectReason;
                     printStartup("Not connected to server: " + InetAddress.getByName(host).toString() + ":" + port, true);
-                    SysTrayHandler.trayTooltip("Not conected");
+                    SysTrayHandler.popup("Unable to connect\nCheck your internet connection", TrayIcon.MessageType.ERROR);
                 }
             }
             catch (ConnectException e)
             {
                 printStartup("Couldnt connect, server probably down", true);
                 printThrowable(e, "Startup");
-                //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error (ConnEx)", JOptionPane.ERROR_MESSAGE);
-                SysTrayHandler.popup("Unable to connect", TrayIcon.MessageType.ERROR);
-                SysTrayHandler.trayTooltip("Not Connected");
+                SysTrayHandler.popup("Unable to connect\nCheck your internet connection", TrayIcon.MessageType.ERROR);
             }
             catch (IOException e)
             {
                 printStartup("Unable to connect to server", true);
                 printThrowable(e, "Startup");
-                //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error (IOEx)", JOptionPane.ERROR_MESSAGE);
-                SysTrayHandler.popup("Unable to connect", TrayIcon.MessageType.ERROR);
-                SysTrayHandler.trayTooltip("Not Connected");
+                SysTrayHandler.popup("Unable to connect\nCheck your internet connection", TrayIcon.MessageType.ERROR);
             }
 
             MessageHandler.start(); // Should be already but make sure
@@ -261,41 +260,44 @@ public class EastAngliaMapClient
 
                 if (serverSocket.isConnected() && MessageHandler.sendName(clientName))
                 {
+                    connected = true;
+                    EastAngliaMapClient.disconnectReason = null;
+
                     printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
                     SysTrayHandler.popup("Reconnected", TrayIcon.MessageType.INFO);
-                    SysTrayHandler.trayTooltip("Reconnected");
-
-                    connected = true;
+                    SysTrayHandler.updateTrayTooltip();
 
                     return true;
                 }
                 else
                 {
                     connected = false;
+                    disconnectReason = disconnectReason == null ? "Unable to connect (isConnect)" : disconnectReason;
                     printStartup("Not connected to server: " + InetAddress.getByName(host).toString() + ":" + port, true);
-                    SysTrayHandler.trayTooltip("Not conected");
+                    SysTrayHandler.updateTrayTooltip();
 
                     return false;
                 }
             }
             catch (ConnectException e)
             {
-                printStartup("Unable connect, server probably down", true);
-                //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error", JOptionPane.ERROR_MESSAGE);
-                SysTrayHandler.popup("Unable to reconnect", TrayIcon.MessageType.ERROR);
-                SysTrayHandler.trayTooltip("Not Connected");
-
                 connected = false;
+                disconnectReason = disconnectReason == null ? "Unable to connect (ConEx)" : disconnectReason;
+
+                printStartup("Unable connect, server probably down", true);
+                printStartup(e.getLocalizedMessage().split("\n")[0], true);
+                SysTrayHandler.popup("Unable to reconnect" + (disconnectReason != null ? "\n" + disconnectReason : ""), TrayIcon.MessageType.ERROR);
+                SysTrayHandler.updateTrayTooltip();
             }
             catch (IOException e)
             {
-                printStartup("Unable to connect to server", true);
-                printThrowable(e, "Startup");
-                //JOptionPane.showMessageDialog(null, "Unable to connected to host, the server may be down but check your internet connection", "Connection error", JOptionPane.ERROR_MESSAGE);
-                SysTrayHandler.popup("Unable to reconnect", TrayIcon.MessageType.ERROR);
-                SysTrayHandler.trayTooltip("Not Connected");
-
                 connected = false;
+                disconnectReason = disconnectReason == null ? "Unable to connect (IOEx)" : disconnectReason;
+
+                printStartup("Unable to connect to server", true);
+                printStartup(e.getLocalizedMessage().split("\n")[0], true);
+                SysTrayHandler.popup("Unable to reconnect" + (disconnectReason != null ? "\n" + disconnectReason : ""), TrayIcon.MessageType.ERROR);
+                SysTrayHandler.updateTrayTooltip();
             }
 
             return false;
@@ -412,7 +414,7 @@ public class EastAngliaMapClient
             }
             catch (UnknownHostException e2) {}
         }
-        return "error";
+        return null;
     }
 
     public static File newFile(File file) throws IOException

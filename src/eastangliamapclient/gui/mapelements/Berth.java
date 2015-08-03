@@ -90,7 +90,7 @@ public class Berth extends JComponent
                 /*isProblematic ||*/
                 Berths.getOpaqueBerth() == this ||
                 (currentHeadcode != null && !currentHeadcode.isEmpty()); //||
-                //EastAngliaMapClient.opaque ||
+                //EastAngliaMapClient.opaqueBerths ||
                 //EastAngliaMapClient.showDescriptions;
 
         repaint();
@@ -151,7 +151,7 @@ public class Berth extends JComponent
                         berth.setOpaque(true);
 
                         if (berth.isProperHeadcode())
-                            Desktop.getDesktop().browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&qs=true&search=%s%s", berth.getHeadcode(), evt.isControlDown() || berth.getHeadcode().matches("([0-9]{3}[A-Z]|[4678].{3})") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
+                            Desktop.getDesktop().browse(new URI(String.format("http://www.realtimetrains.co.uk/search/advancedhandler?type=advanced&search=%s%s", berth.getHeadcode(), evt.isShiftDown() || berth.getHeadcode().matches("([0-9]{3}[A-Z]|[4678].{3})") ? "" : "&area=" + berth.getBerthDescription().substring(0, 2))));
 
                         Berths.setOpaqueBerth(null);
 
@@ -271,7 +271,7 @@ public class Berth extends JComponent
                 if (hasBorder)
                     g2d.drawRect(0, 0, 47, 15);
 
-                if (EastAngliaMapClient.showDescriptions || EastAngliaMapClient.opaque || isOpaque || currentHeadcode.length() > 0)
+                if (EastAngliaMapClient.showDescriptions || EastAngliaMapClient.opaqueBerths || isOpaque || currentHeadcode.length() > 0)
                     g2d.fillRect(0, 0, 48, 16);
 
                 if (EastAngliaMapClient.showDescriptions || showDescription)

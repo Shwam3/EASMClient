@@ -3,6 +3,7 @@ package eastangliamapclient.gui;
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.MessageHandler;
 import eastangliamapclient.ScreencapManager;
+import eastangliamapclient.VersionChecker;
 import static eastangliamapclient.gui.SignalMapGui.DEFAULT_HEIGHT;
 import static eastangliamapclient.gui.SignalMapGui.DEFAULT_WIDTH;
 import eastangliamapclient.gui.mapelements.Berths;
@@ -28,6 +29,7 @@ public class SignalMapMenuBar extends JMenuBar
     private JMenu menuHelp;
 
     private JMenuItem fileTrainHistory;
+    private JMenuItem fileBerthHistory;
     private JCheckBoxMenuItem filePreventSleep;
     private JCheckBoxMenuItem fileMinToSysTray;
     private JMenuItem fileExit;
@@ -51,6 +53,7 @@ public class SignalMapMenuBar extends JMenuBar
     private JMenuItem windowReset;
 
     private JMenuItem helpAbout;
+    private JMenuItem helpUpdate;
     private JMenuItem helpHelp;
 
     private ActionListener listenerFile = evt ->
@@ -69,6 +72,16 @@ public class SignalMapMenuBar extends JMenuBar
                 else
                     JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "'" + UUID + "' is not a valid train UUID", "Error", JOptionPane.WARNING_MESSAGE);
         }
+        if (src == fileBerthHistory)
+        {
+            String ID = JOptionPane.showInputDialog(EastAngliaMapClient.frameSignalMap.frame, "Enter Berth ID:", "Berth History", JOptionPane.QUESTION_MESSAGE);
+
+            if (ID != null)
+                if (ID.length() == 5)
+                    MessageHandler.requestHistoryOfBerth(ID);
+                else
+                    JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "'" + ID + "' is not a valid berth ID", "Error", JOptionPane.WARNING_MESSAGE);
+        }
         else if (src == filePreventSleep)
         {
             EastAngliaMapClient.preventSleep = filePreventSleep.isSelected();
@@ -83,11 +96,13 @@ public class SignalMapMenuBar extends JMenuBar
         {
             EastAngliaMapClient.writeSetting("windowSize", ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getWidth()) + "," + ((int) EastAngliaMapClient.frameSignalMap.frame.getSize().getHeight()));
             EastAngliaMapClient.writeSetting("lastTab", Integer.toString(EastAngliaMapClient.frameSignalMap.TabBar.getSelectedIndex()));
-            
+
             EastAngliaMapClient.frameSignalMap.setVisible(false);
 
             System.exit(0);
         }
+
+        updateCheckBoxes();
     };
     private ActionListener listenerView = evt ->
     {
@@ -105,6 +120,8 @@ public class SignalMapMenuBar extends JMenuBar
             Berths.toggleBerthsOpacities();
         else if (src == viewBerthIDs)
             Berths.toggleBerthDescriptions();
+
+        updateCheckBoxes();
     };
     private ActionListener listenerConnection = evt ->
     {
@@ -130,6 +147,8 @@ public class SignalMapMenuBar extends JMenuBar
             MessageHandler.requestAll();
         else if (src == connectionReconnect)
             EastAngliaMapClient.reconnect(true);
+
+        updateCheckBoxes();
     };
     private ActionListener listenerScreencap = evt ->
     {
@@ -141,6 +160,8 @@ public class SignalMapMenuBar extends JMenuBar
             ScreencapManager.takeScreencaps();
         else if (src == screencapAutoScreencap)
             ScreencapManager.autoScreencap();
+
+        updateCheckBoxes();
 
     };
     private ActionListener listenerWindow = evt ->
@@ -162,6 +183,8 @@ public class SignalMapMenuBar extends JMenuBar
             EastAngliaMapClient.frameSignalMap.frame.pack();
             EastAngliaMapClient.frameSignalMap.frame.setLocationRelativeTo(null);
         }
+
+        updateCheckBoxes();
     };
     private ActionListener listenerHelp = evt ->
     {
@@ -170,9 +193,25 @@ public class SignalMapMenuBar extends JMenuBar
             return;
 
         if (src == helpAbout)
-            JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "East Anglia Signalling Map - Client\n© Cameron Bird 2014", "About", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "East Anglia Signalling Map - Client\n"
+                    + "Client Version: " + EastAngliaMapClient.CLIENT_VERSION + "\n"
+                    + "Data Version: " + EastAngliaMapClient.DATA_VERSION + "\n"
+                    + "© Cameron Bird 2014", "About", JOptionPane.INFORMATION_MESSAGE);
+        else if (src == helpUpdate)
+        {
+            if (VersionChecker.checkVersion())
+            {
+                EastAngliaMapClient.frameSignalMap.dispose();
+                JOptionPane.showMessageDialog(null, "Rhe program will now close\nYou must restart the program for the updates to take effect", "Updater", JOptionPane.INFORMATION_MESSAGE);
+                System.exit(0);
+            }
+            else
+                JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "v" + EastAngliaMapClient.CLIENT_VERSION + " / v" + EastAngliaMapClient.DATA_VERSION + " is the latest version, no ypdates necessary", "Updater", JOptionPane.INFORMATION_MESSAGE);
+        }
         else if (src == helpHelp)
             new HelpDialog();
+
+        updateCheckBoxes();
     };
 
     public SignalMapMenuBar()
@@ -191,6 +230,7 @@ public class SignalMapMenuBar extends JMenuBar
         menuHelp       = new JMenu("Help");
 
         fileTrainHistory = new JMenuItem("Train History...");
+        fileBerthHistory = new JMenuItem("Berth History...");
         filePreventSleep = new JCheckBoxMenuItem("Keep Your PC Awake");
         fileMinToSysTray = new JCheckBoxMenuItem("Minimise to System Tray");
         fileExit         = new JMenuItem("Exit");
@@ -213,10 +253,12 @@ public class SignalMapMenuBar extends JMenuBar
         windowReposition = new JMenuItem("Reset Position");
         windowReset      = new JMenuItem("Reset All");
 
-        helpAbout = new JMenuItem("About...");
-        helpHelp  = new JMenuItem("Help...");
+        helpAbout  = new JMenuItem("About...");
+        helpUpdate = new JMenuItem("Check for Updates...");
+        helpHelp   = new JMenuItem("Help...");
 
         menuFile.add(fileTrainHistory).addActionListener(listenerFile);
+        menuFile.add(fileBerthHistory).addActionListener(listenerFile);
         menuFile.addSeparator();
         menuFile.add(filePreventSleep).addActionListener(listenerFile);
         menuFile.add(fileMinToSysTray).addActionListener(listenerFile);
@@ -245,6 +287,7 @@ public class SignalMapMenuBar extends JMenuBar
         menuWindow.add(windowReset).addActionListener(listenerWindow);
 
         menuHelp.add(helpAbout).addActionListener(listenerHelp);
+        menuHelp.add(helpUpdate).addActionListener(listenerHelp);
         menuHelp.addSeparator();
         menuHelp.add(helpHelp).addActionListener(listenerHelp);
 
@@ -271,7 +314,7 @@ public class SignalMapMenuBar extends JMenuBar
         viewVisibleBerths.setSelected(EastAngliaMapClient.berthsVisible);
         viewVisibleSignals.setSelected(EastAngliaMapClient.signalsVisible);
         viewVisiblePoints.setSelected(EastAngliaMapClient.pointsVisible);
-        viewBerthOpacity.setSelected(EastAngliaMapClient.opaque);
+        viewBerthOpacity.setSelected(EastAngliaMapClient.opaqueBerths);
         viewBerthIDs.setSelected(EastAngliaMapClient.showDescriptions);
         screencapAutoScreencap.setSelected(EastAngliaMapClient.autoScreencap);
     }

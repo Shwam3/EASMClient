@@ -1,6 +1,9 @@
 package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
+import eastangliamapclient.gui.mapelements.Berths;
+import eastangliamapclient.gui.mapelements.Points;
+import eastangliamapclient.gui.mapelements.Signals;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -84,9 +87,11 @@ public class SignalMapDataViewer extends JDialog
         JTextField jtfTextFilter = new JTextField();
         jtfTextFilter.setPreferredSize(new Dimension(200, 20));
         jtfTextFilter.addKeyListener(new KeyAdapter() { public void keyReleased(KeyEvent evt) {
-            super.keyReleased(evt);
             ((JTextField) evt.getComponent()).setText(((JTextField) evt.getComponent()).getText().toUpperCase());
             filterString = (((JTextField) evt.getComponent()).getText()).trim();
+
+            super.keyReleased(evt);
+
             updateData();
         }});
         pnlFilters.add(jtfTextFilter, BorderLayout.CENTER);
@@ -124,39 +129,51 @@ public class SignalMapDataViewer extends JDialog
     {
         setTitle("Data" + (filterString.isEmpty() ? "" : " - " + filterString));
 
-        int selectedCClass = listCClass.getSelectedIndex();
         DefaultListModel<String> modelCClass = new DefaultListModel<>();
         EastAngliaMapClient.DataMap.keySet().stream()
-                .filter(id -> id.length() == 6 && !id.contains(":") && elementFitsFilter(id) && (hideBlanks ? !String.valueOf(EastAngliaMapClient.DataMap.get(id)).replace("null", "").trim().equals("") : true))
+                .filter(id -> !id.startsWith("XX"))
+                .filter(id -> !id.contains(":"))
+                .filter(id -> id.length() == 6)
+                .filter(id -> elementFitsFilter(id))
+                .filter(id -> hideBlanks ? !String.valueOf(EastAngliaMapClient.DataMap.get(id)).replace("null", "").trim().equals("") : true)
                 .sorted(String.CASE_INSENSITIVE_ORDER)
-                .forEachOrdered(id -> modelCClass.addElement(id + ": " + Objects.requireNonNull(EastAngliaMapClient.DataMap.get(id))));
+                .forEachOrdered(id -> modelCClass.addElement(String.format("%s: '%s' (%s)", id, EastAngliaMapClient.DataMap.get(id).length() == 4 ? EastAngliaMapClient.DataMap.get(id) : "    ", Berths.berthExists(id) ? Berths.getBerth(id).getParent().getName() : "not shown")));
 
         if (modelCClass.isEmpty())
         {
             EastAngliaMapClient.DataMap.keySet().stream()
-                .filter(id -> id.length() == 6 && !id.contains(":") && (hideBlanks ? !String.valueOf(EastAngliaMapClient.DataMap.get(id)).replace("null", "").trim().equals("") : true))
+                .filter(id -> !id.startsWith("XX"))
+                .filter(id -> !id.contains(":"))
+                .filter(id -> id.length() == 6)
+                .filter(id -> hideBlanks ? !String.valueOf(EastAngliaMapClient.DataMap.get(id)).replace("null", "").trim().equals("") : true)
                 .sorted(String.CASE_INSENSITIVE_ORDER)
-                .forEachOrdered(id -> modelCClass.addElement(id + ": " + Objects.requireNonNull(EastAngliaMapClient.DataMap.get(id))));
+                .forEachOrdered(id -> modelCClass.addElement(String.format("%s: '%s' (%s)", id, EastAngliaMapClient.DataMap.get(id).length() == 4 ? EastAngliaMapClient.DataMap.get(id) : "    ", Berths.berthExists(id) ? Berths.getBerth(id).getParent().getName() : "not shown")));
         }
         listCClass.setModel(modelCClass);
-        listCClass.setSelectedIndex(selectedCClass);
 
-        int selectedSClass = listSClass.getSelectedIndex();
         DefaultListModel<String> modelSClass = new DefaultListModel<>();
         EastAngliaMapClient.DataMap.keySet().stream()
+                .filter(id -> !id.startsWith("XX"))
+                .filter(id -> id.length() != 6 || id.contains(":"))
+                .filter(id -> elementFitsFilter(id))
                 .sorted(String.CASE_INSENSITIVE_ORDER)
-                .filter(id -> id.length() != 6 || id.contains(":") && elementFitsFilter(id))
-                .forEachOrdered(id -> modelSClass.addElement(id + ": " + Objects.requireNonNull(EastAngliaMapClient.DataMap.get(id)) /*+ (Berths.berthExists(id) ? "" : " (not shown)")*/));
+                .forEachOrdered(id -> modelSClass.addElement(String.format("%s: %s (%s)",
+                        id,
+                        EastAngliaMapClient.DataMap.get(id),
+                        !Signals.signalExists(id) && !Points.pointExists(id) ? "not shown" :
+                            (Signals.signalExists(id) ? Signals.getSignal(id).getDescription() + " (sig - " + Signals.getSignal(id).getType().name() + ")" :
+                                (Points.pointExists(id) ? Points.getPoints(id).get(0).getDescription() + " (pts - " + Points.getPoints(id).get(0).getType0().name() + "/" + Points.getPoints(id).get(0).getType1().name() + ")" :
+                                    "not shown")))));
 
         if (modelSClass.isEmpty())
         {
             EastAngliaMapClient.DataMap.keySet().stream()
-                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .filter(id -> !id.startsWith("XX"))
                 .filter(id -> id.length() != 6 || id.contains(":"))
-                .forEachOrdered(id -> modelSClass.addElement(id + ": " + Objects.requireNonNull(EastAngliaMapClient.DataMap.get(id))));
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .forEachOrdered(id -> modelSClass.addElement(id + ": " + Objects.requireNonNull(EastAngliaMapClient.DataMap.get(id), id + " is null")));
         }
         listSClass.setModel(modelSClass);
-        listSClass.setSelectedIndex(selectedSClass);
     }
 
     private boolean elementFitsFilter(String element)

@@ -20,6 +20,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.Executors;
@@ -62,7 +63,7 @@ public class ScreencapManager
                         {
                             printScreencap("Not taking screencaps, waiting for time", false);
                         }
-                        else
+                        else if (Calendar.getInstance(TimeZone.getTimeZone("GMT")).get(Calendar.MINUTE) % 2 != 0)
                         {
                             if (EastAngliaMapClient.serverSocket != null && EastAngliaMapClient.autoScreencap && EastAngliaMapClient.serverSocket.isConnected())
                                 EventQueue.invokeAndWait(() -> takeScreencaps());
@@ -71,7 +72,7 @@ public class ScreencapManager
                         }
                     }
                     catch (Exception e) { isScreencapping = false; }
-                }, calendar.getTimeInMillis() - System.currentTimeMillis(), 120000, TimeUnit.MILLISECONDS);
+                }, calendar.getTimeInMillis() - System.currentTimeMillis(), 60000, TimeUnit.MILLISECONDS);
 
                 printScreencap("Auto-Screencapping started", false);
             });
@@ -118,7 +119,13 @@ public class ScreencapManager
             return;
         }
 
-        EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  " / v" + EastAngliaMapClient.DATA_VERSION + ")" + (EastAngliaMapClient.autoScreencap ? " - Screencapping in progress" : ""));
+        isScreencapping = true;
+        if (EastAngliaMapClient.frameSignalMap != null)
+            EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "")
+                +  " / v" + EastAngliaMapClient.DATA_VERSION + ")"
+                + (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")
+                + (EastAngliaMapClient.connected ? "" : " - Not Connected")
+            );
 
         printScreencap("Updating images (" + EastAngliaMapClient.getTime() + ")", false);
 
@@ -128,7 +135,6 @@ public class ScreencapManager
         try
         {
             EastAngliaMapClient.frameSignalMap.prepForScreencap();
-            isScreencapping = true;
 
             EastAngliaMapClient.frameSignalMap.getPanels().stream().forEachOrdered(bp ->
             {
@@ -241,7 +247,12 @@ public class ScreencapManager
                 catch (IOException e) {}
             }
 
-            EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  " / v" + EastAngliaMapClient.DATA_VERSION + ")" + (EastAngliaMapClient.autoScreencap ? " - Screencapping" : ""));
+            if (EastAngliaMapClient.frameSignalMap != null)
+                EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "")
+                    +  " / v" + EastAngliaMapClient.DATA_VERSION + ")"
+                    + (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")
+                    + (EastAngliaMapClient.connected ? "" : " - Not Connected")
+                );
             printScreencap("Finished updating website images in ~ " + (System.currentTimeMillis() - startTime) / 1000f + " secs", false);
 
             EastAngliaMapClient.clean();
@@ -252,8 +263,12 @@ public class ScreencapManager
     {
         EastAngliaMapClient.autoScreencap = !EastAngliaMapClient.autoScreencap;
 
-        try { EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  " / v" + EastAngliaMapClient.DATA_VERSION + ")" + (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")); }
-        catch (NullPointerException e) {}
+        if (EastAngliaMapClient.frameSignalMap != null)
+            EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "")
+                +  " / v" + EastAngliaMapClient.DATA_VERSION + ")"
+                + (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")
+                + (EastAngliaMapClient.connected ? "" : " - Not Connected")
+            );
     }
 
     private static BufferedImage overlayImage(BufferedImage image, String name)
@@ -266,6 +281,12 @@ public class ScreencapManager
         g2d.setColor(Color.WHITE);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2d.drawString(name, 145, 54);
+
+        if (!EastAngliaMapClient.connected)
+        {
+            g2d.setFont(new Font("Verdana", Font.TRUETYPE_FONT, 14));
+            g2d.drawString("Not connected to server since " + EastAngliaMapClient.sdf.format(new Date(MessageHandler.getLastMessageTime())), 150, 72);
+        }
 
         g2d.dispose();
 

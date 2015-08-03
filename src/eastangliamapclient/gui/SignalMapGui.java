@@ -4,6 +4,7 @@ import eastangliamapclient.EastAngliaMapClient;
 import static eastangliamapclient.EastAngliaMapClient.newFile;
 import static eastangliamapclient.EastAngliaMapClient.storageDir;
 import eastangliamapclient.MessageHandler;
+import static eastangliamapclient.ScreencapManager.isScreencapping;
 import eastangliamapclient.gui.mapelements.Berth;
 import eastangliamapclient.gui.mapelements.Berths;
 import eastangliamapclient.gui.mapelements.Point;
@@ -179,7 +180,11 @@ public class SignalMapGui
             Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString.toString());
 
             EastAngliaMapClient.DATA_VERSION = String.valueOf(json.get("version"));
-            frame.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  " / v" + EastAngliaMapClient.DATA_VERSION + ")" + (EastAngliaMapClient.autoScreencap ? " - Screencapping" : ""));
+            frame.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "")
+                +  " / v" + EastAngliaMapClient.DATA_VERSION + ")"
+                + (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")
+                + (EastAngliaMapClient.connected ? "" : " - Not Connected")
+            );
 
             List<Map<String, Object>> panelsJson = (List<Map<String, Object>>) json.get("signalMap");
 
@@ -241,7 +246,7 @@ public class SignalMapGui
                     });
                 //</editor-fold>
 
-                //<editor-fold defaultstate="collapsed" desc="Points / Routes">
+                //<editor-fold defaultstate="collapsed" desc="Points">
                 if (panel.containsKey("points"))
                     ((List<Map<String, Object>>) panel.get("points")).stream().forEachOrdered(pointData ->
                     {
@@ -469,9 +474,9 @@ public class SignalMapGui
                     try
                     {
                         if (evt.isControlDown())
-                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + new SimpleDateFormat("/yyyy/MM/dd").format(new Date()) + "/0000-2359?stp=WVS&show=all&order=wtt"));
+                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + new SimpleDateFormat("/yyyy/MM/dd").format(new Date()) + "/0000-2359?stp=WVS&show=all&order=actual"));
                         else
-                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + "?stp=WVS&show=all&order=wtt"));
+                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + "?stp=WVS&show=all&order=actual"));
 
                         evt.consume();
                     }
@@ -518,9 +523,9 @@ public class SignalMapGui
                     try
                     {
                         if (evt.isControlDown())
-                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + new SimpleDateFormat("/yyyy/MM/dd").format(new Date()) + "/0000-2359?stp=WVS&show=all&order=wtt"));
+                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + new SimpleDateFormat("/yyyy/MM/dd").format(new Date()) + "/0000-2359?stp=WVS&show=all&order=actual"));
                         else
-                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + "?stp=WVS&show=all&order=wtt"));
+                            Desktop.getDesktop().browse(new URI("http://www.realtimetrains.co.uk/search/advanced/" + crsCode + "?stp=WVS&show=all&order=actual"));
 
                         evt.consume();
                     }
@@ -720,8 +725,7 @@ public class SignalMapGui
 
     public void setTitle(String title)
     {
-        if (!frame.getTitle().equals(title))
-            frame.setTitle(title);
+        frame.setTitle(title);
     }
 
     public boolean hasFocus()

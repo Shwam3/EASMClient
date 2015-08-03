@@ -35,7 +35,7 @@ public class Signal extends JComponent
     private String TEXT_1 = null;
 
     private       List<String> ROUTE_IDs = null;
-    private final String       SIGNAL_ID;
+    private final String       SIGNAL_DESCRIPTION;
     private final String       DATA_ID;
     private       SignalType   SIGNAL_TYPE;
     private       Point        LOCATION;
@@ -47,7 +47,7 @@ public class Signal extends JComponent
         if (description == null || description.trim().equals(""))
             description = "Unnamed";
 
-        SIGNAL_ID = description;
+        SIGNAL_DESCRIPTION = description;
         DATA_ID   = dataId;
         LOCATION  = new Point(x, y);
 
@@ -70,7 +70,7 @@ public class Signal extends JComponent
 
         setForeground(currentState == STATE_0 ? COLOUR_STATE_ON : (currentState == STATE_1 ? COLOUR_STATE_OFF : (currentState == STATE_UNKNOWN ? COLOUR_STATE_UNKNOWN : COLOUR_STATE_BLANK)));
 
-        setToolTipText(SIGNAL_ID + " (" + DATA_ID + ")");
+        setToolTipText(SIGNAL_DESCRIPTION + " (" + DATA_ID + ")");
 
         setVisible(true);
     }
@@ -96,7 +96,7 @@ public class Signal extends JComponent
                 if (TEXT_0 == null && TEXT_1 != null) widthTX = TEXT_1.length() * 6;
                 if (TEXT_0 != null && TEXT_1 == null) widthTX = TEXT_0.length() * 6;
                 setBounds(x, y, widthTX, 8);
-                setToolTipText(SIGNAL_ID + " (" + DATA_ID + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
+                setToolTipText(SIGNAL_DESCRIPTION + " (" + DATA_ID + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
                 break;
 
             case TRTS:
@@ -107,7 +107,7 @@ public class Signal extends JComponent
                 int widthTC  = TEXT_0 == null ? 16 : (int) Long.parseLong(TEXT_0);
                 int heightTC = TEXT_1 == null ? 8  : (int) Long.parseLong(TEXT_1);
                 setBounds(x, y, widthTC, heightTC);
-                setToolTipText(SIGNAL_ID + " (" + DATA_ID + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
+                setToolTipText(SIGNAL_DESCRIPTION + " (" + DATA_ID + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
                 break;
 
             case POST_NONE:
@@ -157,10 +157,10 @@ public class Signal extends JComponent
         {
             if (currentState != 2 && EastAngliaMapClient.verbose)
             {
-                if (SIGNAL_ID.isEmpty())
+                if (SIGNAL_DESCRIPTION.isEmpty())
                     EastAngliaMapClient.printOut("[" + DATA_ID + "] Change state from " + currentState + " to " + state);
                 else
-                    EastAngliaMapClient.printOut("[" + DATA_ID + " (" + SIGNAL_ID + ")] Change state from " + currentState + " to " + state);
+                    EastAngliaMapClient.printOut("[" + DATA_ID + " (" + SIGNAL_DESCRIPTION + ")] Change state from " + currentState + " to " + state);
             }
 
             currentState = state;
@@ -170,6 +170,16 @@ public class Signal extends JComponent
 
         setVisible(true);
         repaint();
+    }
+
+    public String getDescription()
+    {
+        return SIGNAL_DESCRIPTION;
+    }
+
+    public SignalType getType()
+    {
+        return SIGNAL_TYPE;
     }
 
     @Override
@@ -465,6 +475,6 @@ public class Signal extends JComponent
     @Override
     public String toString()
     {
-        return String.format("eastangliamap.Signal=[signalId=%s,dataId=%s,currentState=%s,signalType=%s,isShunt=%s,isSubs=%s,text0=%s,text1=%s]", SIGNAL_ID, DATA_ID, currentState, SIGNAL_TYPE, isShunt, isSubs, TEXT_0, TEXT_1);
+        return String.format("eastangliamap.Signal=[signalId=%s,dataId=%s,currentState=%s,signalType=%s,isShunt=%s,isSubs=%s,text0=%s,text1=%s]", SIGNAL_DESCRIPTION, DATA_ID, currentState, SIGNAL_TYPE, isShunt, isSubs, TEXT_0, TEXT_1);
     }
 }

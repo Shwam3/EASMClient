@@ -1,8 +1,8 @@
 package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
-import static eastangliamapclient.EastAngliaMapClient.minimiseToSysTray;
 import eastangliamapclient.ScreencapManager;
+import static eastangliamapclient.ScreencapManager.isScreencapping;
 import java.awt.AWTException;
 import java.awt.CheckboxMenuItem;
 import java.awt.MenuItem;
@@ -26,7 +26,8 @@ public class SysTrayHandler
         {
             ActionListener actionListener = e ->
             {
-                EastAngliaMapClient.frameSignalMap.setVisible(true);
+                if (!EastAngliaMapClient.frameSignalMap.frame.isVisible())
+                    EastAngliaMapClient.frameSignalMap.setVisible(true);
                 EastAngliaMapClient.frameSignalMap.frame.requestFocus();
             };
             MouseListener mouseListener = new MouseAdapter()
@@ -41,7 +42,7 @@ public class SysTrayHandler
             try
             {
                 trayIcon = new TrayIcon(ImageIO.read(SysTrayHandler.class.getResource("/eastangliamapclient/resources/TrayIcon.png")));
-                trayIcon.setToolTip("East Anglia Signal Map Client - v" + EastAngliaMapClient.CLIENT_VERSION);
+                trayIcon.setToolTip("East Anglia Signal Map Client (v" + EastAngliaMapClient.CLIENT_VERSION + " / v" + EastAngliaMapClient.DATA_VERSION + ")");
                 trayIcon.setImageAutoSize(true);
                 trayIcon.setPopupMenu(getPopupMenu());
                 trayIcon.addActionListener(actionListener);
@@ -88,13 +89,33 @@ public class SysTrayHandler
 
     public static void popup(String message, TrayIcon.MessageType type)
     {
-        if (minimiseToSysTray && trayIcon != null)
-            trayIcon.displayMessage("East Anglia Signal Map Client - v" + EastAngliaMapClient.CLIENT_VERSION, message, type);
+        if (trayIcon != null)
+        {
+            trayIcon.displayMessage("East Anglia Signal Map Client (v" + EastAngliaMapClient.CLIENT_VERSION + " / v" + EastAngliaMapClient.DATA_VERSION + ")", message, type);
+            updateTrayTooltip();
+        }
     }
 
-    public static void trayTooltip(String tooltip)
+    //public static void trayTooltip(String tooltip)
+    //{
+    //    if (trayIcon != null)
+    //        trayIcon.setToolTip("East Anglia Signal Map Client (v" + EastAngliaMapClient.CLIENT_VERSION + " / v" + EastAngliaMapClient.DATA_VERSION + ")"
+    //                + (EastAngliaMapClient.disconnectReason != null ? "\n" + EastAngliaMapClient.disconnectReason : "")
+    //                + (tooltip == null || tooltip.equals("") ? "" : "\n" + tooltip));
+    //}
+
+    public static void updateTrayTooltip()
     {
-        if (minimiseToSysTray && trayIcon != null)
-            trayIcon.setToolTip("East Anglia Signal Map Client - v" + EastAngliaMapClient.CLIENT_VERSION + (tooltip.equals("") ? "" : "\n") + tooltip);
+        if (trayIcon != null)
+            trayIcon.setToolTip("East Anglia Signal Map Client (v" + EastAngliaMapClient.CLIENT_VERSION + " / v" + EastAngliaMapClient.DATA_VERSION + ")"
+                    + (EastAngliaMapClient.disconnectReason != null ? "\n" + EastAngliaMapClient.disconnectReason : "")
+                    + "\n" + (EastAngliaMapClient.connected ? "" : "Not ") + "Connected");
+
+        if (EastAngliaMapClient.frameSignalMap != null)
+            EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "")
+                +  " / v" + EastAngliaMapClient.DATA_VERSION + ")"
+                + (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")
+                + (EastAngliaMapClient.connected ? "" : " - Not Connected")
+            );
     }
 }

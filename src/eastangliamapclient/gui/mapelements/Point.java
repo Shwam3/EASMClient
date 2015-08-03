@@ -2,8 +2,8 @@ package eastangliamapclient.gui.mapelements;
 
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.ScreencapManager;
-import eastangliamapclient.gui.mapelements.Points.PointType;
 import eastangliamapclient.gui.SignalMapGui;
+import eastangliamapclient.gui.mapelements.Points.PointType;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -21,7 +21,7 @@ public class Point extends JComponent
     private Points.PointType TYPE_0 = PointType.NONE;
     private Points.PointType TYPE_1 = PointType.NONE;
 
-    private final String POINT_ID;
+    private final String POINT_DESCRIPTION;
     private final Map<String, Integer> DATA_IDs;
 
     public Point(SignalMapGui.BackgroundPanel pnl, int x, int y, String description, List<String> dataIds, PointType type0, PointType type1)
@@ -29,7 +29,7 @@ public class Point extends JComponent
         if (description == null || description.trim().equals(""))
             description = "Unnamed";
 
-        POINT_ID = description;
+        POINT_DESCRIPTION = description;
         DATA_IDs = new HashMap<>(dataIds.size());
         dataIds.stream().forEachOrdered(dataId -> DATA_IDs.put(dataId, STATE_UNKNOWN));
 
@@ -43,7 +43,7 @@ public class Point extends JComponent
         if (pnl != null)
             pnl.add(this, SignalMapGui.LAYER_SIGNALS);
 
-        setToolTipText(POINT_ID + " (" + DATA_IDs.keySet().toString().replaceAll("[\\[\\]]", "") + ")");
+        setToolTipText(POINT_DESCRIPTION + " (" + DATA_IDs.keySet().toString().replaceAll("[\\[\\]]", "") + ")");
 
         setVisible(true);
     }
@@ -54,10 +54,10 @@ public class Point extends JComponent
         {
             if (DATA_IDs.get(dataId) != 2 && EastAngliaMapClient.verbose)
             {
-                if (POINT_ID.isEmpty())
+                if (POINT_DESCRIPTION.isEmpty())
                     EastAngliaMapClient.printOut("[" + dataId + "] Change state from " + DATA_IDs.get(dataId) + " to " + state);
                 else
-                    EastAngliaMapClient.printOut("[" + dataId + " (" + POINT_ID + ")] Change state from " + DATA_IDs.get(dataId) + " to " + state);
+                    EastAngliaMapClient.printOut("[" + dataId + " (" + POINT_DESCRIPTION + ")] Change state from " + DATA_IDs.get(dataId) + " to " + state);
             }
         }
         DATA_IDs.put(dataId, state);
@@ -65,6 +65,14 @@ public class Point extends JComponent
         setVisible(true);
         repaint();
     }
+
+    public String getDescription()
+    {
+        return POINT_DESCRIPTION;
+    }
+
+    public PointType getType0() { return TYPE_0; }
+    public PointType getType1() { return TYPE_1; }
 
     @Override
     protected void paintComponent(Graphics g)
@@ -202,6 +210,6 @@ public class Point extends JComponent
     @Override
     public String toString()
     {
-        return String.format("eastangliamap.Point=[pointId=%s,data=%s,type0=%s,type1=%s]", POINT_ID, DATA_IDs.toString(), TYPE_0, TYPE_1);
+        return String.format("eastangliamap.Point=[pointId=%s,data=%s,type0=%s,type1=%s]", POINT_DESCRIPTION, DATA_IDs.toString(), TYPE_0, TYPE_1);
     }
 }

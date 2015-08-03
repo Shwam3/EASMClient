@@ -40,6 +40,11 @@ public class Points
         return pointMap.get(pointId.toUpperCase());
     }
 
+    public static boolean pointExists(String id)
+    {
+        return pointMap.get(id) != null;
+    }
+
     //public static void reset()
     //{
     //    pointMap = new HashMap<>(pointMap.size());
