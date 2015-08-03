@@ -77,7 +77,7 @@ public class SignalMapMenuBar extends JMenuBar
             String ID = JOptionPane.showInputDialog(EastAngliaMapClient.frameSignalMap.frame, "Enter Berth ID:", "Berth History", JOptionPane.QUESTION_MESSAGE);
 
             if (ID != null)
-                if (ID.length() == 5)
+                if (ID.length() == 6)
                     MessageHandler.requestHistoryOfBerth(ID);
                 else
                     JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "'" + ID + "' is not a valid berth ID", "Error", JOptionPane.WARNING_MESSAGE);
