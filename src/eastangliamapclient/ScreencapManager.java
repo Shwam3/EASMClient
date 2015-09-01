@@ -95,6 +95,9 @@ public class ScreencapManager
             return;
         }
 
+        if (SignalMapReplayController.isActive())
+            return;
+
         if (!MessageHandler.isReady())
         {
             printScreencap("Not received full map, waiting 5 secs and retrying", true);
@@ -129,7 +132,7 @@ public class ScreencapManager
                 + (EastAngliaMapClient.connected ? "" : " - Not Connected")
             );
 
-        printScreencap("Updating images (" + EastAngliaMapClient.getTime() + ")", false);
+        printScreencap("Updating images (" + SignalMapGui.getTime() + ")", false);
 
         final List<BufferedImage> images = new ArrayList<>();
         final List<String> names = new ArrayList<>();

@@ -2,6 +2,7 @@ package eastangliamapclient;
 
 import eastangliamapclient.gui.SignalMapDataViewer;
 import eastangliamapclient.gui.SignalMapGui;
+import eastangliamapclient.gui.SignalMapReplayGui;
 import eastangliamapclient.gui.SysTrayHandler;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -58,18 +59,19 @@ public class EastAngliaMapClient
 
     public static SignalMapGui        frameSignalMap;
     public static SignalMapDataViewer frameDataViewer;
+    public static SignalMapReplayGui  frameReplayControls;
 
     public static String       clientName;
     public static boolean      connected = false;
     public static String       disconnectReason = null;
-    public static boolean      kicked = false;
+    public static boolean      requireManualConnect = false;
     public static boolean      minimiseToSysTray = false;
     public static Dimension    windowSize = new Dimension();
     public static String       ftpBaseUrl = "";
     public static PrintStream  logStream = null;
 
     public static SimpleDateFormat sdf      = new SimpleDateFormat("dd/MM/YY HH:mm:ss");
-    public static SimpleDateFormat clockSDF = new SimpleDateFormat("HH:mm:ss");
+    //public static SimpleDateFormat clockSDF = new SimpleDateFormat("HH:mm:ss");
 
     public static       Font  TD_FONT  = new Font("TDBerth DM", 0, 16);
     public static final Color GREEN    = new Color(0,   153, 0);   // proper headcode berth colour
@@ -182,6 +184,7 @@ public class EastAngliaMapClient
             frameSignalMap = new SignalMapGui(windowSize);
             frameDataViewer = new SignalMapDataViewer();
             frameDataViewer.updateData();
+            frameReplayControls = new SignalMapReplayGui();
 
             SysTrayHandler.initSysTray();
 
@@ -247,10 +250,10 @@ public class EastAngliaMapClient
     {
         long time = System.currentTimeMillis();
 
-        if (time - lastReconnectAttempt > 5000 && (time - MessageHandler.getLastMessageTime() > 30000 && !kicked || force))
+        if (time - lastReconnectAttempt > 5000 && (time - MessageHandler.getLastMessageTime() > 30000 && !requireManualConnect || force))
         {
             lastReconnectAttempt = time;
-            kicked = false;
+            requireManualConnect = false;
 
             MessageHandler.stop();
 
@@ -306,10 +309,10 @@ public class EastAngliaMapClient
         return false;
     }
 
-    public static String getTime()
-    {
-        return clockSDF.format(new Date());
-    }
+    //public static String getTime()
+    //{
+    //    return clockSDF.format(new Date());
+    //}
 
     static void printStartup(String message, boolean toErr)
     {

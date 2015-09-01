@@ -70,7 +70,7 @@ public class MessageHandler
                             printMsgHandler("Connection to host closed (" + String.valueOf(message.get("reason")) + ")", false);
 
                             if (String.valueOf(message.get("reason")).startsWith("You have been kicked"))
-                                EastAngliaMapClient.kicked = true;
+                                EastAngliaMapClient.requireManualConnect = true;
                             break;
 
                         case HEARTBEAT_REQUEST:
@@ -88,7 +88,7 @@ public class MessageHandler
                             printMsgHandler("Received full map (" + fullMap.size() + ")", false);
 
                             if (EastAngliaMapClient.frameSignalMap != null)
-                                EastAngliaMapClient.frameSignalMap.readFromMap(EastAngliaMapClient.DataMap);
+                                EastAngliaMapClient.frameSignalMap.updateGuiComponents(EastAngliaMapClient.DataMap);
 
                             ready = true;
                             break;
@@ -99,7 +99,7 @@ public class MessageHandler
                             EastAngliaMapClient.DataMap.putAll(updateMap);
 
                             if (EastAngliaMapClient.frameSignalMap != null)
-                                EastAngliaMapClient.frameSignalMap.readFromMap(updateMap);
+                                EastAngliaMapClient.frameSignalMap.updateGuiComponents(updateMap);
                             break;
 
                         case SEND_HIST_TRAIN:
@@ -198,8 +198,8 @@ public class MessageHandler
                             SysTrayHandler.popup("Connection closed by host" + (message.get("reason") != null ? "\n" + message.get("reason") : ""), TrayIcon.MessageType.WARNING);
                             printMsgHandler("Connection to host closed (" + String.valueOf(message.get("reason")) + ")", false);
 
-                            if (String.valueOf(message.get("reason")).startsWith("You have been kicked"))
-                                EastAngliaMapClient.kicked = true;
+                            if (String.valueOf(message.get("reason")).startsWith("You have been requireManualConnect"))
+                                EastAngliaMapClient.requireManualConnect = true;
                             break;
 
                         case HEARTBEAT_REQUEST:
@@ -217,7 +217,7 @@ public class MessageHandler
                             printMsgHandler("Received full map (" + fullMap.size() + ")", false);
 
                             if (EastAngliaMapClient.frameSignalMap != null)
-                                EastAngliaMapClient.frameSignalMap.readFromMap(EastAngliaMapClient.DataMap);
+                                EastAngliaMapClient.frameSignalMap.updateGuiComponents(EastAngliaMapClient.DataMap);
 
                             ready = true;
                             break;
@@ -228,7 +228,7 @@ public class MessageHandler
                             EastAngliaMapClient.DataMap.putAll(updateMap);
 
                             if (EastAngliaMapClient.frameSignalMap != null)
-                                EastAngliaMapClient.frameSignalMap.readFromMap(updateMap);
+                                EastAngliaMapClient.frameSignalMap.updateGuiComponents(updateMap);
                             break;
 
                         case SEND_HIST_TRAIN:
@@ -359,16 +359,6 @@ public class MessageHandler
                 errors = 0;
             }
             catch (IOException e) {}
-
-            /*Map<String, Object> message = new HashMap<>();
-            message.put("type", MessageType.SOCKET_CLOSE.getValue());
-
-            try
-            {
-                new ObjectOutputStream(EastAngliaMapClient.serverSocket.getOutputStream()).writeObject(message);
-                errors = 0;
-            }
-            catch (IOException e) {}*/
         }
     }
     //</editor-fold>
@@ -376,9 +366,6 @@ public class MessageHandler
     //<editor-fold defaultstate="collapsed" desc="HEARTBEAT_REQUEST">
     public static boolean sendHeartbeatRequest()
     {
-        /*Map<String, Object> message = new HashMap<>();
-        message.put("type", MessageType.HEARTBEAT_REQUEST.getValue());*/
-
         return sendMessage("{\"Message\":{\"type\":\"" + MessageType.HEARTBEAT_REQUEST.getName() + "\"}}");
     }
     //</editor-fold>
@@ -386,9 +373,6 @@ public class MessageHandler
     //<editor-fold defaultstate="collapsed" desc="HEARTBEAT_REPLY">
     public static boolean sendHeartbeatReply()
     {
-        /*Map<String, Object> message = new HashMap<>();
-        message.put("type", MessageType.HEARTBEAT_REPLY.getValue());*/
-
         return sendMessage("{\"Message\":{\"type\":\"" + MessageType.HEARTBEAT_REPLY.getName() + "\"}}");
     }
     //</editor-fold>
@@ -396,9 +380,6 @@ public class MessageHandler
     //<editor-fold defaultstate="collapsed" desc="REQUEST_ALL">
     public static boolean requestAll()
     {
-        /*Map<String, Object> message = new HashMap<>();
-        message.put("type", MessageType.REQUEST_ALL.getValue());*/
-
         return sendMessage("{\"Message\":{\"type\":\"" + MessageType.REQUEST_ALL.getName() + "\"}}");
     }
     //</editor-fold>
@@ -406,10 +387,6 @@ public class MessageHandler
     //<editor-fold defaultstate="collapsed" desc="REQUEST_HIST_TRAIN">
     public static boolean requestHistoryOfTrain(String id)
     {
-        /*Map<String, Object> message = new HashMap<>();
-        message.put("type", MessageType.REQUEST_HIST_TRAIN.getValue());
-        message.put("id",   id);*/
-
         return sendMessage("{\"Message\":{\"type\":\"" + MessageType.REQUEST_HIST_TRAIN.getName() + "\",\"id\":\"" + id + "\"}}");
     }
     //</editor-fold>
@@ -417,10 +394,6 @@ public class MessageHandler
     //<editor-fold defaultstate="collapsed" desc="REQUEST_HIST_BERTH">
     public static boolean requestHistoryOfBerth(String berthId)
     {
-        /*Map<String, Object> message = new HashMap<>();
-        message.put("type", MessageType.REQUEST_HIST_BERTH.getValue());
-        message.put("berth_id", berthId);*/
-
         return sendMessage("{\"Message\":{\"type\":\"" + MessageType.REQUEST_HIST_BERTH.getName() + "\",\"berth_id\":\"" + berthId + "\"}}");
     }
     //</editor-fold>
@@ -428,12 +401,6 @@ public class MessageHandler
     //<editor-fold defaultstate="collapsed" desc="SEND_NAME">
     public static boolean sendName(String name)
     {
-        /*Map<String, Object> message = new HashMap<>();
-
-        message.put("type",  MessageType.SET_NAME.getValue());
-        message.put("name",  name + " (v" + EastAngliaMapClient.CLIENT_VERSION + ")");
-        message.put("props", System.getProperties());*/
-
         StringBuilder sb = new StringBuilder("{\"Message\":{");
         sb.append("\"type\":\"").append(MessageType.SET_NAME.getName()).append("\",");
         sb.append("\"name\":\"").append(name).append(" (v").append(EastAngliaMapClient.CLIENT_VERSION).append(" / v").append(EastAngliaMapClient.DATA_VERSION).append(")\",");
@@ -493,7 +460,7 @@ public class MessageHandler
             public void run()
             {
                 long time = System.currentTimeMillis() - lastMessageTime;
-                if (time >= timeoutTime)
+                if (time >= timeoutTime && !EastAngliaMapClient.requireManualConnect)
                 {
                     if (timeoutTime == 30000)
                     {
@@ -505,7 +472,7 @@ public class MessageHandler
                         EastAngliaMapClient.connected = false;
                         EastAngliaMapClient.disconnectReason = EastAngliaMapClient.disconnectReason == null || EastAngliaMapClient.disconnectReason.startsWith("Connection timed out ") ? "Connection timed out (" + time / 1000L + "s)" : EastAngliaMapClient.disconnectReason;
 
-                        if (!EastAngliaMapClient.kicked)
+                        if (!EastAngliaMapClient.requireManualConnect)
                         {
                             printMsgHandler("Connection timed out (" + time / 1000L + "s)", true);
 

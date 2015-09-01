@@ -42,6 +42,7 @@ public class SignalMapMenuBar extends JMenuBar
 
     private JMenuItem connectionChangeName;
     private JMenuItem connectionViewData;
+    private JMenuItem connectionReplay;
     private JMenuItem connectionRefresh;
     private JMenuItem connectionReconnect;
 
@@ -143,6 +144,8 @@ public class SignalMapMenuBar extends JMenuBar
         }
         else if (src == connectionViewData)
             EastAngliaMapClient.frameDataViewer.setVisible0(true);
+        else if (src == connectionReplay)
+            EastAngliaMapClient.frameReplayControls.setVisible0(true);
         else if (src == connectionRefresh)
             MessageHandler.requestAll();
         else if (src == connectionReconnect)
@@ -206,7 +209,7 @@ public class SignalMapMenuBar extends JMenuBar
                 System.exit(0);
             }
             else
-                JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "v" + EastAngliaMapClient.CLIENT_VERSION + " / v" + EastAngliaMapClient.DATA_VERSION + " is the latest version, no ypdates necessary", "Updater", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "All up to date!\nv" + EastAngliaMapClient.CLIENT_VERSION + " / v" + EastAngliaMapClient.DATA_VERSION + " are the latest client/data versions", "Updater", JOptionPane.INFORMATION_MESSAGE);
         }
         else if (src == helpHelp)
             new HelpDialog();
@@ -234,19 +237,41 @@ public class SignalMapMenuBar extends JMenuBar
         fileMinToSysTray = new JCheckBoxMenuItem("Minimise to System Tray");
         fileExit         = new JMenuItem("Exit");
 
+        fileTrainHistory.setToolTipText("View berths passed through by a train");
+        fileBerthHistory.setToolTipText("View trains which passed through a berth");
+        filePreventSleep.setToolTipText("Prevent this computer from sleeping/hibernating automatically");
+        fileMinToSysTray.setToolTipText("Minimise to System Tray on close");
+        fileExit.setToolTipText("<html>Exit the program<br>(not to system tray)</html>");
+
         viewVisibleBerths  = new JCheckBoxMenuItem("Berths");
         viewVisibleSignals = new JCheckBoxMenuItem("Signals, Routes & Indications");
         viewVisiblePoints  = new JCheckBoxMenuItem("Point Indications");
         viewBerthOpacity   = new JCheckBoxMenuItem("Opaque Berth Mode");
         viewBerthIDs       = new JCheckBoxMenuItem("Show Berth IDs");
 
+        viewVisibleBerths.setToolTipText("Toggle visibility of berths/headcodes");
+        viewVisibleSignals.setToolTipText("Toggle visibility of signals & route/LC indicators");
+        viewVisiblePoints.setToolTipText("Toggle visibility of points indicators");
+        viewBerthOpacity.setToolTipText("<html>Toggle the opacity mode of berths<br>(always visible/only when occupied)</html>");
+        viewBerthIDs.setToolTipText("Show the berth IDs");
+
         connectionChangeName = new JMenuItem("Change Client Name...");
         connectionViewData   = new JMenuItem("View Data...");
+        connectionReplay     = new JMenuItem("View Replay...");
         connectionRefresh    = new JMenuItem("Refresh Data");
         connectionReconnect  = new JMenuItem("Reconnect");
 
+        connectionChangeName.setToolTipText("Change the name used to identify this client");
+        connectionViewData.setToolTipText("View the internal data");
+        connectionReplay.setToolTipText("<html>Replay historical data (where available)<br><i>NOTE: Under construction</i></html>");
+        connectionRefresh.setToolTipText("Refresh the data, use if you notice multiple irregularities");
+        connectionReconnect.setToolTipText("Manually attempt to reconnect to the server");
+
         screencapTakeScreencaps = new JMenuItem("Take Screencaps");
         screencapAutoScreencap  = new JCheckBoxMenuItem("Auto-Screencap");
+
+        screencapTakeScreencaps.setToolTipText("Not to be available in public builds");
+        screencapAutoScreencap.setToolTipText("Not to be available in public builds");
 
         windowResize     = new JMenuItem("Reset Size");
         windowReposition = new JMenuItem("Reset Position");
@@ -274,6 +299,7 @@ public class SignalMapMenuBar extends JMenuBar
         menuConnection.add(connectionChangeName).addActionListener(listenerConnection);
         menuConnection.addSeparator();
         menuConnection.add(connectionViewData).addActionListener(listenerConnection);
+        menuConnection.add(connectionReplay).addActionListener(listenerConnection);
         menuConnection.addSeparator();
         menuConnection.add(connectionRefresh).addActionListener(listenerConnection);
         menuConnection.add(connectionReconnect).addActionListener(listenerConnection);

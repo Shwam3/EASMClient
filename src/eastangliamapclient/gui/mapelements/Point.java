@@ -77,7 +77,7 @@ public class Point extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
-        //if (DATA_IDs.values().stream().filter(val -> val >= 0).count() == STATE_UNKNOWN || (!EastAngliaMapClient.signalsVisible && !ScreencapManager.isScreencapping))
+        //if (DATA_IDs.values().stream().filter(val -> val >= 0).count() == STATE_UNKNOWN)
         //    return;
 
         if(!EastAngliaMapClient.pointsVisible && !ScreencapManager.isScreencapping)
@@ -85,7 +85,7 @@ public class Point extends JComponent
 
         Graphics2D g2d = (Graphics2D) g.create();
 
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(EastAngliaMapClient.showDescriptions ? EastAngliaMapClient.GREY : Color.BLACK);
 
         switch(DATA_IDs.values().stream().filter(val -> val > 0).count() == STATE_0 ? TYPE_0 : TYPE_1)
         {

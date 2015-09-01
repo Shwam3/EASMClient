@@ -5,6 +5,7 @@ import static eastangliamapclient.EastAngliaMapClient.newFile;
 import static eastangliamapclient.EastAngliaMapClient.storageDir;
 import eastangliamapclient.MessageHandler;
 import static eastangliamapclient.ScreencapManager.isScreencapping;
+import eastangliamapclient.SignalMapReplayController;
 import eastangliamapclient.gui.mapelements.Berth;
 import eastangliamapclient.gui.mapelements.Berths;
 import eastangliamapclient.gui.mapelements.Point;
@@ -47,6 +48,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -596,24 +599,18 @@ public class SignalMapGui
         motd.setText("XXMOTD");
         motd.setFocusable(false);
         motd.setOpaque(true);
-
         motd.setForeground(EastAngliaMapClient.GREEN);
         motd.setBackground(new Color(30, 30, 30));
         motd.setVerticalAlignment(JLabel.TOP);
         motd.setHorizontalAlignment(JLabel.LEFT);
         motd.setFont(new Font(Font.MONOSPACED, Font.TRUETYPE_FONT, 16));
-
         motd.setPreferredSize(new Dimension(520, 16));
         motd.setBorder(new EmptyBorder(0, 10, 0, 10));
 
-        JScrollPane spMOTD = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        spMOTD.setViewportView(motd);
+        JScrollPane spMOTD = new JScrollPane(motd, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         spMOTD.setBounds(100, 10, 650, 50);
         bp.add(spMOTD, LAYER_TOP);
         motdPanes.add(spMOTD);
-
-        //buttons.add(menu);
-        //buttons.add(help);
     }
 
     //private void placeTestSignals(BackgroundPanel pnl, String areaId, int x, int y, int width, int min, int max)
@@ -670,11 +667,11 @@ public class SignalMapGui
         else
         {
             frame.setVisible(visible);
-            readFromMap(EastAngliaMapClient.DataMap);
+            updateGuiComponents(EastAngliaMapClient.DataMap);
         }
     }
 
-    public void readFromMap(Map<String, String> map)
+    public void updateGuiComponents(Map<String, String> map)
     {
         EastAngliaMapClient.DataMap.putAll(map);
 
@@ -705,6 +702,8 @@ public class SignalMapGui
             }
             catch (Exception e) { EastAngliaMapClient.printThrowable(e, "Handler"); }
         }
+
+        frame.repaint();
     }
 
     public List<BackgroundPanel> getPanels()
@@ -714,13 +713,11 @@ public class SignalMapGui
 
     public void prepForScreencap()
     {
-        //buttons.stream().forEach(button -> button.setVisible(false));
         motdPanes.stream().forEach(sp -> sp.setVisible(false));
     }
 
     public void finishScreencap()
     {
-        //buttons.stream().forEach(button -> button.setVisible(true));
         motdPanes.stream().forEach(sp -> sp.setVisible(true));
     }
 
@@ -807,12 +804,21 @@ public class SignalMapGui
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
 
             g2d.setColor(EastAngliaMapClient.GREEN);
-            g2d.drawString(EastAngliaMapClient.getTime(), 787, 55);
+            g2d.drawString(SignalMapGui.getTime(), 787, 55);
 
             g2d.dispose();
         }
 
         public Component add(Component comp) { return super.add(comp, LAYER_TOP); }
         public Component add(Component comp, int index) { return super.add(comp, index); }
+    }
+
+    public static final SimpleDateFormat clockSDF = new SimpleDateFormat("HH:mm:ss");
+    public static String getTime()
+    {
+        if (SignalMapReplayController.isActive())
+           return LocalTime.ofSecondOfDay(SignalMapReplayController.getTimeOffset()).format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+        else
+            return clockSDF.format(new Date());
     }
 }
