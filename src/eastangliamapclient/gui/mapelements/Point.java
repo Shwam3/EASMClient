@@ -1,7 +1,6 @@
 package eastangliamapclient.gui.mapelements;
 
 import eastangliamapclient.EastAngliaMapClient;
-import eastangliamapclient.ScreencapManager;
 import eastangliamapclient.gui.SignalMapGui;
 import eastangliamapclient.gui.mapelements.Points.PointType;
 import java.awt.Color;
@@ -77,11 +76,11 @@ public class Point extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
-        //if (DATA_IDs.values().stream().filter(val -> val >= 0).count() == STATE_UNKNOWN)
-        //    return;
+      //if (DATA_IDs.values().stream().filter(val -> val >= 0).count() == STATE_UNKNOWN)
+      //    return;
 
-        if(!EastAngliaMapClient.pointsVisible && !ScreencapManager.isScreencapping)
-            return;
+      //if(!EastAngliaMapClient.pointsVisible && !ScreencapManager.isScreencapping)
+      //    return;
 
         Graphics2D g2d = (Graphics2D) g.create();
 

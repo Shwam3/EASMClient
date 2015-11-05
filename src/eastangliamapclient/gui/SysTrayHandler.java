@@ -1,10 +1,7 @@
 package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
-import eastangliamapclient.ScreencapManager;
-import static eastangliamapclient.ScreencapManager.isScreencapping;
 import java.awt.AWTException;
-import java.awt.CheckboxMenuItem;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
@@ -59,7 +56,7 @@ public class SysTrayHandler
         final MenuItem exit = new MenuItem("Exit");
         final MenuItem showWindow = new MenuItem("Show window");
         final MenuItem reconnect = new MenuItem("Reconnect");
-        final CheckboxMenuItem screenshot = new CheckboxMenuItem("Auto Screenshot", EastAngliaMapClient.autoScreencap);
+      //final CheckboxMenuItem screenshot = new CheckboxMenuItem("Auto Screenshot", EastAngliaMapClient.autoScreencap);
 
         ActionListener menuListener = e ->
         {
@@ -74,13 +71,13 @@ public class SysTrayHandler
 
         showWindow.addActionListener(menuListener);
         reconnect.addActionListener(menuListener);
-        screenshot.addItemListener(e -> ScreencapManager.autoScreencap());
+      //screenshot.addItemListener(e -> ScreencapManager.autoScreencap());
         exit.addActionListener(menuListener);
 
         pm.add(showWindow);
         pm.add(reconnect);
-        if (EastAngliaMapClient.screencappingActive)
-            pm.add(screenshot);
+      //if (EastAngliaMapClient.screencappingActive)
+      //    pm.add(screenshot);
         pm.addSeparator();
         pm.add(exit);
 
@@ -114,7 +111,7 @@ public class SysTrayHandler
         if (EastAngliaMapClient.frameSignalMap != null)
             EastAngliaMapClient.frameSignalMap.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "")
                 +  " / v" + EastAngliaMapClient.DATA_VERSION + ")"
-                + (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")
+              /*+ (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")*/
                 + (EastAngliaMapClient.connected ? "" : " - Not Connected")
             );
     }

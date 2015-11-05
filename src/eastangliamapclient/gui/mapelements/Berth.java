@@ -1,7 +1,6 @@
 package eastangliamapclient.gui.mapelements;
 
 import eastangliamapclient.EastAngliaMapClient;
-import eastangliamapclient.ScreencapManager;
 import eastangliamapclient.gui.BerthContextMenu;
 import eastangliamapclient.gui.SignalMapGui;
 import java.awt.Desktop;
@@ -245,26 +244,26 @@ public class Berth extends JComponent
     {
         Graphics2D g2d = (Graphics2D) g.create();
 
-        if (ScreencapManager.isScreencapping)
-        {
-            g2d.setColor(EastAngliaMapClient.GREY);
-            if (hasBorder)
-                g2d.drawRect(0, 0, 47, 15);
+      //if (ScreencapManager.isScreencapping)
+      //{
+      //    g2d.setColor(EastAngliaMapClient.GREY);
+      //    if (hasBorder)
+      //        g2d.drawRect(0, 0, 47, 15);
 
-            if (currentHeadcode != null && !currentHeadcode.isEmpty())
-            {
-                g2d.fillRect(0, 0, getWidth(), getHeight());
+      //    if (currentHeadcode != null && !currentHeadcode.isEmpty())
+      //    {
+      //        g2d.fillRect(0, 0, getWidth(), getHeight());
 
-                if (isProperHeadcode())
-                    g2d.setColor(EastAngliaMapClient.GREEN);
-                else
-                    g2d.setColor(EastAngliaMapClient.WHITE);
+      //        if (isProperHeadcode())
+      //            g2d.setColor(EastAngliaMapClient.GREEN);
+      //        else
+      //            g2d.setColor(EastAngliaMapClient.WHITE);
 
-                g2d.drawString(currentHeadcode, 1, 15);
-            }
-        }
-        else
-        {
+      //        g2d.drawString(currentHeadcode, 1, 15);
+      //    }
+      //}
+      //else
+      //{
             if (EastAngliaMapClient.berthsVisible)
             {
                 g2d.setColor(EastAngliaMapClient.GREY);
@@ -289,7 +288,7 @@ public class Berth extends JComponent
                     g2d.drawString(currentHeadcode, 1, 15);
                 }
             }
-        }
+      //}
 
         g2d.dispose();
     }

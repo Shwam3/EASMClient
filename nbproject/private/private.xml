@@ -2,14 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/Shwam/Documents/GitHub/EastAngliaSignalMapClient/src/eastangliamapclient/SignalMapReplayController.java</file>
-            <file>file:/C:/Users/Shwam/Documents/GitHub/EastAngliaSignalMapClient/src/eastangliamapclient/gui/SignalMapGui.java</file>
-            <file>file:/C:/Users/Shwam/Documents/GitHub/EastAngliaSignalMapClient/src/eastangliamapclient/MessageHandler.java</file>
-            <file>file:/C:/Users/Shwam/Documents/GitHub/EastAngliaSignalMapClient/src/eastangliamapclient/gui/SignalMapMenuBar.java</file>
-            <file>file:/C:/Users/Shwam/Documents/GitHub/EastAngliaSignalMapClient/src/eastangliamapclient/gui/SignalMapReplayGui.java</file>
-            <file>file:/C:/Users/Shwam/Documents/GitHub/EastAngliaSignalMapClient/src/eastangliamapclient/gui/SignalMapDataViewer.java</file>
-            <file>file:/C:/Users/Shwam/Documents/GitHub/EastAngliaSignalMapClient/src/eastangliamapclient/EastAngliaMapClient.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

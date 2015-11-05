@@ -2,7 +2,6 @@ package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.MessageHandler;
-import eastangliamapclient.ScreencapManager;
 import eastangliamapclient.VersionChecker;
 import static eastangliamapclient.gui.SignalMapGui.DEFAULT_HEIGHT;
 import static eastangliamapclient.gui.SignalMapGui.DEFAULT_WIDTH;
@@ -24,7 +23,7 @@ public class SignalMapMenuBar extends JMenuBar
     private JMenu menuFile;
     private JMenu menuView;
     private JMenu menuConnection;
-    private JMenu menuScreencap;
+  //private JMenu menuScreencap;
     private JMenu menuWindow;
     private JMenu menuHelp;
 
@@ -46,8 +45,8 @@ public class SignalMapMenuBar extends JMenuBar
     private JMenuItem connectionRefresh;
     private JMenuItem connectionReconnect;
 
-    private JMenuItem screencapTakeScreencaps;
-    private JCheckBoxMenuItem screencapAutoScreencap;
+  //private JMenuItem screencapTakeScreencaps;
+  //private JCheckBoxMenuItem screencapAutoScreencap;
 
     private JMenuItem windowResize;
     private JMenuItem windowReposition;
@@ -153,20 +152,19 @@ public class SignalMapMenuBar extends JMenuBar
 
         updateCheckBoxes();
     };
-    private ActionListener listenerScreencap = evt ->
-    {
-        Object src = evt.getSource();
-        if (src == null)
-            return;
+  //private ActionListener listenerScreencap = evt ->
+  //{
+  //    Object src = evt.getSource();
+  //    if (src == null)
+  //        return;
 
-        if (src == screencapTakeScreencaps)
-            ScreencapManager.takeScreencaps();
-        else if (src == screencapAutoScreencap)
-            ScreencapManager.autoScreencap();
+  //    if (src == screencapTakeScreencaps)
+  //        ScreencapManager.takeScreencaps();
+  //    else if (src == screencapAutoScreencap)
+  //        ScreencapManager.autoScreencap();
 
-        updateCheckBoxes();
-
-    };
+  //    updateCheckBoxes();
+  //};
     private ActionListener listenerWindow = evt ->
     {
         Object src = evt.getSource();
@@ -227,7 +225,7 @@ public class SignalMapMenuBar extends JMenuBar
         menuFile       = new JMenu("File");
         menuView       = new JMenu("View");
         menuConnection = new JMenu("Connection");
-        menuScreencap  = new JMenu("Screencaps");
+      //menuScreencap  = new JMenu("Screencaps");
         menuWindow     = new JMenu("Window");
         menuHelp       = new JMenu("Help");
 
@@ -267,11 +265,11 @@ public class SignalMapMenuBar extends JMenuBar
         connectionRefresh.setToolTipText("Refresh the data, use if you notice multiple irregularities");
         connectionReconnect.setToolTipText("Manually attempt to reconnect to the server");
 
-        screencapTakeScreencaps = new JMenuItem("Take Screencaps");
-        screencapAutoScreencap  = new JCheckBoxMenuItem("Auto-Screencap");
+      //screencapTakeScreencaps = new JMenuItem("Take Screencaps");
+      //screencapAutoScreencap  = new JCheckBoxMenuItem("Auto-Screencap");
 
-        screencapTakeScreencaps.setToolTipText("Not to be available in public builds");
-        screencapAutoScreencap.setToolTipText("Not to be available in public builds");
+      //screencapTakeScreencaps.setToolTipText("Not to be available in public builds");
+      //screencapAutoScreencap.setToolTipText("Not to be available in public builds");
 
         windowResize     = new JMenuItem("Reset Size");
         windowReposition = new JMenuItem("Reset Position");
@@ -304,8 +302,8 @@ public class SignalMapMenuBar extends JMenuBar
         menuConnection.add(connectionRefresh).addActionListener(listenerConnection);
         menuConnection.add(connectionReconnect).addActionListener(listenerConnection);
 
-        menuScreencap.add(screencapTakeScreencaps).addActionListener(listenerScreencap);
-        menuScreencap.add(screencapAutoScreencap).addActionListener(listenerScreencap);
+      //menuScreencap.add(screencapTakeScreencaps).addActionListener(listenerScreencap);
+      //menuScreencap.add(screencapAutoScreencap).addActionListener(listenerScreencap);
 
         menuWindow.add(windowResize).addActionListener(listenerWindow);
         menuWindow.add(windowReposition).addActionListener(listenerWindow);
@@ -319,8 +317,8 @@ public class SignalMapMenuBar extends JMenuBar
         add(menuFile);
         add(menuView);
         add(menuConnection);
-        if (EastAngliaMapClient.screencappingActive)
-            add(menuScreencap);
+      //if (EastAngliaMapClient.screencappingActive)
+      //    add(menuScreencap);
         add(menuWindow);
         add(menuHelp);
 
@@ -343,6 +341,6 @@ public class SignalMapMenuBar extends JMenuBar
         viewVisiblePoints.setSelected(EastAngliaMapClient.pointsVisible);
         viewBerthOpacity.setSelected(EastAngliaMapClient.opaqueBerths);
         viewBerthIDs.setSelected(EastAngliaMapClient.showDescriptions);
-        screencapAutoScreencap.setSelected(EastAngliaMapClient.autoScreencap);
+      //screencapAutoScreencap.setSelected(EastAngliaMapClient.autoScreencap);
     }
 }

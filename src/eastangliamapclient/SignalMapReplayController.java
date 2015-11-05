@@ -28,7 +28,7 @@ public class SignalMapReplayController
     private static long    timeOffset = 0;
     private static long    requestedOffset = -1;
     private static boolean isActive = false;
-    private static ScheduledFuture actualThing;
+    private static ScheduledFuture replayExecutor;
 
     private static List<ReplayEvent> replayData = null;
     private static Map<String, String> replayInit = null;
@@ -100,14 +100,14 @@ public class SignalMapReplayController
         isActive = true;
         playMode = MODE_PAUSE;
 
-        if (actualThing != null)
-            actualThing.cancel(true);
+        if (replayExecutor != null)
+            replayExecutor.cancel(true);
 
-        actualThing = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() ->
+        replayExecutor = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() ->
         {
             if (playMode == MODE_STOP)
             {
-                actualThing.cancel(false);
+                replayExecutor.cancel(false);
             }
             else if (playMode == MODE_PLAY_FORWARD || playMode == MODE_PLAY_BACKWARD)
             {
@@ -196,6 +196,7 @@ public class SignalMapReplayController
                 }
 
                 EastAngliaMapClient.frameSignalMap.updateGuiComponents(replayMap);
+                EastAngliaMapClient.frameDataViewer.updateData();
                 timeOffset = newTimeOffset;
             }
         }, 1, 1, TimeUnit.SECONDS);
@@ -235,14 +236,7 @@ public class SignalMapReplayController
     public static void requestOffset(long offset)
     {
         if (offset < 86399 && offset >= -1 && offset > timeOffset)
-        {
             requestedOffset = offset;
-            //if ((offset < timeOffset && lastMode == MODE_PLAY_FORWARD) || (offset > timeOffset && lastMode == MODE_PLAY_BACKWARD))
-            //{
-            //    Collections.reverse(replayData);
-            //    lastMode *= -1;
-            //}
-        }
         else
             requestedOffset = -1;
 

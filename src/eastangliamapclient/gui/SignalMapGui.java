@@ -4,7 +4,6 @@ import eastangliamapclient.EastAngliaMapClient;
 import static eastangliamapclient.EastAngliaMapClient.newFile;
 import static eastangliamapclient.EastAngliaMapClient.storageDir;
 import eastangliamapclient.MessageHandler;
-import static eastangliamapclient.ScreencapManager.isScreencapping;
 import eastangliamapclient.SignalMapReplayController;
 import eastangliamapclient.gui.mapelements.Berth;
 import eastangliamapclient.gui.mapelements.Berths;
@@ -60,6 +59,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -71,6 +71,9 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 
 public class SignalMapGui
 {
@@ -101,7 +104,7 @@ public class SignalMapGui
 
     public SignalMapGui(Dimension dim)
     {
-        frame = new JFrame("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" + (EastAngliaMapClient.autoScreencap ? " - Screencapping" : ""));
+        frame = new JFrame("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "") +  ")" /*+ (EastAngliaMapClient.autoScreencap ? " - Screencapping" : "")*/);
         TabBar = new JTabbedPane();
 
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -185,7 +188,7 @@ public class SignalMapGui
             EastAngliaMapClient.DATA_VERSION = String.valueOf(json.get("version"));
             frame.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "")
                 +  " / v" + EastAngliaMapClient.DATA_VERSION + ")"
-                + (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")
+              /*+ (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")*/
                 + (EastAngliaMapClient.connected ? "" : " - Not Connected")
             );
 
@@ -595,64 +598,44 @@ public class SignalMapGui
 
     private void placeTopBits(final BackgroundPanel bp)
     {
-        JLabel motd = new JLabel();
-        motd.setText("XXMOTD");
-        motd.setFocusable(false);
+        JEditorPane motd = new JEditorPane(new HTMLEditorKit().getContentType(), "XXMOTD");
+        motd.setEditorKit(JEditorPane.createEditorKitForContentType("text/html"));
+        //motd.setContentType("text/html");
+        //motd.setText("XXMOTD");
+        //motd.setFocusable(false);
+        motd.setEditable(false);
         motd.setOpaque(true);
-        motd.setForeground(EastAngliaMapClient.GREEN);
         motd.setBackground(new Color(30, 30, 30));
-        motd.setVerticalAlignment(JLabel.TOP);
-        motd.setHorizontalAlignment(JLabel.LEFT);
-        motd.setFont(new Font(Font.MONOSPACED, Font.TRUETYPE_FONT, 16));
+        //motd.setForeground(EastAngliaMapClient.GREEN);
+        //motd.setVerticalAlignment(JLabel.TOP);
+        //motd.setHorizontalAlignment(JLabel.LEFT);
+        //motd.setFont(new Font(Font.MONOSPACED, Font.TRUETYPE_FONT, 16));
+
+        ((HTMLDocument) motd.getDocument()).getStyleSheet().addRule("body{"
+                +   "font-family:Monospaced;"
+                +   "font-size:16pt;"
+                +   "color:#009900"
+                + "}"
+                + "a{"
+                +   "color:#EE8800"
+                + "}");
+
         motd.setPreferredSize(new Dimension(520, 16));
         motd.setBorder(new EmptyBorder(0, 10, 0, 10));
+        motd.addHyperlinkListener((HyperlinkEvent evt) ->
+        {
+            if (evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED && Desktop.isDesktopSupported())
+            {
+                try { Desktop.getDesktop().browse(evt.getURL().toURI()); }
+                catch (IOException | URISyntaxException | NullPointerException e) { EastAngliaMapClient.printErr(evt.getDescription()); EastAngliaMapClient.printThrowable(e, "MOTD"); }
+            }
+        });
 
         JScrollPane spMOTD = new JScrollPane(motd, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         spMOTD.setBounds(100, 10, 650, 50);
         bp.add(spMOTD, LAYER_TOP);
         motdPanes.add(spMOTD);
     }
-
-    //private void placeTestSignals(BackgroundPanel pnl, String areaId, int x, int y, int width, int min, int max)
-    //{
-    //    List<String> bytes = new ArrayList<>();
-    //
-    //    for (int i = min; i < max; i++)
-    //    {
-    //        String currByte = Integer.toHexString(i).toUpperCase();
-    //        currByte = areaId + (currByte.length() % 2 != 0 ? "0" + currByte : currByte);
-    //
-    //        for (int j = 1; j < 9; j++)
-    //            bytes.add(currByte + ":" + j);
-    //
-    //        bytes.add("");
-    //    }
-    //
-    //    placeTestSignals(pnl, x, y, width, bytes.toArray(new String[0]));
-    //}
-
-    //private void placeTestSignals(BackgroundPanel pnl, int x, int y, int width, String... ids)
-    //{
-    //    List<String> bytes = Arrays.asList(ids);
-    //
-    //    int curWidth = 0;
-    //    for (String id : bytes)
-    //    {
-    //        if (curWidth > width - 1 && width > 0)
-    //        {
-    //            y += 12;
-    //            curWidth = 0;
-    //        }
-    //
-    //        if (!id.isEmpty())
-    //        {
-    //            Signal sig = Signals.getOrCreateSignal(pnl, x + curWidth*27, y, "", id + (Signals.signalExists(id) ? " " : ""), SignalType.TEXT);
-    //            sig.set0Text(id.substring(2));
-    //        }
-    //
-    //        curWidth++;
-    //    }
-    //}
     //</editor-fold>
 
     public void dispose()
@@ -738,7 +721,7 @@ public class SignalMapGui
 
         motdPanes.parallelStream().forEach(sp ->
         {
-            JLabel lbl = (JLabel) sp.getViewport().getView();
+            JEditorPane lbl = (JEditorPane) sp.getViewport().getView();
             lbl.setText(motdHTML);
             lbl.setPreferredSize(new Dimension(520, height));
         });

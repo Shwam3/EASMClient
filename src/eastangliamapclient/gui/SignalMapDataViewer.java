@@ -41,6 +41,8 @@ public class SignalMapDataViewer extends JDialog
 
     public SignalMapDataViewer()
     {
+        super(EastAngliaMapClient.frameSignalMap.frame);
+
         setTitle("East Anglia Signal Map - Data");
         setPreferredSize(new Dimension(600, 400));
         setMinimumSize(new Dimension(715, 350));
@@ -48,7 +50,7 @@ public class SignalMapDataViewer extends JDialog
         setLocationByPlatform(true);
         setLocationRelativeTo(EastAngliaMapClient.frameSignalMap.frame);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+        setModalityType(Dialog.ModalityType.MODELESS);
         setIconImage(EastAngliaMapClient.frameSignalMap.frame.getIconImage());
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -73,6 +75,8 @@ public class SignalMapDataViewer extends JDialog
         JSplitPane pnlSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         pnlSplit.add(pnlCClass, JSplitPane.LEFT);
         pnlSplit.add(pnlSClass, JSplitPane.RIGHT);
+        pnlSplit.setDividerLocation(0.5);
+        pnlSplit.setResizeWeight(0.5);
         mainPanel.add(pnlSplit, BorderLayout.CENTER);
 
         JPanel pnlFilters = new JPanel();

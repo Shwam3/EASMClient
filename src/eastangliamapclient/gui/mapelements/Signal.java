@@ -1,7 +1,6 @@
 package eastangliamapclient.gui.mapelements;
 
 import eastangliamapclient.EastAngliaMapClient;
-import eastangliamapclient.ScreencapManager;
 import eastangliamapclient.gui.SignalMapGui;
 import eastangliamapclient.gui.mapelements.Signals.SignalType;
 import java.awt.Color;
@@ -188,10 +187,10 @@ public class Signal extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
-        if (ScreencapManager.isScreencapping && SIGNAL_TYPE == SignalType.HIDDEN)
-            return;
+        /*if (ScreencapManager.isScreencapping && SIGNAL_TYPE == SignalType.HIDDEN)
+            return;*/
 
-        if (EastAngliaMapClient.signalsVisible || ScreencapManager.isScreencapping)
+        if (EastAngliaMapClient.signalsVisible) //|| ScreencapManager.isScreencapping)
         {
             Graphics2D g2d = (Graphics2D) g.create();
 

@@ -32,7 +32,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -50,7 +49,7 @@ public class EastAngliaMapClient
 
     public static Map<String, String> DataMap = new HashMap<>();
 
-    public static boolean autoScreencap    = false;
+  //public static boolean autoScreencap    = false;
     public static boolean opaqueBerths     = false;
     public static boolean showDescriptions = false; // not headcodes
     public static boolean berthsVisible    = true;
@@ -70,8 +69,7 @@ public class EastAngliaMapClient
     public static String       ftpBaseUrl = "";
     public static PrintStream  logStream = null;
 
-    public static SimpleDateFormat sdf      = new SimpleDateFormat("dd/MM/YY HH:mm:ss");
-    //public static SimpleDateFormat clockSDF = new SimpleDateFormat("HH:mm:ss");
+    public static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YY HH:mm:ss");
 
     public static       Font  TD_FONT  = new Font("TDBerth DM", 0, 16);
     public static final Color GREEN    = new Color(0,   153, 0);   // proper headcode berth colour
@@ -84,7 +82,7 @@ public class EastAngliaMapClient
 
     public static long    lastReconnectAttempt = System.currentTimeMillis();
     public static boolean isPreRelease         = false;
-    public static boolean screencappingActive  = false;
+  //public static boolean screencappingActive  = false;
     public static boolean blockKeyInput        = false;
     public static boolean shownSystemTrayWarn  = false;
     public static boolean preventSleep         = true;
@@ -98,24 +96,22 @@ public class EastAngliaMapClient
 
         System.setProperty("args", Arrays.deepToString(args));
 
-        if (!System.getProperty("args").contains("-disablelogfile"))
+        try
         {
-            try
-            {
-                File logFile = new File(storageDir, "Logs" + File.separator + "EastAngliaSignalMapClient" + File.separator + sdf.format(new Date()).replace("/", "-").replace(":", ".") + ".log");
-                if (logFile.exists())
-                    logFile =  new File(storageDir, "Logs" + File.separator + "EastAngliaSignalMapClient" + File.separator + sdf.format(new Date()).replace("/", "-").replace(":", ".") + "-" + new Random().nextInt(9) + ".log");
+            File logFile  = new File(storageDir, "Logs" + File.separator + "Client" + File.separator + "output" + ".log");
+            File logFile2 = new File(storageDir, "Logs" + File.separator + "Client" + File.separator + sdf.format(new Date()).replace("/", "-").replace(":", ".") + ".1.log");
+            if (logFile2.exists())
+                logFile2.delete();
+            if (logFile.exists())
+                logFile.renameTo(logFile2);
 
-                logFile.getParentFile().mkdirs();
-                logFile.createNewFile();
+            logFile.getParentFile().mkdirs();
+            logFile.createNewFile();
 
-                try { logStream = new PrintStream(new FileOutputStream(logFile), true); }
-                catch (FileNotFoundException e) { EastAngliaMapClient.printThrowable(e, "LogFile"); }
-            }
-            catch (IOException e) { EastAngliaMapClient.printThrowable(e, "LogFile"); }
+            try { logStream = new PrintStream(new FileOutputStream(logFile), true); }
+            catch (FileNotFoundException e) { EastAngliaMapClient.printThrowable(e, "LogFile"); }
         }
-        else
-            printStartup("Log file disabled", false);
+        catch (IOException e) { EastAngliaMapClient.printThrowable(e, "LogFile"); }
 
         VersionChecker.checkVersion();
 
@@ -157,15 +153,15 @@ public class EastAngliaMapClient
         catch (FileNotFoundException e) { printThrowable(e, "Preferences"); }
         catch (IOException e) { printThrowable(e, "Preferences"); }
 
-        try
-        {
-            Properties ftpLogin = new Properties();
-            ftpLogin.load(new FileInputStream(newFile(new File(storageDir, "Website_FTP_Login.properties"))));
+        //try
+        //{
+        //    Properties ftpLogin = new Properties();
+        //    ftpLogin.load(new FileInputStream(newFile(new File(storageDir, "Website_FTP_Login.properties"))));
 
-            ftpBaseUrl = "ftp://" + ftpLogin.getProperty("Username", "") + ":" + ftpLogin.getProperty("Password", "") + "@ftp.easignalmap.altervista.org/";
-        }
-        catch (FileNotFoundException e) {}
-        catch (IOException e) { printThrowable(e, "FTP Login"); }
+        //    ftpBaseUrl = "ftp://" + ftpLogin.getProperty("Username", "") + ":" + ftpLogin.getProperty("Password", "") + "@ftp.easignalmap.altervista.org/";
+        //}
+        //catch (FileNotFoundException e) {}
+        //catch (IOException e) { printThrowable(e, "FTP Login"); }
 
         EventQueue.invokeLater(() ->
         {
@@ -178,7 +174,7 @@ public class EastAngliaMapClient
                 TD_FONT = new Font("Monospaced", 0, 19);
 
                 printStartup("Couldn\'t create font, stuff will look strange", true);
-                printThrowable(e, "Startup - Font");
+                printThrowable(e, "Font");
             }
 
             frameSignalMap = new SignalMapGui(windowSize);
@@ -233,17 +229,17 @@ public class EastAngliaMapClient
             frameSignalMap.setVisible(true);
         });
 
-        if (Arrays.deepToString(args).contains("-screencap"))
-        {
-            screencappingActive = true;
-            ScreencapManager.initScreenCapture();
+        //if (Arrays.deepToString(args).contains("-screencap"))
+        //{
+        //    screencappingActive = true;
+        //    ScreencapManager.initScreenCapture();
 
-            EventQueue.invokeLater(() ->
-            {
-                ScreencapManager.autoScreencap();
-                ScreencapManager.takeScreencaps();
-            });
-        }
+        //    EventQueue.invokeLater(() ->
+        //    {
+        //        ScreencapManager.autoScreencap();
+        //        ScreencapManager.takeScreencaps();
+        //    });
+        //}
     }
 
     public static synchronized boolean reconnect(boolean force)
