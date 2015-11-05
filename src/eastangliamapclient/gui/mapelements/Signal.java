@@ -187,8 +187,8 @@ public class Signal extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
-        /*if (ScreencapManager.isScreencapping && SIGNAL_TYPE == SignalType.HIDDEN)
-            return;*/
+        if (SIGNAL_TYPE == SignalType.HIDDEN /*&& ScreencapManager.isScreencapping*/)
+            return;
 
         if (EastAngliaMapClient.signalsVisible) //|| ScreencapManager.isScreencapping)
         {
@@ -257,7 +257,7 @@ public class Signal extends JComponent
                     drawSignal(0, 0, g2d);
 
                     g2d.setColor(COLOUR_STATE_RTE_UNSET);
-                    if (ROUTE_IDs == null || ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
+                    if (ROUTE_IDs == null ? Math.abs(currentState) == STATE_1 : ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
                         g2d.setColor(COLOUR_STATE_RTE_SET);
                     g2d.fillRect(8, 3, 6, 2);
                     break;
@@ -266,7 +266,7 @@ public class Signal extends JComponent
                     drawSignal(6, 0, g2d);
 
                     g2d.setColor(COLOUR_STATE_RTE_UNSET);
-                    if (ROUTE_IDs == null || ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
+                    if (ROUTE_IDs == null ? Math.abs(currentState) == STATE_1 : ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
                         g2d.setColor(COLOUR_STATE_RTE_SET);
                     g2d.fillRect(0, 3, 6, 2);
                     break;
@@ -275,7 +275,7 @@ public class Signal extends JComponent
                     drawSignal(0, 6, g2d);
 
                     g2d.setColor(COLOUR_STATE_RTE_UNSET);
-                    if (ROUTE_IDs == null || ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
+                    if (ROUTE_IDs == null ? Math.abs(currentState) == STATE_1 : ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
                         g2d.setColor(COLOUR_STATE_RTE_SET);
                     g2d.fillRect(3, 0, 2, 6);
                     break;
@@ -284,7 +284,7 @@ public class Signal extends JComponent
                     drawSignal(0, 0, g2d);
 
                     g2d.setColor(COLOUR_STATE_RTE_UNSET);
-                    if (ROUTE_IDs == null || ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
+                    if (ROUTE_IDs == null ? Math.abs(currentState) == STATE_1 : ROUTE_IDs.stream().filter(id -> String.valueOf(EastAngliaMapClient.DataMap.get(id)).equals("1")).count() > 0)
                         g2d.setColor(COLOUR_STATE_RTE_SET);
                     g2d.fillRect(3, 8, 2, 6);
                     break;
