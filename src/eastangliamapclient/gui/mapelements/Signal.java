@@ -115,7 +115,7 @@ public class Signal extends JComponent
                 break;
 
             case POST_LEFT:
-                setBounds(x - 12, y - 4, 14, 8); //sub: x-12 -> x-10
+                setBounds(x - 10, y - 4, 14, 8);
                 break;
 
             case POST_RIGHT:
@@ -187,7 +187,7 @@ public class Signal extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
-        if (SIGNAL_TYPE == SignalType.HIDDEN /*&& ScreencapManager.isScreencapping*/)
+        if (SIGNAL_TYPE == SignalType.HIDDEN) //&& ScreencapManager.isScreencapping)
             return;
 
         if (EastAngliaMapClient.signalsVisible) //|| ScreencapManager.isScreencapping)
