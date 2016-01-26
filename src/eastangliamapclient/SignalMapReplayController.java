@@ -33,14 +33,13 @@ public class SignalMapReplayController
     private static List<ReplayEvent> replayData = null;
     private static Map<String, String> replayInit = null;
 
-
     public static void initReplayForDate(Date date)
     {
         replayData = null;
         replayInit = null;
         isActive = false;
 
-        String dateString = new SimpleDateFormat("dd-MM-YY").format(date);
+        String dateString = new SimpleDateFormat("dd-MM-yy").format(date);
         File replayInitFile = new File(EastAngliaMapClient.storageDir, "Logs" + File.separator + "ReplaySaves" + File.separator + dateString + ".json");
         if (!replayInitFile.exists())
         {
@@ -54,13 +53,12 @@ public class SignalMapReplayController
             return;
         }
 
-        MessageHandler.stop();
         EastAngliaMapClient.disconnectReason = "Using replay function";
         EastAngliaMapClient.requireManualConnect = true;
 
         EastAngliaMapClient.DataMap.clear();
 
-        dateString = new SimpleDateFormat("dd/MM/YY").format(date);
+        dateString = new SimpleDateFormat("dd/MM/yy").format(date);
         replayInit = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(replayInitFile)))
         {

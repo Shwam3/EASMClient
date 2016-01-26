@@ -10,22 +10,14 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.SystemTray;
-import java.awt.TrayIcon;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.net.ConnectException;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.UnknownHostException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -34,18 +26,19 @@ import java.util.Map;
 import java.util.Properties;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import org.java_websocket.WebSocket;
 
 public class EastAngliaMapClient
 {
     public static final String CLIENT_VERSION = "17";
     public static       String DATA_VERSION   = "0";
 
-    public static final String host = "shwam3.ddns.net";
-    public static final int    port = 6323;
+    public static URI host;
 
     public static final File storageDir = new File(System.getProperty("user.home", "C:") + File.separator + ".easigmap");
 
-    public static Socket serverSocket;
+  //public static Socket serverSocket;
+    public static WebSocket serverSocket;
 
     public static Map<String, String> DataMap = new HashMap<>();
 
@@ -66,7 +59,6 @@ public class EastAngliaMapClient
     public static boolean      requireManualConnect = false;
     public static boolean      minimiseToSysTray = false;
     public static Dimension    windowSize = new Dimension();
-    public static String       ftpBaseUrl = "";
     public static PrintStream  logStream = null;
 
     public static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YY HH:mm:ss");
@@ -82,7 +74,6 @@ public class EastAngliaMapClient
 
     public static long    lastReconnectAttempt = System.currentTimeMillis();
     public static boolean isPreRelease         = false;
-  //public static boolean screencappingActive  = false;
     public static boolean blockKeyInput        = false;
     public static boolean shownSystemTrayWarn  = false;
     public static boolean preventSleep         = true;
@@ -98,7 +89,7 @@ public class EastAngliaMapClient
 
         try
         {
-            File logFile  = new File(storageDir, "Logs" + File.separator + "Client" + File.separator + "output" + ".log");
+            File logFile  = new File(storageDir, "Logs" + File.separator + "Client" + File.separator + "output.log");
             File logFile2 = new File(storageDir, "Logs" + File.separator + "Client" + File.separator + sdf.format(new Date()).replace("/", "-").replace(":", ".") + ".1.log");
             if (logFile2.exists())
                 logFile2.delete();
@@ -153,15 +144,8 @@ public class EastAngliaMapClient
         catch (FileNotFoundException e) { printThrowable(e, "Preferences"); }
         catch (IOException e) { printThrowable(e, "Preferences"); }
 
-        //try
-        //{
-        //    Properties ftpLogin = new Properties();
-        //    ftpLogin.load(new FileInputStream(newFile(new File(storageDir, "Website_FTP_Login.properties"))));
-
-        //    ftpBaseUrl = "ftp://" + ftpLogin.getProperty("Username", "") + ":" + ftpLogin.getProperty("Password", "") + "@ftp.easignalmap.altervista.org/";
-        //}
-        //catch (FileNotFoundException e) {}
-        //catch (IOException e) { printThrowable(e, "FTP Login"); }
+        try { host = new URI("ws://shwam3.ddns.net:6322"); }
+        catch (URISyntaxException ex) { ex.printStackTrace(); }
 
         EventQueue.invokeLater(() ->
         {
@@ -184,122 +168,28 @@ public class EastAngliaMapClient
 
             SysTrayHandler.initSysTray();
 
-            Runtime.getRuntime().addShutdownHook(new Thread(() ->
-            {
-                try { MessageHandler.stop(); }
-                catch (NullPointerException e) {}
-            }, "shutdownHook"));
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> serverSocket.close(), "shutdownHook"));
 
-            try
-            {
-                lastReconnectAttempt = System.currentTimeMillis();
+            lastReconnectAttempt = System.currentTimeMillis();
 
-                serverSocket = new Socket(getHostIp(), port); // Throws the errors
+            serverSocket = new EASMWebSocket();
 
-                if (serverSocket.isConnected() && MessageHandler.sendName(clientName))
-                {
-                    connected = true;
-                    disconnectReason = null;
-                    printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
-                    SysTrayHandler.updateTrayTooltip();
-                }
-                else
-                {
-                    connected = false;
-                    disconnectReason = disconnectReason == null ? "Unable to connect" : disconnectReason;
-                    printStartup("Not connected to server: " + InetAddress.getByName(host).toString() + ":" + port, true);
-                    SysTrayHandler.popup("Unable to connect\nCheck your internet connection", TrayIcon.MessageType.ERROR);
-                }
-            }
-            catch (ConnectException e)
-            {
-                printStartup("Couldnt connect, server probably down", true);
-                printThrowable(e, "Startup");
-                SysTrayHandler.popup("Unable to connect\nCheck your internet connection", TrayIcon.MessageType.ERROR);
-            }
-            catch (IOException e)
-            {
-                printStartup("Unable to connect to server", true);
-                printThrowable(e, "Startup");
-                SysTrayHandler.popup("Unable to connect\nCheck your internet connection", TrayIcon.MessageType.ERROR);
-            }
-
-            MessageHandler.start(); // Should be already but make sure
+            TimeoutHandler.run();
 
             frameSignalMap.setVisible(true);
         });
-
-        //if (Arrays.deepToString(args).contains("-screencap"))
-        //{
-        //    screencappingActive = true;
-        //    ScreencapManager.initScreenCapture();
-
-        //    EventQueue.invokeLater(() ->
-        //    {
-        //        ScreencapManager.autoScreencap();
-        //        ScreencapManager.takeScreencaps();
-        //    });
-        //}
     }
 
     public static synchronized boolean reconnect(boolean force)
     {
         long time = System.currentTimeMillis();
 
-        if (time - lastReconnectAttempt > 5000 && (time - MessageHandler.getLastMessageTime() > 30000 && !requireManualConnect || force))
+        if (time - lastReconnectAttempt > 5000 && (time - TimeoutHandler.getLastMessageTime() > 30000 && !requireManualConnect || force))
         {
             lastReconnectAttempt = time;
             requireManualConnect = false;
 
-            MessageHandler.stop();
-
-            try
-            {
-                serverSocket = new Socket(getHostIp(), port);
-
-                if (serverSocket.isConnected() && MessageHandler.sendName(clientName))
-                {
-                    connected = true;
-                    EastAngliaMapClient.disconnectReason = null;
-
-                    printStartup("Connected to server: " + serverSocket.getInetAddress().toString() + ":" + serverSocket.getPort(), false);
-                    SysTrayHandler.popup("Reconnected", TrayIcon.MessageType.INFO);
-                    SysTrayHandler.updateTrayTooltip();
-
-                    return true;
-                }
-                else
-                {
-                    connected = false;
-                    disconnectReason = disconnectReason == null ? "Unable to connect (isConnect)" : disconnectReason;
-                    printStartup("Not connected to server: " + InetAddress.getByName(host).toString() + ":" + port, true);
-                    SysTrayHandler.updateTrayTooltip();
-
-                    return false;
-                }
-            }
-            catch (ConnectException e)
-            {
-                connected = false;
-                disconnectReason = disconnectReason == null ? "Unable to connect (ConEx)" : disconnectReason;
-
-                printStartup("Unable connect, server probably down", true);
-                printStartup(e.getLocalizedMessage().split("\n")[0], true);
-                SysTrayHandler.popup("Unable to reconnect" + (disconnectReason != null ? "\n" + disconnectReason : ""), TrayIcon.MessageType.ERROR);
-                SysTrayHandler.updateTrayTooltip();
-            }
-            catch (IOException e)
-            {
-                connected = false;
-                disconnectReason = disconnectReason == null ? "Unable to connect (IOEx)" : disconnectReason;
-
-                printStartup("Unable to connect to server", true);
-                printStartup(e.getLocalizedMessage().split("\n")[0], true);
-                SysTrayHandler.popup("Unable to reconnect" + (disconnectReason != null ? "\n" + disconnectReason : ""), TrayIcon.MessageType.ERROR);
-                SysTrayHandler.updateTrayTooltip();
-            }
-
-            return false;
+            serverSocket = new EASMWebSocket();
         }
 
         return false;
@@ -390,30 +280,6 @@ public class EastAngliaMapClient
             catch (IOException e) {}
         }
         catch (IOException e) {}
-    }
-
-    public static String getHostIp()
-    {
-        try
-        {
-            URLConnection con = new URL("http://easignalmap.altervista.org/server.ip").openConnection();
-            con.setConnectTimeout(10000);
-            con.setReadTimeout(5000);
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream())))
-            {
-                return br.readLine();
-            }
-        }
-        catch (MalformedURLException e) {}
-        catch (IOException e)
-        {
-            try
-            {
-                return InetAddress.getByName(host).getHostAddress();
-            }
-            catch (UnknownHostException e2) {}
-        }
-        return null;
     }
 
     public static File newFile(File file) throws IOException

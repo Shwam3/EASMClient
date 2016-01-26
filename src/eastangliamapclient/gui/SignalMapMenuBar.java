@@ -1,7 +1,6 @@
 package eastangliamapclient.gui;
 
 import eastangliamapclient.EastAngliaMapClient;
-import eastangliamapclient.MessageHandler;
 import eastangliamapclient.VersionChecker;
 import static eastangliamapclient.gui.SignalMapGui.DEFAULT_HEIGHT;
 import static eastangliamapclient.gui.SignalMapGui.DEFAULT_WIDTH;
@@ -23,12 +22,9 @@ public class SignalMapMenuBar extends JMenuBar
     private JMenu menuFile;
     private JMenu menuView;
     private JMenu menuConnection;
-  //private JMenu menuScreencap;
     private JMenu menuWindow;
     private JMenu menuHelp;
 
-    private JMenuItem fileTrainHistory;
-    private JMenuItem fileBerthHistory;
     private JCheckBoxMenuItem filePreventSleep;
     private JCheckBoxMenuItem fileMinToSysTray;
     private JMenuItem fileExit;
@@ -39,14 +35,9 @@ public class SignalMapMenuBar extends JMenuBar
     private JCheckBoxMenuItem viewBerthOpacity;
     private JCheckBoxMenuItem viewBerthIDs;
 
-    private JMenuItem connectionChangeName;
     private JMenuItem connectionViewData;
     private JMenuItem connectionReplay;
-    private JMenuItem connectionRefresh;
     private JMenuItem connectionReconnect;
-
-  //private JMenuItem screencapTakeScreencaps;
-  //private JCheckBoxMenuItem screencapAutoScreencap;
 
     private JMenuItem windowResize;
     private JMenuItem windowReposition;
@@ -62,27 +53,7 @@ public class SignalMapMenuBar extends JMenuBar
         if (src == null)
             return;
 
-        if (src == fileTrainHistory)
-        {
-            String UUID = JOptionPane.showInputDialog(EastAngliaMapClient.frameSignalMap.frame, "Enter Train UUID:", "Train History", JOptionPane.QUESTION_MESSAGE);
-
-            if (UUID != null)
-                if (UUID.length() >= 5 && UUID.matches("[0-9]+"))
-                    MessageHandler.requestHistoryOfTrain(UUID);
-                else
-                    JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "'" + UUID + "' is not a valid train UUID", "Error", JOptionPane.WARNING_MESSAGE);
-        }
-        if (src == fileBerthHistory)
-        {
-            String ID = JOptionPane.showInputDialog(EastAngliaMapClient.frameSignalMap.frame, "Enter Berth ID:", "Berth History", JOptionPane.QUESTION_MESSAGE);
-
-            if (ID != null)
-                if (ID.length() == 6)
-                    MessageHandler.requestHistoryOfBerth(ID);
-                else
-                    JOptionPane.showMessageDialog(EastAngliaMapClient.frameSignalMap.frame, "'" + ID + "' is not a valid berth ID", "Error", JOptionPane.WARNING_MESSAGE);
-        }
-        else if (src == filePreventSleep)
+        if (src == filePreventSleep)
         {
             EastAngliaMapClient.preventSleep = filePreventSleep.isSelected();
             EastAngliaMapClient.writeSetting("preventSleep", String.valueOf(filePreventSleep.isSelected()));
@@ -129,42 +100,15 @@ public class SignalMapMenuBar extends JMenuBar
         if (src == null)
             return;
 
-        if (src == connectionChangeName)
-        {
-            EastAngliaMapClient.blockKeyInput = true;
-            String newName = JOptionPane.showInputDialog("New Name:", EastAngliaMapClient.clientName);
-            if (newName != null)
-            {
-                EastAngliaMapClient.writeSetting("clientName", newName);
-                EastAngliaMapClient.clientName = newName;
-                MessageHandler.sendName(EastAngliaMapClient.clientName);
-            }
-            EastAngliaMapClient.blockKeyInput = false;
-        }
-        else if (src == connectionViewData)
+        if (src == connectionViewData)
             EastAngliaMapClient.frameDataViewer.setVisible0(true);
         else if (src == connectionReplay)
             EastAngliaMapClient.frameReplayControls.setVisible0(true);
-        else if (src == connectionRefresh)
-            MessageHandler.requestAll();
         else if (src == connectionReconnect)
             EastAngliaMapClient.reconnect(true);
 
         updateCheckBoxes();
     };
-  //private ActionListener listenerScreencap = evt ->
-  //{
-  //    Object src = evt.getSource();
-  //    if (src == null)
-  //        return;
-
-  //    if (src == screencapTakeScreencaps)
-  //        ScreencapManager.takeScreencaps();
-  //    else if (src == screencapAutoScreencap)
-  //        ScreencapManager.autoScreencap();
-
-  //    updateCheckBoxes();
-  //};
     private ActionListener listenerWindow = evt ->
     {
         Object src = evt.getSource();
@@ -229,14 +173,10 @@ public class SignalMapMenuBar extends JMenuBar
         menuWindow     = new JMenu("Window");
         menuHelp       = new JMenu("Help");
 
-        fileTrainHistory = new JMenuItem("Train History...");
-        fileBerthHistory = new JMenuItem("Berth History...");
         filePreventSleep = new JCheckBoxMenuItem("Keep Your PC Awake");
         fileMinToSysTray = new JCheckBoxMenuItem("Minimise to System Tray");
         fileExit         = new JMenuItem("Exit");
 
-        fileTrainHistory.setToolTipText("View berths passed through by a train");
-        fileBerthHistory.setToolTipText("View trains which passed through a berth");
         filePreventSleep.setToolTipText("Prevent this computer from sleeping/hibernating automatically");
         fileMinToSysTray.setToolTipText("Minimise to System Tray on close");
         fileExit.setToolTipText("<html>Exit the program<br>(not to system tray)</html>");
@@ -253,23 +193,13 @@ public class SignalMapMenuBar extends JMenuBar
         viewBerthOpacity.setToolTipText("<html>Toggle the opacity mode of berths<br>(always visible/only when occupied)</html>");
         viewBerthIDs.setToolTipText("Show the berth IDs");
 
-        connectionChangeName = new JMenuItem("Change Client Name...");
         connectionViewData   = new JMenuItem("View Data...");
         connectionReplay     = new JMenuItem("View Replay...");
-        connectionRefresh    = new JMenuItem("Refresh Data");
         connectionReconnect  = new JMenuItem("Reconnect");
 
-        connectionChangeName.setToolTipText("Change the name used to identify this client");
         connectionViewData.setToolTipText("View the internal data");
         connectionReplay.setToolTipText("<html>Replay historical data (where available)<br><i>NOTE: Under construction</i></html>");
-        connectionRefresh.setToolTipText("Refresh the data, use if you notice multiple irregularities");
         connectionReconnect.setToolTipText("Manually attempt to reconnect to the server");
-
-      //screencapTakeScreencaps = new JMenuItem("Take Screencaps");
-      //screencapAutoScreencap  = new JCheckBoxMenuItem("Auto-Screencap");
-
-      //screencapTakeScreencaps.setToolTipText("Not to be available in public builds");
-      //screencapAutoScreencap.setToolTipText("Not to be available in public builds");
 
         windowResize     = new JMenuItem("Reset Size");
         windowReposition = new JMenuItem("Reset Position");
@@ -279,9 +209,6 @@ public class SignalMapMenuBar extends JMenuBar
         helpUpdate = new JMenuItem("Check for Updates...");
         helpHelp   = new JMenuItem("Help...");
 
-        menuFile.add(fileTrainHistory).addActionListener(listenerFile);
-        menuFile.add(fileBerthHistory).addActionListener(listenerFile);
-        menuFile.addSeparator();
         menuFile.add(filePreventSleep).addActionListener(listenerFile);
         menuFile.add(fileMinToSysTray).addActionListener(listenerFile);
         menuFile.addSeparator();
@@ -294,16 +221,10 @@ public class SignalMapMenuBar extends JMenuBar
         menuView.add(viewBerthIDs).addActionListener(listenerView);
         menuView.add(viewBerthOpacity).addActionListener(listenerView);
 
-        menuConnection.add(connectionChangeName).addActionListener(listenerConnection);
-        menuConnection.addSeparator();
         menuConnection.add(connectionViewData).addActionListener(listenerConnection);
         menuConnection.add(connectionReplay).addActionListener(listenerConnection);
         menuConnection.addSeparator();
-        menuConnection.add(connectionRefresh).addActionListener(listenerConnection);
         menuConnection.add(connectionReconnect).addActionListener(listenerConnection);
-
-      //menuScreencap.add(screencapTakeScreencaps).addActionListener(listenerScreencap);
-      //menuScreencap.add(screencapAutoScreencap).addActionListener(listenerScreencap);
 
         menuWindow.add(windowResize).addActionListener(listenerWindow);
         menuWindow.add(windowReposition).addActionListener(listenerWindow);
@@ -317,8 +238,6 @@ public class SignalMapMenuBar extends JMenuBar
         add(menuFile);
         add(menuView);
         add(menuConnection);
-      //if (EastAngliaMapClient.screencappingActive)
-      //    add(menuScreencap);
         add(menuWindow);
         add(menuHelp);
 
@@ -341,6 +260,5 @@ public class SignalMapMenuBar extends JMenuBar
         viewVisiblePoints.setSelected(EastAngliaMapClient.pointsVisible);
         viewBerthOpacity.setSelected(EastAngliaMapClient.opaqueBerths);
         viewBerthIDs.setSelected(EastAngliaMapClient.showDescriptions);
-      //screencapAutoScreencap.setSelected(EastAngliaMapClient.autoScreencap);
     }
 }

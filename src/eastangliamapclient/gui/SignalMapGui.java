@@ -3,7 +3,6 @@ package eastangliamapclient.gui;
 import eastangliamapclient.EastAngliaMapClient;
 import static eastangliamapclient.EastAngliaMapClient.newFile;
 import static eastangliamapclient.EastAngliaMapClient.storageDir;
-import eastangliamapclient.MessageHandler;
 import eastangliamapclient.SignalMapReplayController;
 import eastangliamapclient.gui.mapelements.Berth;
 import eastangliamapclient.gui.mapelements.Berths;
@@ -390,7 +389,7 @@ public class SignalMapGui
         }, KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
         //frame.getRootPane().registerKeyboardAction(e ->
         //{
-        //    MessageHandler.stop();
+        //    TimeoutHandler.stop();
         //    Cursor origCursor = frame.getRootPane().getCursor();
         //    frame.getContentPane().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -446,15 +445,6 @@ public class SignalMapGui
                 catch (AWTException | NullPointerException e) {}
             }
         }, 30000, 10000);
-        timer.schedule(new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                try { MessageHandler.requestAll(); }
-                catch (Exception e) {}
-            }
-        }, 30000, 120000);
 
         new javax.swing.Timer(250, e -> panelList.parallelStream().forEach(bp -> bp.repaint(780, 10, 280, 50))).start(); // Clock section only
         SignalMapMenuBar.instance().updateCheckBoxes();

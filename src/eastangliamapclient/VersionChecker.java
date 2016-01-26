@@ -7,22 +7,19 @@ import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -103,7 +100,6 @@ public class VersionChecker
         try
         {
             File dataFile = new File(EastAngliaMapClient.storageDir, "data" + File.separator + "signalmap.json");
-            URL archiveLocation = null;
 
             int versionLocal = -1;
             int versionRemote = -1;
@@ -125,10 +121,19 @@ public class VersionChecker
                     versionLocal = (int) ((long) json.get("version"));
             }
 
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(new URL("http://easignalmap.altervista.org/downloads/latestMap.txt").openStream())))
+            String newmapJSON = "";
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(new URL("https://raw.githubusercontent.com/Shwam3/EASMData/master/signalmap.json").openStream())))
             {
-                versionRemote = Integer.parseInt(br.readLine());
-                archiveLocation = new URL(br.readLine());
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null)
+                    sb.append(line).append("\r\n");
+                newmapJSON = sb.toString();
+
+                Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(newmapJSON.toString());
+
+                if (json.containsKey("version"))
+                    versionLocal = (int) ((long) json.get("version"));
             }
             catch (IOException e) { EastAngliaMapClient.printThrowable(e, "Updater"); }
 
@@ -136,55 +141,30 @@ public class VersionChecker
 
             if (versionRemote > versionLocal)
             {
-                File dataFolder = dataFile.getParentFile();
-
                 EastAngliaMapClient.printStartup("Data update available (v" + versionRemote + ")", false);
 
                 if (JOptionPane.showConfirmDialog(null, "A new version of the data files is available (v" + versionRemote+ ")\nDownload now?", "Updater", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
                 {
-                    File updateArchive = downloadFile(archiveLocation, dataFile.getParentFile(), true);
+                    File backup = new File(EastAngliaMapClient.storageDir, "data" + File.separator + "oldmap.json");
+                    if (dataFile.exists())
+                        dataFile.renameTo(backup);
+                    dataFile.getParentFile().mkdirs();
+                    dataFile.createNewFile();
 
-                    if (updateArchive != null && updateArchive.exists())
+                    try (BufferedWriter bw = new BufferedWriter(new FileWriter(dataFile)))
                     {
-                        if (dataFolder.listFiles() != null)
-                            for (File file : dataFolder.listFiles())
-                                if (!file.equals(updateArchive))
-                                    file.delete();
-
-                        try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(updateArchive))))
-                        {
-                            ZipEntry entry;
-                            while ((entry = zis.getNextEntry()) != null)
-                            {
-                                try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(EastAngliaMapClient.newFile(new File(dataFolder, entry.getName())))))
-                                {
-                                    int read;
-                                    byte[] data = new byte[8192];
-                                    while ((read = zis.read(data, 0, 8192)) != -1)
-                                        bos.write(data, 0, read);
-                                }
-                            }
-                        }
-                        catch (IOException e)
-                        {
-                            EastAngliaMapClient.printThrowable(e, "Updater");
-                        }
-
-                        updateArchive.delete();
-
-                        EastAngliaMapClient.printStartup("Downloaded new data files (v" + versionRemote + ")", false);
-                        hasUpdated = true;
+                        bw.write(newmapJSON);
                     }
-                    else
+                    catch (Exception e) { e.printStackTrace(); dataFile.delete(); backup.renameTo(dataFile); }
+
+                    Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(newmapJSON.toString());
+                    for (Map<String, Object> obj : (List<Map<String, Object>>)json.get("signalMap"))
                     {
-                        EastAngliaMapClient.printStartup("Unable to download data files (file = " + String.valueOf(updateArchive) + ")", true);
+
                     }
 
                     newVersion = versionRemote;
                 }
-
-                if (!dataFile.exists())
-                    JOptionPane.showMessageDialog(null, "Unable to download data files.\nPlease go to \"" + archiveLocation.toExternalForm() + "\"\n and extract the files into \"" + dataFolder + "\".", "Updater", JOptionPane.ERROR_MESSAGE);
             }
             else
                 EastAngliaMapClient.printStartup("Data files up to date", false);

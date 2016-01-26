@@ -94,7 +94,7 @@ public class SignalMapReplayGui extends JDialog
         JPanel dates = new JPanel();
         dates.setLayout(new BorderLayout(5, 5));
 
-        File replayDir = new File(EastAngliaMapClient.storageDir, "Logs" + File.separator + "ReplaySaves2" + File.separator);
+        File replayDir = new File(EastAngliaMapClient.storageDir, "Logs" + File.separator + "ReplaySaves" + File.separator);
         List<String> usableDates = replayDir.exists() ? Arrays.asList(replayDir.list((File dir, String name) -> name.endsWith(".json"))) : Arrays.asList("No replays available");
         if (usableDates.isEmpty())
             usableDates = Arrays.asList("No replays available");
