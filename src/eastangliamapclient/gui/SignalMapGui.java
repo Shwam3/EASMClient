@@ -11,7 +11,6 @@ import eastangliamapclient.gui.mapelements.Points;
 import eastangliamapclient.gui.mapelements.Signal;
 import eastangliamapclient.gui.mapelements.Signals;
 import eastangliamapclient.gui.mapelements.Signals.SignalType;
-import eastangliamapclient.json.JSONParser;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -49,6 +48,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +73,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class SignalMapGui
 {
@@ -182,92 +184,95 @@ public class SignalMapGui
             }
 
             jsonString.trimToSize();
-            Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString.toString());
+            JSONObject json = new JSONObject(jsonString.toString());
 
-            EastAngliaMapClient.DATA_VERSION = String.valueOf(json.get("version"));
+            EastAngliaMapClient.DATA_VERSION = "-1"; //json.getString("version");
             frame.setTitle("East Anglia Signal Map - Client (v" + EastAngliaMapClient.CLIENT_VERSION + (EastAngliaMapClient.isPreRelease ? " prerelease" : "")
                 +  " / v" + EastAngliaMapClient.DATA_VERSION + ")"
-              /*+ (EastAngliaMapClient.autoScreencap ? " - Screencapping" + (isScreencapping ? " in progress" : "") : "")*/
                 + (EastAngliaMapClient.connected ? "" : " - Not Connected")
             );
 
-            List<Map<String, Object>> panelsJson = (List<Map<String, Object>>) json.get("signalMap");
+            JSONArray panelsJson = json.getJSONArray("signalMap");
 
-            panelsJson.stream().forEachOrdered(panel ->
+            for (Object pnlObj : panelsJson)
             {
-                if (!panel.containsKey("panelId") || !panel.containsKey("panelName") || !panel.containsKey("imageName") || !panel.containsKey("panelDescription") ||
-                        !panel.containsKey("berths") || !panel.containsKey("signals") || /*!panel.containsKey("points") ||*/ !panel.containsKey("stations") || !panel.containsKey("navButtons"))
+                JSONObject panel = (JSONObject) pnlObj;
+                
+                if (!panel.has("panelUID") || !panel.has("panelName") || !panel.has("imageName") || !panel.has("panelDescription") ||
+                        !panel.has("berths") || !panel.has("signals") || !panel.has("points") || !panel.has("text"))
                 {
                     JOptionPane.showMessageDialog(frame, "Error in data files\nData not complete for \"" + String.valueOf(panel.get("panelName")) + "\"", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-                String name = panel.get("panelId") + ". " + panel.get("panelName");
+                String name = (panelMap.size()+1) + ". " + panel.getString("panelName");
 
-                BackgroundPanel bp = new BackgroundPanel((String) panel.get("imageName"));
+                BackgroundPanel bp = new BackgroundPanel(panel.getString("imageName"));
                 bp.setName(name);
 
-                panelMap.put(String.valueOf(panel.get("panelId")), bp);
+                panelMap.put(panel.getString("panelUID"), bp);
 
-                TabBar.addTab(name, null, new SideScrollPane(bp), "<html>" + panel.get("panelDescription") + "</html>");
+                TabBar.addTab(name, null, new SideScrollPane(bp), "<html>" + panel.getString("panelDescription") + "</html>");
 
                 //<editor-fold defaultstate="collapsed" desc="Berths">
-                if (panel.containsKey("berths"))
-                    ((List<Map<String, Object>>) panel.get("berths")).stream().forEachOrdered(berthData ->
+                if (panel.has("berths"))
+                {
+                    for (Object bthObj : panel.getJSONArray("berths"))
                     {
-                        Berth berth = Berths.getOrCreateBerth(bp,
-                                (int) ((long) berthData.get("posX")),
-                                (int) ((long) berthData.get("posY")),
-                                ((List<String>) berthData.get("berthIds")).toArray(new String[0]));
+                        JSONObject berthData = (JSONObject) bthObj;
+                        Berth berth = Berths.getOrCreateBerth(bp, berthData.getInt("posX"), berthData.getInt("posY"), berthData.getJSONArray("dataIDs").join(",").replace("\"", "").split(","));
 
-                        if (berthData.containsKey("hasBorder") && (Boolean) berthData.get("hasBorder"))
+                        if (berthData.optBoolean("hasBorder",false))
                             berth.hasBorder();
-                    });
+                    }
+                }
                 //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Signals">
-                if (panel.containsKey("signals"))
-                    ((List<Map<String, Object>>) panel.get("signals")).stream().forEachOrdered(signalData ->
+                if (panel.has("signals"))
+                {
+                    for (Object sigObj : panel.getJSONArray("signals"))
                     {
+                        JSONObject signalData = (JSONObject) sigObj;
+                        
                         Signal signal = Signals.getOrCreateSignal(bp,
-                                (int) ((long) signalData.get("posX")),
-                                (int) ((long) signalData.get("posY")),
-                                (String) signalData.get("signalId"),
-                                (String) signalData.get("dataId"),
-                                SignalType.getType(signalData.get("direction")));
+                                signalData.getInt("posX"),
+                                signalData.getInt("posY"),
+                                signalData.getString("description"),
+                                signalData.has("dataIDs") ?
+                                    signalData.getJSONArray("dataIDs").join(",").replace("\"", "").split(",") :
+                                    signalData.has("dataID") ? new String[] { signalData.optString("dataID") } : new String[]{},
+                                SignalType.getType(signalData.getString("type")));
 
-                        if (signalData.containsKey("isShunt") && (Boolean) signalData.get("isShunt"))
-                            signal.isShunt();
-                        if (signalData.containsKey("isSubs") && (Boolean) signalData.get("isSubs"))
-                            signal.isSubs();
-                        if (signalData.containsKey("text0"))
-                            signal.set0Text(String.valueOf(signalData.get("text0")));
-                        if (signalData.containsKey("text1"))
-                            signal.set1Text(String.valueOf(signalData.get("text1")));
-                        if (signalData.containsKey("routes"))
-                            signal.setRoutes((ArrayList<String>) signalData.get("routes"));
-                      //if (signalData.containsKey("width"))
-                      //    signal.set0Text(String.valueOf(signalData.get("width")));
-                      //if (signalData.containsKey("height"))
-                      //    signal.set1Text(String.valueOf(signalData.get("height")));
-                    });
+                        if (signalData.optBoolean("isAuto", false)) signal.isAuto();
+                        if (signalData.optBoolean("isShunt", false)) signal.isShunt();
+                        if (signalData.optBoolean("isSubs", false)) signal.isSubs();
+                        if (signalData.has("text0")) signal.set0Text(String.valueOf(signalData.get("text0")));
+                        if (signalData.has("text1")) signal.set1Text(String.valueOf(signalData.get("text1")));
+                        if (signalData.has("routes")) signal.setRoutes(signalData.getJSONArray("routes").join(",").replace("\"", "").split(","));
+                        if (signalData.has("width")) signal.set0Text(signalData.getString("width"));
+                        if (signalData.has("height")) signal.set1Text(signalData.getString("height"));
+                    }
+                }
                 //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Points">
-                if (panel.containsKey("points"))
-                    ((List<Map<String, Object>>) panel.get("points")).stream().forEachOrdered(pointData ->
+                if (panel.has("points"))
+                    for (Object ptsObj : panel.getJSONArray("points"))
                     {
+                        JSONObject pointsData = (JSONObject) ptsObj;
                         Points.getOrCreatePoint(bp,
-                                (int) ((long) pointData.get("posX")),
-                                (int) ((long) pointData.get("posY")),
-                                (String) pointData.get("description"),
-                                (List<String>) pointData.get("dataIds"),
-                                Points.PointType.getType(String.valueOf(pointData.get("type0"))),
-                                Points.PointType.getType(String.valueOf(pointData.get("type1")))
+                                pointsData.getInt("posX"),
+                                pointsData.getInt("posY"),
+                                pointsData.getString("description"),
+                                Arrays.asList(pointsData.getJSONArray("dataIDs").join(",").replace("\"", "").split(",")),
+                                Points.PointType.getType(pointsData.getString("type0")),
+                                Points.PointType.getType(pointsData.getString("type1"))
                         );
-                    });
+                    }
                 //</editor-fold>
 
+                /*
                 //<editor-fold defaultstate="collapsed" desc="Stations">
-                if (panel.containsKey("stations"))
+                if (panel.has("stations"))
                     ((List<Map<String, Object>>) panel.get("stations")).stream().forEachOrdered(stationData ->
                     {
                         if (stationData.containsKey("isLarge") && (Boolean) stationData.get("isLarge"))
@@ -290,7 +295,7 @@ public class SignalMapGui
                 //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Nav Buttons">
-                if (panel.containsKey("navButtons"))
+                if (panel.has("navButtons"))
                     ((List<Map<String, Object>>) panel.get("navButtons")).stream().forEachOrdered(navButtonData ->
                     {
                         makeNavButton(bp,
@@ -300,7 +305,8 @@ public class SignalMapGui
                                 (int) ((long) navButtonData.get("linkedPanel")));
                     });
                 //</editor-fold>
-            });
+                */
+            }
         }
 
         //<editor-fold defaultstate="collapsed" desc="Keyboard Commands">
@@ -663,9 +669,10 @@ public class SignalMapGui
                     if (!pairs.getValue().equals("") || pairs.getKey().toUpperCase().equals(berth.getCurrentId(false)))
                         berth.interpose(pairs.getValue(), pairs.getKey().toUpperCase());
 
-                Signal signal = Signals.getSignal(pairs.getKey().toUpperCase());
-                if (signal != null)
-                    signal.setState(String.valueOf(pairs.getValue()).equals("0") ? 0 : (String.valueOf(pairs.getValue()).equals("1") ? 1 : 2));
+                Signal[] sigs = Signals.getSignal(pairs.getKey().toUpperCase());
+                if (sigs != null)
+                    for (Signal signal : sigs)
+                        signal.setState(String.valueOf(pairs.getValue()).equals("0") ? 0 : (String.valueOf(pairs.getValue()).equals("1") ? 1 : 2));
 
                 List<Point> points = Points.getPoints(pairs.getKey().toUpperCase());
                 if (points != null)
@@ -684,15 +691,15 @@ public class SignalMapGui
         return panelList;
     }
 
-    public void prepForScreencap()
-    {
-        motdPanes.stream().forEach(sp -> sp.setVisible(false));
-    }
+    //public void prepForScreencap()
+    //{
+    //    motdPanes.stream().forEach(sp -> sp.setVisible(false));
+    //}
 
-    public void finishScreencap()
-    {
-        motdPanes.stream().forEach(sp -> sp.setVisible(true));
-    }
+    //public void finishScreencap()
+    //{
+    //    motdPanes.stream().forEach(sp -> sp.setVisible(true));
+    //}
 
     public void setTitle(String title)
     {

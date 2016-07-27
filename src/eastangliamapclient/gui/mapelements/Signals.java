@@ -3,48 +3,53 @@ package eastangliamapclient.gui.mapelements;
 import eastangliamapclient.EastAngliaMapClient;
 import eastangliamapclient.gui.SignalMapGui;
 import eastangliamapclient.gui.SignalMapMenuBar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Signals
 {
-    private static final Map<String, Signal> signalMap = new HashMap<>();
+    private static final List<Signal> signalMap = new ArrayList<>();
 
-    public static Signal getOrCreateSignal(SignalMapGui.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType type)
+    public static Signal getOrCreateSignal(SignalMapGui.BackgroundPanel pnl, int x, int y, String description, String[] dataIDs, SignalType type)
     {
-        Signal signal = signalMap.get(dataId);
-        if (signal != null)
+        //Signal signal = signalMap.get(dataIDs);
+        //if (signal != null)
+        //{
+        //    if (signal.getParent() != pnl)
+        //        pnl.add(signal, SignalMapGui.LAYER_SIGNALS);
+
+        //    signal.setLocation(x, y);
+        //    return signal;
+        //}
+        //else
+            return new Signal(pnl, x, y, description == null ? "" : description, dataIDs, type == null ? SignalType.HIDDEN : type);
+    }
+
+    public static boolean signalExists(Signal signal)
+    {
+        return signalMap.contains(signal);
+    }
+
+    public static void putSignal(Signal signal)
+    {
+        if (!signalExists(signal))
+            signalMap.add(signal);
+
+        for (String id : signal.getIDs())
+            EastAngliaMapClient.DataMap.putIfAbsent(id, "0");
+    }
+
+    public static Signal[] getSignal(String signalId)
+    {
+        List<Signal> sigs = new ArrayList<>();
+        signalMap.stream().forEach(sig ->
         {
-            if (signal.getParent() != pnl)
-                pnl.add(signal, SignalMapGui.LAYER_SIGNALS);
+            for (String id : sig.getIDs())
+                if (!sigs.contains(sig) && id.equals(signalId))
+                    sigs.add(sig);
+        });
 
-            signal.setLocation(x, y);
-            return signal;
-        }
-        else
-            return new Signal(pnl, x, y, description == null ? "" : description, dataId, type == null ? SignalType.HIDDEN : type);
-    }
-
-    public static boolean signalExists(String signalId)
-    {
-        return signalMap.get(signalId) != null;
-    }
-
-    public static void putSignal(String signalId, Signal signal)
-    {
-        if (!signalExists(signalId))
-            signalMap.put(signalId, signal);
-
-        if (!EastAngliaMapClient.DataMap.containsKey(signalId))
-            EastAngliaMapClient.DataMap.put(signalId, Integer.toString(3));
-    }
-
-    public static Signal getSignal(String signalId)
-    {
-        if (signalMap.containsKey(signalId.toUpperCase()))
-            return signalMap.get(signalId.toUpperCase());
-
-        return null;
+        return sigs.isEmpty() ? null : sigs.toArray(new Signal[0]);
     }
 
     //public static void reset()
@@ -65,7 +70,7 @@ public class Signals
     public static enum SignalType
     {
         TEXT         ("text"),
-        TRTS         ("trts"),
+      //TRTS         ("trts"),
         TRACK_CIRCUIT("tc"),
         POST_LEFT    ("left"),
         POST_RIGHT   ("right"),

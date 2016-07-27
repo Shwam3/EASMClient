@@ -164,8 +164,8 @@ public class SignalMapDataViewer extends JDialog
                 .forEachOrdered(id -> modelSClass.addElement(String.format("%s: %s (%s)",
                         id,
                         EastAngliaMapClient.DataMap.get(id),
-                        !Signals.signalExists(id) && !Points.pointExists(id) ? "not shown" :
-                            (Signals.signalExists(id) ? Signals.getSignal(id).getDescription() + " (sig - " + Signals.getSignal(id).getType().name() + ")" :
+                        Signals.getSignal(id) != null && !Points.pointExists(id) ? "not shown" :
+                            (Signals.getSignal(id) != null ? Signals.getSignal(id)[0].getDescription() + " (sig - " + Signals.getSignal(id)[0].getType().name() + ")" :
                                 (Points.pointExists(id) ? Points.getPoints(id).get(0).getDescription() + " (pts - " + Points.getPoints(id).get(0).getType0().name() + "/" + Points.getPoints(id).get(0).getType1().name() + ")" :
                                     "not shown")))));
 

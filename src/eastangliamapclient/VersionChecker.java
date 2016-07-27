@@ -1,10 +1,10 @@
 package eastangliamapclient;
 
-import eastangliamapclient.json.JSONParser;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Frame;
+import java.awt.HeadlessException;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -18,13 +18,13 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class VersionChecker
 {
@@ -115,10 +115,11 @@ public class VersionChecker
                 }
                 catch (IOException e) { EastAngliaMapClient.printThrowable(e, "Updater"); }
 
-                Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString.toString());
+                //Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(jsonString.toString());
+                JSONObject json = new JSONObject(jsonString.toString());
 
-                if (json.containsKey("version"))
-                    versionLocal = (int) ((long) json.get("version"));
+                if (json.has("version"))
+                    versionLocal = json.getInt("version");
             }
 
             String newmapJSON = "";
@@ -130,10 +131,11 @@ public class VersionChecker
                     sb.append(line).append("\r\n");
                 newmapJSON = sb.toString();
 
-                Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(newmapJSON.toString());
+                //Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(newmapJSON);
+                JSONObject json = new JSONObject(newmapJSON);
 
-                if (json.containsKey("version"))
-                    versionLocal = (int) ((long) json.get("version"));
+                if (json.has("version"))
+                    versionLocal = json.getInt("version");
             }
             catch (IOException e) { EastAngliaMapClient.printThrowable(e, "Updater"); }
 
@@ -157,19 +159,13 @@ public class VersionChecker
                     }
                     catch (Exception e) { e.printStackTrace(); dataFile.delete(); backup.renameTo(dataFile); }
 
-                    Map<String, Object> json = (Map<String, Object>) JSONParser.parseJSON(newmapJSON.toString());
-                    for (Map<String, Object> obj : (List<Map<String, Object>>)json.get("signalMap"))
-                    {
-
-                    }
-
                     newVersion = versionRemote;
                 }
             }
             else
                 EastAngliaMapClient.printStartup("Data files up to date", false);
         }
-        catch (Exception e)
+        catch (JSONException | HeadlessException | IOException e)
         {
             EastAngliaMapClient.printThrowable(e, "Updater");
             JOptionPane.showMessageDialog(null, "Unable to update data files\n" + e.toString(), "Updater", JOptionPane.ERROR_MESSAGE);

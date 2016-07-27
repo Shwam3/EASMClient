@@ -10,24 +10,26 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.JComponent;
 
 public class Signal extends JComponent
 {
-    private static final Color COLOUR_STATE_BLANK     = new Color(64,  64,  64);  // blank - grey (border)
-    private static final Color COLOUR_STATE_UNKNOWN   = new Color(64,  64,  64);  // unknown - grey (solid)
+    private static final Color COLOUR_STATE_AUTO      = new Color(64,  64,  64);  // blank - grey (border)
+  //private static final Color COLOUR_STATE_UNKNOWN   = new Color(64,  64,  64);  // unknown - grey (solid)
     private static final Color COLOUR_STATE_ON        = new Color(153, 0,   0);   // on - red
     private static final Color COLOUR_STATE_OFF       = new Color(0,   153, 0);   // off - green
     private static final Color COLOUR_STATE_RTE_SET   = new Color(255, 255, 255); // white
     private static final Color COLOUR_STATE_RTE_UNSET = new Color(140, 140, 140); // grey
     private static final Color COLOUR_BACKGROUND      = new Color(0, 0, 0, 64);   // Transparent black
 
-    private static final int STATE_BLANK   = -1;
-    private static final int STATE_0       = 0;
-    private static final int STATE_1       = 1;
-    private static final int STATE_UNKNOWN = 2;
+  //private static final int STATE_BLANK = -1;
+    private static final int STATE_0 = 0;
+    private static final int STATE_1 = 1;
+  //private static final int STATE_UNKNOWN = 2;
 
+    private boolean isAuto  = false;
     private boolean isShunt = false;
     private boolean isSubs  = false;
     private String TEXT_0 = null;
@@ -35,20 +37,20 @@ public class Signal extends JComponent
 
     private       List<String> ROUTE_IDs = null;
     private final String       SIGNAL_DESCRIPTION;
-    private final String       DATA_ID;
+    private final String[]     DATA_ID;
     private       SignalType   SIGNAL_TYPE;
     private       Point        LOCATION;
 
-    private int currentState = STATE_UNKNOWN;
+    private int currentState = STATE_0;
 
-    public Signal(SignalMapGui.BackgroundPanel pnl, int x, int y, String description, String dataId, SignalType type)
+    public Signal(SignalMapGui.BackgroundPanel pnl, int x, int y, String description, String[] dataIDs, SignalType type)
     {
         if (description == null || description.trim().equals(""))
             description = "Unnamed";
 
         SIGNAL_DESCRIPTION = description;
-        DATA_ID   = dataId;
-        LOCATION  = new Point(x, y);
+        DATA_ID = dataIDs;
+        LOCATION = new Point(x, y);
 
         setType(type);
         setOpaque(false);
@@ -57,29 +59,28 @@ public class Signal extends JComponent
         if (pnl != null)
             pnl.add(this, SignalMapGui.LAYER_SIGNALS);
 
-        if (dataId.endsWith("PRED"))
-            currentState = STATE_0;
-        else if (dataId.trim().length() == 6)
+        for (String id : dataIDs)
         {
-            Signals.putSignal(dataId, this);
-            currentState = STATE_UNKNOWN;
+            if (!id.endsWith("PRED") && id.length() > 2)
+            {
+                Signals.putSignal(this);
+                break;
+            }
         }
-        else
-            currentState = STATE_BLANK;
 
-        setForeground(currentState == STATE_0 ? COLOUR_STATE_ON : (currentState == STATE_1 ? COLOUR_STATE_OFF : (currentState == STATE_UNKNOWN ? COLOUR_STATE_UNKNOWN : COLOUR_STATE_BLANK)));
-
-        setToolTipText(SIGNAL_DESCRIPTION + " (" + DATA_ID + ")");
+        setToolTipText(SIGNAL_DESCRIPTION + " (" + Arrays.deepToString(DATA_ID).replaceAll("[\\[\\]]", "") + ")");
 
         setVisible(true);
     }
 
+    public void isAuto()  { isAuto = !isAuto; }
     public void isShunt() { isShunt = !isSubs; }
-    public void isSubs()  { isSubs  = true; isShunt = false; }
+    public void isSubs()  { assert !isSubs; isSubs = true; isShunt = false; }
     public void set0Text(String text) { TEXT_0 = text; setType(SIGNAL_TYPE); }
     public void set1Text(String text) { TEXT_1 = text; setType(SIGNAL_TYPE); }
     public void addRoutes(String route) { ROUTE_IDs = (ROUTE_IDs == null ? new ArrayList<>() : ROUTE_IDs); ROUTE_IDs.add(route); }
     public void setRoutes(List<String> routes) { ROUTE_IDs = routes; }
+    public void setRoutes(String[] routes) { ROUTE_IDs = Arrays.asList(routes); }
 
     public void setType(SignalType direction)
     {
@@ -95,18 +96,21 @@ public class Signal extends JComponent
                 if (TEXT_0 == null && TEXT_1 != null) widthTX = TEXT_1.length() * 6;
                 if (TEXT_0 != null && TEXT_1 == null) widthTX = TEXT_0.length() * 6;
                 setBounds(x, y, widthTX, 8);
-                setToolTipText(SIGNAL_DESCRIPTION + " (" + DATA_ID + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
+                setToolTipText(SIGNAL_DESCRIPTION + " (" + Arrays.deepToString(DATA_ID).replaceAll("[\\[\\]]", "") + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
                 break;
 
-            case TRTS:
-                setBounds(x - 12, y - 4, 24, 8);
-                break;
+            //case TRTS:
+            //    TEXT_0 = null;
+            //    TEXT_1 = "TRTS";
+            //    setBounds(x, y, 24, 8);
+            //    setToolTipText(SIGNAL_DESCRIPTION + " (" + Arrays.deepToString(DATA_ID).replaceAll("[\\[\\]]", "") + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
+            //    break;
 
             case TRACK_CIRCUIT:
                 int widthTC  = TEXT_0 == null ? 16 : (int) Long.parseLong(TEXT_0);
                 int heightTC = TEXT_1 == null ? 8  : (int) Long.parseLong(TEXT_1);
                 setBounds(x, y, widthTC, heightTC);
-                setToolTipText(SIGNAL_DESCRIPTION + " (" + DATA_ID + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
+                setToolTipText(SIGNAL_DESCRIPTION + " (" + Arrays.deepToString(DATA_ID).replaceAll("[\\[\\]]", "") + ") [" + TEXT_0 + "/" + TEXT_1 + "]");
                 break;
 
             case POST_NONE:
@@ -164,7 +168,7 @@ public class Signal extends JComponent
 
             currentState = state;
 
-            setForeground(currentState == STATE_0 ? (isSubs ? COLOUR_STATE_BLANK : COLOUR_STATE_ON) : (currentState == STATE_1 ? (isShunt || isSubs ? Color.WHITE : COLOUR_STATE_OFF) : (currentState == STATE_UNKNOWN ? COLOUR_STATE_UNKNOWN : COLOUR_STATE_BLANK)));
+            setForeground(isAuto ? COLOUR_STATE_AUTO : (currentState == STATE_0 ? (isSubs ? COLOUR_STATE_AUTO : COLOUR_STATE_ON) : (isShunt || isSubs ? Color.WHITE : COLOUR_STATE_OFF)));
         }
 
         setVisible(true);
@@ -180,6 +184,11 @@ public class Signal extends JComponent
     {
         return SIGNAL_TYPE;
     }
+    
+    public String[] getIDs()
+    {
+        return DATA_ID;
+    }
 
     @Override
     public void setOpaque(boolean b) { super.setOpaque(false); }
@@ -187,19 +196,18 @@ public class Signal extends JComponent
     @Override
     protected void paintComponent(Graphics g)
     {
-        if (SIGNAL_TYPE == SignalType.HIDDEN) //&& ScreencapManager.isScreencapping)
+        if (SIGNAL_TYPE == SignalType.HIDDEN)
             return;
 
-        if (EastAngliaMapClient.signalsVisible) //|| ScreencapManager.isScreencapping)
+        if (EastAngliaMapClient.signalsVisible)
         {
             Graphics2D g2d = (Graphics2D) g.create();
 
             if (SIGNAL_TYPE != SignalType.TEXT)
             {
-                Color c = g2d.getColor();
                 g2d.setColor(COLOUR_BACKGROUND);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
-                g2d.setColor(c);
+                g2d.setColor(isAuto ? COLOUR_STATE_AUTO : (currentState == STATE_0 ? (isSubs ? COLOUR_STATE_AUTO : COLOUR_STATE_ON) : (isShunt || isSubs ? Color.WHITE : COLOUR_STATE_OFF)));
             }
 
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
@@ -243,13 +251,13 @@ public class Signal extends JComponent
 
                     break;
 
-                case TRTS:
-                    g2d.setColor(currentState == STATE_1 ? EastAngliaMapClient.GREEN : new Color(20, 20, 20));
-                    g2d.drawString("TRTS", 0, 8);
-                    break;
+                //case TRTS:
+                //    g2d.setColor(currentState == STATE_1 ? EastAngliaMapClient.GREEN : new Color(20, 20, 20));
+                //    g2d.drawString("TRTS", 0, 8);
+                //    break;
 
                 case TRACK_CIRCUIT:
-                    g2d.setColor(currentState == STATE_0 ? COLOUR_STATE_ON : COLOUR_STATE_UNKNOWN);
+                    g2d.setColor(currentState == STATE_0 ? COLOUR_STATE_ON : COLOUR_STATE_AUTO);
                     g2d.fillRect(0, 0, getWidth(), getHeight());
                     break;
 
@@ -302,7 +310,7 @@ public class Signal extends JComponent
     {
         if (isShunt || isSubs)
         {
-            if (currentState == STATE_BLANK)
+            if (isAuto)
             {
                 switch (SIGNAL_TYPE)
                 {
@@ -447,7 +455,7 @@ public class Signal extends JComponent
         }
         else
         {
-            if (currentState == STATE_BLANK)
+            if (isAuto)
             {
                 g2d.drawLine(x+2, y,   x+5, y);
                 g2d.drawLine(x,   y+2, x,   y+5);

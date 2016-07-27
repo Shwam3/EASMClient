@@ -1,9 +1,11 @@
 package eastangliamapclient;
 
-import eastangliamapclient.json.JSONParser;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONObject;
 
 public class EASMWebSocket extends WebSocketClient
 {
@@ -22,14 +24,20 @@ public class EASMWebSocket extends WebSocketClient
     @Override
     public void onMessage(String jsonMessage)
     {
-        Map<String, Object> message = (Map<String, Object>) ((Map<String, Object>) JSONParser.parseJSON(jsonMessage)).get("Message");
+        JSONObject message = new JSONObject(jsonMessage).getJSONObject("Message");
 
         TimeoutHandler.lastMessageTime = System.currentTimeMillis();
 
-        switch (MessageType.getType(String.valueOf(message.get("type"))))
+        switch (MessageType.getType(message.getString("type")))
         {
             case SEND_ALL:
-                Map<String, String> fullMap = (Map<String, String>) message.get("message");
+                Map<String, String> fullMap = new HashMap<>();
+                JSONObject fullMsg = message.getJSONObject("message");
+                for (Iterator<String> iterator = fullMsg.keys(); iterator.hasNext();)
+                {
+                    String next = iterator.next();
+                    fullMap.put(next, fullMsg.getString(next));
+                }
                 EastAngliaMapClient.DataMap.putAll(fullMap);
                 EastAngliaMapClient.printOut("[WebSocket] Received full map (" + fullMap.size() + ")");
 
@@ -40,7 +48,13 @@ public class EASMWebSocket extends WebSocketClient
                 break;
 
             case SEND_UPDATE:
-                Map<String, String> updateMap = (Map<String, String>) message.get("message");
+                Map<String, String> updateMap = new HashMap<>();
+                JSONObject updateMsg = message.getJSONObject("message");
+                for (Iterator<String> iterator = updateMsg.keys(); iterator.hasNext();)
+                {
+                    String next = iterator.next();
+                    updateMap.put(next, updateMsg.getString(next));
+                }
                 EastAngliaMapClient.printOut("[WebSocket] Received update map (" + updateMap.size() + ")");
                 EastAngliaMapClient.DataMap.putAll(updateMap);
 

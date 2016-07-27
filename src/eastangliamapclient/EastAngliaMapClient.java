@@ -184,7 +184,7 @@ public class EastAngliaMapClient
     {
         long time = System.currentTimeMillis();
 
-        if (time - lastReconnectAttempt > 5000 && (time - TimeoutHandler.getLastMessageTime() > 30000 && !requireManualConnect || force))
+        if (time - lastReconnectAttempt > 5000 && (time - TimeoutHandler.getLastMessageTime() > 30000 && (!requireManualConnect || force)))
         {
             lastReconnectAttempt = time;
             requireManualConnect = false;

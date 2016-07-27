@@ -55,6 +55,8 @@ public class SignalMapReplayController
 
         EastAngliaMapClient.disconnectReason = "Using replay function";
         EastAngliaMapClient.requireManualConnect = true;
+        if (EastAngliaMapClient.serverSocket != null)
+            EastAngliaMapClient.serverSocket.close();
 
         EastAngliaMapClient.DataMap.clear();
 
